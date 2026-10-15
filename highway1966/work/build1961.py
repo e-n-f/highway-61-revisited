@@ -2,7 +2,7 @@
 lowercase and punctuation taken over from the matching Highway Even 1966 font.  Writes an OTF (cubic arcs,
 fractional coordinates) and a TTF (quadratic, integer coordinates).
 
-usage: python3 build1961.py [series]      (only E is constructed so far)
+usage: python3 build1961.py [series]      (E and D are constructed so far)
 """
 import sys, os
 from fontTools.ttLib import TTFont
@@ -22,7 +22,7 @@ NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited %s' % S
 PS = 'Highway61Revisited-%s' % S
 
-geoms = vgeom.install()
+geoms = vgeom.series(S)
 order = BASE.getGlyphOrder()
 gs = BASE.getGlyphSet()
 hmtx = BASE['hmtx']

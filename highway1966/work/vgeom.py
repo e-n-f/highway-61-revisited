@@ -103,6 +103,20 @@ def vpoly_mask(g, poly):
     return Region(Polygon([tuple(map(float, p)) for p in poly]).buffer(0))
 
 
+def fuse(geom):
+    """fuse pieces that meet along shared radii / tangent points but are split by float noise"""
+    return geom.buffer(1e-6, join_style='mitre').buffer(-1e-6, join_style='mitre')
+
+
+def series(S):
+    """{char: fused shapely geometry} for a constructed series"""
+    if S == 'E':
+        return install()
+    import importlib
+    reg = importlib.import_module('series%s1961' % S).REG
+    return {ch: fuse(fn()) for ch, fn in reg.items()}
+
+
 def install():
     """patch the construction modules to use the vector back end; returns REG of char -> shapely geometry"""
     import dim1961 as p5, dimE1 as e1, dimE2 as e2, dimE3 as e3, dimE4 as e4, dimE6 as e6
@@ -137,6 +151,5 @@ def install():
     for ch, fn in REG.items():
         r = fn()
         geom = r[0] if isinstance(r[0], (Polygon, MultiPolygon)) else r[0][0]
-        # fuse pieces that meet along shared radii / tangent points but are split by float noise
-        out[ch] = geom.buffer(1e-6, join_style='mitre').buffer(-1e-6, join_style='mitre')
+        out[ch] = fuse(geom)
     return out

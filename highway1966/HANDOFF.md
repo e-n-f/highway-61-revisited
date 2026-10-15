@@ -98,9 +98,38 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
     x = B−V) can't be tangent to equal side arcs at x = 0 and x = B.
   Inner arcs stay concentric, so the stroke stays A.
 
+### Series D — complete (Claude Code session 2026-10-15)
+- `dimD1.py`..`dimD6.py` (pages 141 146 152 160 166 173), written directly against the vector grid (`vgeom.VGrid`);
+  `seriesD1961.py` registry; `vgeom.series('D')`; `build1961.py D` → `outputs/Highway61Revisited-D.otf/.ttf`;
+  `specimen1961.py D` → `outputs/specimen-1961-D.png`. Tables read for the 8, 12 and 18-inch rows; `dimtab.check`
+  finds no row disagreements. Dimensions taken from the 18-inch row.
+- `scanfit.py`: fits a construction onto its 1961 drawing (the pages draw outlines) and reports the distance from the
+  construction to the drawn lines in font units, with an overlay. Every Series D glyph: p95 ≤ 3.3 units (most ≤ 1.2).
+  Series E calibration: p95 ≈ 1.2. Use it for the remaining series; letter boxes on the page are in pixels.
+- Constructions that differ from Series E, confirmed by the table and the scan:
+  - B: outer bowls H and I both centred on x = D−F−H = D−I, tangent to the cap line/baseline; they cross at the crotch
+    (G). Counter arcs K, J are level with those centres, which makes them tangent to the middle bar exactly; they meet
+    the top/bottom bars at an angle, as drawn.
+  - C: upper arc N and lower arc O differ. G: big arc C = the letter height. O/0 (same dimensions): side arcs 690.
+  - S: top arc C and upper bowl D share a centre height (touch on the left); lower bowl C and bottom arc E share a
+    centre x (touch at the bottom). Lower tip at x=1.3.
+  - 2: spine N centred on the baseline at x=N; bowl P touches the right side, externally tangent to the spine (centre
+    height 487.3, drawing ≈489); M, L by tangency, terminal at the left edge O below the overshoot line.
+  - 3: notch where bowls S and T cross = 376.7 vs table X 377.3; inner arc V level with T's centre, tangent to T−A and
+    to the bar; fillet K above the bar (label read as K).
+  - 4: diagonal and crossbar I (97) thick, not A. 1: flag arc I.
+  - 6: four-centre oval bowl (B × O) with a tail arc K centred on its centre line; 9 = 6 rotated.
+  - 7: stem ring centred on the baseline (computed centre y 0.9). 8: two four-centre ovals, the upper one's side arcs
+    S centred above its top arc's centre, the lower one's side arcs R below its bottom arc's centre; notch
+    (381.8, 378.2) vs table (382.1, 377.3).
+  - W: the steep inner strokes poked 14 units past the feet; the letter is clipped to the outer strokes' edges.
+- Decisions taken by analogy with Series E (to confirm): G's jaw at the lower arc's right edge (460.8; B = 463.6 is
+  nominal); O/Q/0 top/bottom arcs refitted for tangency 220.4 → 223.4; 6/9 side arcs 198.9 → 195.9; 5's lower
+  terminal tip on the left edge (y 23.4 vs the table's I above the overshoot line, 27.6).
+
 ### Next steps
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
-2. Do Series A, B, C, D, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
+2. Do Series A, B, C, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
    overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.

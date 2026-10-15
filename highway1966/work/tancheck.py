@@ -6,7 +6,8 @@ def tan(s, end):
         p = s[2] if end else s[1]; r = p - s[3]; d = np.array([-r[1], r[0]]) * np.sign(s[5])
     return d / np.linalg.norm(d)
 if __name__ == '__main__':
-    V = vgeom.install()
+    import sys
+    V = vgeom.series(sys.argv[1] if len(sys.argv) > 1 else 'E')
     for ch, g in V.items():
         for segs in outline.contours(g):
             for i in range(len(segs)):
