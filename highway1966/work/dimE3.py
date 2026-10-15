@@ -42,7 +42,10 @@ def letter_N():
     stems&=~(below&(g.X>D/2))                            # the diagonal runs straight to (D-F, 0), trimming the right stem's foot
     return g.bitmap(stems|diag)
 def _O(g):
-    W,G,H=DIM['G'],DIM['G'],DIM['H']
+    W,G=DIM['G'],DIM['G']
+    # top/bottom arcs are connecting arcs: the table's H crosses the side arcs (0.44 units over, a 2.3 degree kink);
+    # refitted to be tangent with the top kept on the overshoot line (274.3 for 274.9, within the table's 1/16 inch)
+    dx=W/2; h=TOP-CAP/2; H=(G*G-dx*dx-h*h)/(2*(G-h))
     cl=np.array([G,CAP/2]); cr=np.array([W-G,CAP/2]); cu=np.array([W/2,TOP-H]); cd=np.array([W/2,BOT+H])
     def area(rs,rt):
         lens=g.disk(cl,rs)&g.disk(cr,rs)

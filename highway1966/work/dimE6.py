@@ -55,8 +55,12 @@ def oval(ct,rt,cl,rl,cb,rb,cr,rr):
 def bowl6(g):
     B,L,N=DIM['B'],DIM['L'],DIM['N']; V=DIM['V']
     xc=B-V; yt=BOT+L; ym=(yt+BOT)/2                     # bowl: top at L above the bottom overshoot line
-    ct=np.array([xc,BOT]); cb=np.array([xc,yt]); cl=np.array([N,ym]); cr=np.array([B-N,ym])
-    out=poly_mask(g,oval(ct,L,cl,N,cb,L,cr,N)); inn=poly_mask(g,oval(ct,L-A,cl,N-A,cb,L-A,cr,N-A))
+    ct=np.array([xc,BOT]); cb=np.array([xc,yt])
+    # side arcs are connecting arcs: radius N does not quite meet the off-centre L arcs (3 units short on the right,
+    # 0.8 over on the left), so each is refitted to touch its side (x=0, x=B) at height ym and be tangent to L
+    def side(a): return (0.75*L*L-a*a)/(2*(L-a))         # a = distance from the L centres to the side
+    rl,rr=side(xc),side(B-xc); cl=np.array([rl,ym]); cr=np.array([B-rr,ym])
+    out=poly_mask(g,oval(ct,L,cl,rl,cb,L,cr,rr)); inn=poly_mask(g,oval(ct,L-A,cl,rl-A,cb,L-A,cr,rr-A))
     return out,inn
 def fig6():
     g=Grid(); B,L,M=DIM['B'],DIM['L'],DIM['M']
@@ -77,7 +81,11 @@ def fig9():
     return (out,xl,base),info
 def fig0():
     g=Grid(); U,B,V=DIM['U'],DIM['B'],DIM['V']
-    cl=np.array([B,CAP/2]); cr=np.array([U-B,CAP/2]); ct=np.array([U/2,TOP-V]); cb=np.array([U/2,BOT+V])
+    cl=np.array([B,CAP/2]); cr=np.array([U-B,CAP/2])
+    # top/bottom are connecting arcs: radius V misses tangency with the side arcs B by 2.5 units, so the radius is
+    # refitted with the top kept on the overshoot line, centred on U/2, tangent to the side arcs
+    dx=U/2-B; h=TOP-CAP/2; V=(B*B-dx*dx-h*h)/(2*(B-h))
+    ct=np.array([U/2,TOP-V]); cb=np.array([U/2,BOT+V])
     out=poly_mask(g,oval(ct,V,cl,B,cb,V,cr,B)); inn=poly_mask(g,oval(ct,V-A,cl,B-A,cb,V-A,cr,B-A))
     return g.bitmap(out&~inn)
 def fig8():

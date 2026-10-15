@@ -79,9 +79,28 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
   This removed the 9's notch; the 6 now sits ~15 units inside the 1966 tracing on its upper left (open question:
   alternative is radius L, tangent, tail 12–16 units wider than B).
 
+### Exact outlines and the 1961 Series E font (done, Claude Code session 2026-10-15)
+- `vgeom.py`: vector back end. `VGrid` has the raster `Grid`'s interface, but `g.X`/`g.Y` are linear expressions whose
+  comparisons give half-planes, and disks/sectors/polygons are shapely regions combined with & | ~. `install()` patches
+  dim1961/dimE1–6 to use it and returns {char: shapely geometry} (K and 9 re-expressed: K's sign-test band as a strip,
+  9 as the 6 rotated). The construction code itself is unchanged and still produces the bitmaps (`seriesE1961.pkl`).
+- `outline.py`: recovers lines and circular arcs from the polygon vertices (concyclic runs of short chords), draws arcs
+  as cubic Béziers of ≤45° each. Max deviation from the exact construction 0.012 units.
+- `tancheck.py`: lists joins that aren't tangent (arc pairs by their centre/radius gap, others by angle). Clean now.
+- `build1961.py E` → `outputs/Highway1961-E.otf` (cubic, fractional coordinates: the exact version) and `.ttf`
+  (quadratic, integer). Capitals and figures from the constructions, keeping the 1966 E glyphs' side bearings; lowercase
+  and punctuation copied from `HighwayEven1966-E.ttf`. `specimen1961.py E` → `outputs/specimen-1961-E.png`.
+- Tangency fixes, found once the outlines were exact (the raster hid them). Following the 1961 note that shorter
+  connecting arcs were fitted afterwards, the shorter arc was refitted and the extreme point the table fixes was kept:
+  - O/Q (`dimE3._O`): top/bottom radius H 274.9 → 274.3 (the table's H crossed the side arcs with a 2.3° kink).
+  - 0 (`dimE6.fig0`): top/bottom radius V 269.5 → 273.1 (missed the side arcs by 2.5 units).
+  - 6/9 (`dimE6.bowl6`): bowl side arcs N 194.1 → 192.7 (left), 198.6 (right); the off-centre L arcs (centred at
+    x = B−V) can't be tangent to equal side arcs at x = 0 and x = B.
+  Inner arcs stay concentric, so the stroke stays A.
+
 ### Next steps
-1. Convert the Series E constructions from bitmaps to exact outlines (lines + arcs → quadratic/cubic contours) and
-   build a 1961 Series E capitals+figures font (optionally merged with the constructed lowercase).
+1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
+   they give spacing.
 2. Do Series A, B, C, D, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
    overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.
