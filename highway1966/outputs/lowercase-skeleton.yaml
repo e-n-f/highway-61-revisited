@@ -1,0 +1,1159 @@
+about:
+  units: font units (1000/em); x measured from the left edge of the 1966 letter, y measured up from the baseline
+  metrics:
+    x_height: 525
+    cap_height: 690
+    ascender: 700
+    descender_approx: -260
+  full_weight_stroke_TM: 140
+  how_widths_are_made: x positions of centre lines are multiplied by f; strokes are drawn at width T; heights stay as drawn; pen profiles are
+    scaled by T/140 (or so the stroke joining a stem equals T)
+  pen_profile_format: '[angle around the inner ellipse in degrees (0 = right, 90 = top), thickness out to the outer edge]'
+series:
+  B:
+    width_factor_f: 0.542
+    stroke_T: 82
+    spacing_delta_per_side:
+      lc: -17.2
+      uc: 11.1
+      fig: 4.9
+  C:
+    width_factor_f: 0.78
+    stroke_T: 102
+    spacing_delta_per_side:
+      lc: -17.8
+      uc: 6.4
+      fig: 4.3
+  D:
+    width_factor_f: 0.89
+    stroke_T: 110
+    spacing_delta_per_side:
+      lc: -11.2
+      uc: 1.2
+      fig: 10.9
+  F:
+    width_factor_f: 1.1
+    stroke_T: 132
+    spacing_delta_per_side:
+      lc: 3.6
+      uc: 11.3
+      fig: 12.2
+  E:
+    width_factor_f: 1.0
+    stroke_T: 123
+    spacing_delta_per_side:
+      lc: -30.7
+      uc: 7.5
+      fig: 6.5
+  E(M):
+    width_factor_f: 1.0
+    stroke_T: 140
+    spacing_delta_per_side:
+      lc: 36.9
+      uc: 1.6
+      fig: 6.8
+letters:
+  a:
+    construction: bowl = inner ellipse + pen profile; top arc = inside TOP, outside BIG and outside TOP_INNER; stem on the right
+    bowl_outer_ellipse:
+      cx: 198.9
+      cy: 180.0
+      rx: 200.5
+      ry: 179.5
+    bowl_inner_ellipse:
+      cx: 221.0
+      cy: 185.7
+      rx: 88.6
+      ry: 63.2
+    bowl_pen_profile:
+    - - 0.0
+      - 89.7
+    - - 15.0
+      - 89.4
+    - - 30.0
+      - 91.7
+    - - 45.0
+      - 95.6
+    - - 60.0
+      - 100.2
+    - - 75.0
+      - 104.9
+    - - 90.0
+      - 109.4
+    - - 105.0
+      - 113.6
+    - - 120.0
+      - 117.5
+    - - 135.0
+      - 121.5
+    - - 150.0
+      - 125.9
+    - - 165.0
+      - 130.4
+    - - 180.0
+      - 133.9
+    - - 195.0
+      - 134.9
+    - - 210.0
+      - 133.6
+    - - 225.0
+      - 131.3
+    - - 240.0
+      - 128.5
+    - - 255.0
+      - 125.1
+    - - 270.0
+      - 120.9
+    - - 285.0
+      - 116.0
+    - - 300.0
+      - 110.3
+    - - 315.0
+      - 104.2
+    - - 330.0
+      - 98.1
+    - - 345.0
+      - 92.9
+    arc_top_ellipse:
+      cx: 217.2
+      cy: 352.5
+      rx: 221.9
+      ry: 188.9
+    arc_big_ellipse:
+      cx: 217.5
+      cy: 160.2
+      rx: 216.5
+      ry: 253.0
+    arc_top_inner_ellipse:
+      cx: 227.0
+      cy: 351.7
+      rx: 79.6
+      ry: 52.8
+    stem:
+      left: 301.0
+      right: 434.0
+      centre: 367.5
+    arc_terminal:
+      x: 67.4
+      y: 427.5
+      angle_deg: -62.9
+    note: arc ellipses come from your screenshot markup (converted to font units)
+  b:
+    construction: bowl = inner ellipse + outward pen (thickness profile) ; stem rectangle with slanted ascender cut
+    bowl_outer_ellipse:
+      cx: 248.5
+      cy: 265.6
+      rx: 203.2
+      ry: 268.4
+    bowl_inner_ellipse:
+      cx: 215.2
+      cy: 263.6
+      rx: 93.1
+      ry: 130.2
+    pen_profile_deg_thickness:
+    - - 0.0
+      - 143.4
+    - - 15.0
+      - 144.2
+    - - 30.0
+      - 146.0
+    - - 45.0
+      - 148.4
+    - - 60.0
+      - 150.3
+    - - 75.0
+      - 148.1
+    - - 90.0
+      - 136.6
+    - - 105.0
+      - 118.3
+    - - 120.0
+      - 101.6
+    - - 135.0
+      - 89.9
+    - - 150.0
+      - 82.5
+    - - 165.0
+      - 78.3
+    - - 180.0
+      - 76.8
+    - - 195.0
+      - 77.8
+    - - 210.0
+      - 81.4
+    - - 225.0
+      - 88.2
+    - - 240.0
+      - 99.1
+    - - 255.0
+      - 114.9
+    - - 270.0
+      - 132.6
+    - - 285.0
+      - 144.2
+    - - 300.0
+      - 147.2
+    - - 315.0
+      - 146.1
+    - - 330.0
+      - 144.5
+    - - 345.0
+      - 143.5
+    stem:
+      left: 1.0
+      right: 141.0
+      centre: 71.0
+    stem_cut:
+      x: 68.1
+      y: 673.0
+      angle_deg: 21.1
+    stem_square_end_y: 0
+  c:
+    construction: inner ellipse + pen profile; opening between the two terminal cuts
+    outer_ellipse:
+      cx: 232.5
+      cy: 268.9
+      rx: 234.9
+      ry: 266.4
+    inner_ellipse:
+      cx: 234.3
+      cy: 268.0
+      rx: 101.1
+      ry: 142.7
+    pen_profile:
+    - - 0.0
+      - 131.9
+    - - 15.0
+      - 131.5
+    - - 30.0
+      - 130.1
+    - - 45.0
+      - 128.1
+    - - 60.0
+      - 126.0
+    - - 75.0
+      - 124.7
+    - - 90.0
+      - 124.6
+    - - 105.0
+      - 125.9
+    - - 120.0
+      - 128.2
+    - - 135.0
+      - 131.0
+    - - 150.0
+      - 133.4
+    - - 165.0
+      - 135.1
+    - - 180.0
+      - 135.6
+    - - 195.0
+      - 134.7
+    - - 210.0
+      - 132.7
+    - - 225.0
+      - 129.9
+    - - 240.0
+      - 126.8
+    - - 255.0
+      - 124.2
+    - - 270.0
+      - 122.8
+    - - 285.0
+      - 123.0
+    - - 300.0
+      - 124.6
+    - - 315.0
+      - 127.0
+    - - 330.0
+      - 129.4
+    - - 345.0
+      - 131.2
+    terminals:
+    - x: 394.1
+      y: 152.0
+      angle_deg: -48.6
+    - x: 391.6
+      y: 379.4
+      angle_deg: 47.7
+  d:
+    construction: bowl = inner ellipse + outward pen (thickness profile) ; stem rectangle with slanted ascender cut
+    bowl_outer_ellipse:
+      cx: 199.5
+      cy: 264.4
+      rx: 201.8
+      ry: 266.0
+    bowl_inner_ellipse:
+      cx: 229.6
+      cy: 265.0
+      rx: 89.2
+      ry: 128.0
+    pen_profile_deg_thickness:
+    - - 0.0
+      - 82.4
+    - - 15.0
+      - 83.4
+    - - 30.0
+      - 86.8
+    - - 45.0
+      - 93.0
+    - - 60.0
+      - 103.1
+    - - 75.0
+      - 117.9
+    - - 90.0
+      - 134.4
+    - - 105.0
+      - 144.7
+    - - 120.0
+      - 146.8
+    - - 135.0
+      - 145.5
+    - - 150.0
+      - 143.9
+    - - 165.0
+      - 142.9
+    - - 180.0
+      - 142.6
+    - - 195.0
+      - 143.1
+    - - 210.0
+      - 144.4
+    - - 225.0
+      - 146.2
+    - - 240.0
+      - 147.8
+    - - 255.0
+      - 145.9
+    - - 270.0
+      - 135.6
+    - - 285.0
+      - 118.9
+    - - 300.0
+      - 103.9
+    - - 315.0
+      - 93.5
+    - - 330.0
+      - 87.1
+    - - 345.0
+      - 83.6
+    stem:
+      left: 298.0
+      right: 433.0
+      centre: 365.5
+    stem_cut:
+      x: 365.4
+      y: 671.5
+      angle_deg: 21.5
+    stem_square_end_y: 0
+  e:
+    construction: top half and bottom half from two different ellipse pairs (inner + pen profile); crossbar; aperture cut
+    top_outer_ellipse:
+      cx: 230.3
+      cy: 288.8
+      rx: 225.5
+      ry: 245.1
+    top_inner_ellipse:
+      cx: 228.8
+      cy: 318.1
+      rx: 76.8
+      ry: 93.1
+    bottom_outer_ellipse:
+      cx: 234.3
+      cy: 227.1
+      rx: 232.0
+      ry: 229.0
+    bottom_inner_ellipse:
+      cx: 236.0
+      cy: 227.1
+      rx: 88.8
+      ry: 101.3
+    top_pen_profile:
+    - - 0.0
+      - 148.5
+    - - 15.0
+      - 142.4
+    - - 30.0
+      - 136.7
+    - - 45.0
+      - 131.5
+    - - 60.0
+      - 127.2
+    - - 75.0
+      - 124.1
+    - - 90.0
+      - 122.8
+    - - 105.0
+      - 123.3
+    - - 120.0
+      - 125.6
+    - - 135.0
+      - 129.3
+    - - 150.0
+      - 134.1
+    - - 165.0
+      - 139.6
+    - - 180.0
+      - 145.5
+    - - 195.0
+      - 151.9
+    - - 210.0
+      - 158.7
+    - - 225.0
+      - 165.9
+    - - 240.0
+      - 172.9
+    - - 255.0
+      - 178.7
+    - - 270.0
+      - 181.3
+    - - 285.0
+      - 179.8
+    - - 300.0
+      - 174.8
+    - - 315.0
+      - 168.4
+    - - 330.0
+      - 161.6
+    - - 345.0
+      - 154.9
+    bottom_pen_profile:
+    - - 0.0
+      - 141.5
+    - - 15.0
+      - 140.6
+    - - 30.0
+      - 138.0
+    - - 45.0
+      - 134.5
+    - - 60.0
+      - 130.9
+    - - 75.0
+      - 128.3
+    - - 90.0
+      - 127.6
+    - - 105.0
+      - 129.2
+    - - 120.0
+      - 132.7
+    - - 135.0
+      - 137.0
+    - - 150.0
+      - 141.1
+    - - 165.0
+      - 144.0
+    - - 180.0
+      - 145.0
+    - - 195.0
+      - 144.0
+    - - 210.0
+      - 141.1
+    - - 225.0
+      - 137.0
+    - - 240.0
+      - 132.7
+    - - 255.0
+      - 129.2
+    - - 270.0
+      - 127.6
+    - - 285.0
+      - 128.3
+    - - 300.0
+      - 130.9
+    - - 315.0
+      - 134.5
+    - - 330.0
+      - 138.0
+    - - 345.0
+      - 140.6
+    crossbar_bottom_y: 223.0
+    crossbar_top_y: 337.5
+    aperture_terminal:
+      x: 366.7
+      y: 121.1
+      angle_deg: -36.9
+  f:
+    construction: stem + crossbar; hook inside OUTER, outside INNER, ending at the crossbar end
+    stem:
+      left: 60.0
+      right: 194.0
+      centre: 127.0
+    crossbar:
+      x0: 1.0
+      x1: 279.0
+      top_y: 525
+      thickness_at_full_weight: 141
+    outer_ellipse:
+      cx: 215.8
+      cy: 598.0
+      rx: 155.8
+      ry: 104.0
+    inner_ellipse:
+      cx: 245.9
+      cy: 537.9
+      rx: 51.9
+      ry: 42.7
+  g:
+    construction: bowl = the q bowl; stem; tail = inner ellipse (0.81x outer, touching it at upper left) + pen profile; terminal cut
+    bowl: same as q, moved to the g stem
+    stem:
+      left: 303.0
+      right: 439.0
+      centre: 371.0
+    tail_outer_ellipse:
+      cx: 95.9
+      cy: -19.6
+      rx: 342.5
+      ry: 259.0
+    tail_inner_ellipse:
+      cx: 30.5
+      cy: 31.0
+      rx: 277.0
+      ry: 208.4
+    tail_inner_scale:
+    - 0.809
+    - 0.805
+    tail_pen_profile:
+    - - 0.0
+      - 124.3
+    - - 15.0
+      - 94.6
+    - - 30.0
+      - 65.2
+    - - 45.0
+      - 41.2
+    - - 60.0
+      - 22.2
+    - - 75.0
+      - 7.2
+    - - 90.0
+      - -4.8
+    - - 105.0
+      - -13.9
+    - - 120.0
+      - -20.3
+    - - 135.0
+      - -23.5
+    - - 150.0
+      - -22.8
+    - - 165.0
+      - -17.4
+    - - 180.0
+      - -6.6
+    - - 195.0
+      - 9.9
+    - - 210.0
+      - 29.9
+    - - 225.0
+      - 49.6
+    - - 240.0
+      - 67.1
+    - - 255.0
+      - 82.5
+    - - 270.0
+      - 96.5
+    - - 285.0
+      - 109.6
+    - - 300.0
+      - 122.3
+    - - 315.0
+      - 134.2
+    - - 330.0
+      - 142.8
+    - - 345.0
+      - 141.9
+    tail_terminal:
+      x: 195.1
+      y: -201.7
+      angle_deg: -66.8
+  h:
+    construction: as n, with ascender stem
+    stems:
+    - left: 1.0
+      right: 143.0
+      centre: 72.0
+    - left: 306.0
+      right: 447.0
+      centre: 376.5
+    arch:
+      outer_ellipse:
+        cx: 251.6
+        cy: 339.8
+        rx: 191.8
+        ry: 187.3
+      inner_ellipse:
+        cx: 223.2
+        cy: 292.6
+        rx: 84.3
+        ry: 93.2
+      pen_profile:
+      - - 0.0
+        - 129.8
+      - - 15.0
+        - 142.5
+      - - 30.0
+        - 150.8
+      - - 45.0
+        - 154.1
+      - - 60.0
+        - 152.6
+      - - 75.0
+        - 147.3
+      - - 90.0
+        - 139.2
+      - - 105.0
+        - 129.4
+      - - 120.0
+        - 118.7
+      - - 135.0
+        - 107.5
+      - - 150.0
+        - 96.0
+      - - 165.0
+        - 84.4
+      - - 180.0
+        - 73.0
+      - - 195.0
+        - 62.4
+      - - 210.0
+        - 53.3
+      - - 225.0
+        - 46.4
+      - - 240.0
+        - 42.4
+      - - 255.0
+        - 41.8
+      - - 270.0
+        - 44.9
+      - - 285.0
+        - 52.1
+      - - 300.0
+        - 63.5
+      - - 315.0
+        - 78.5
+      - - 330.0
+        - 95.9
+      - - 345.0
+        - 113.7
+    ascender_cut:
+      x: 68.5
+      y: 662.7
+      angle_deg: 21.0
+  i:
+    construction: stem 0..525 + round dot
+    stem:
+      left: 2.0
+      right: 136.0
+      centre: 69.0
+  j:
+    construction: stem + lower-right part of the p bowl ring (two ellipses), vertical cut at the left; round dot
+    stem:
+      left: 114.0
+      right: 250.0
+      centre: 182.0
+    ring: p bowl (outer/inner ellipses of p), right extreme on the j stem centre, bottom on the j bottom
+    offset_fitted:
+    - 4.0
+    - 2.0
+  k:
+    construction: straight strokes of width T along these centre lines (direction p0->p1), cut flat at the y limits
+    strokes:
+    - p0:
+      - 289.2
+      - 441.3
+      p1:
+      - 224.2
+      - 365.3
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 311.0
+      - 149.3
+      p1:
+      - 348.7
+      - 56.7
+      y_from: 0.0
+      y_to: 525.0
+    stem:
+      left: 1.0
+      right: 137.0
+      centre: 69.0
+    ascender_cut:
+      x: 68.5
+      y: 669.4
+      angle_deg: 21.7
+  l:
+    construction: stem with slanted ascender cut
+    stem:
+      left: 1.0
+      right: 131.0
+      centre: 66.0
+    ascender_cut:
+      x: 63.5
+      y: 670.9
+      angle_deg: 22.7
+  m:
+    construction: two copies of the n arch, one per pair of stems
+    stems:
+    - left: 1.0
+      right: 137.0
+      centre: 69.0
+    - left: 296.0
+      right: 436.0
+      centre: 366.0
+    - left: 589.0
+      right: 724.0
+      centre: 656.5
+    arch: same as n
+  n:
+    construction: left stem; arch = inner ellipse spanning the counter + pen profile (kept above the inner ellipse centre); right leg
+    stems:
+    - left: 1.0
+      right: 141.0
+      centre: 71.0
+    - left: 315.0
+      right: 453.0
+      centre: 384.0
+    arch:
+      outer_ellipse:
+        cx: 258.6
+        cy: 341.0
+        rx: 198.7
+        ry: 189.1
+      inner_ellipse:
+        cx: 229.9
+        cy: 324.9
+        rx: 81.6
+        ry: 67.1
+      pen_profile:
+      - - 0.0
+        - 145.0
+      - - 15.0
+        - 149.5
+      - - 30.0
+        - 151.1
+      - - 45.0
+        - 150.2
+      - - 60.0
+        - 147.2
+      - - 75.0
+        - 142.4
+      - - 90.0
+        - 136.0
+      - - 105.0
+        - 128.3
+      - - 120.0
+        - 119.6
+      - - 135.0
+        - 110.2
+      - - 150.0
+        - 101.0
+      - - 165.0
+        - 93.1
+      - - 180.0
+        - 87.6
+      - - 195.0
+        - 85.1
+      - - 210.0
+        - 85.5
+      - - 225.0
+        - 88.3
+      - - 240.0
+        - 92.7
+      - - 255.0
+        - 98.0
+      - - 270.0
+        - 103.9
+      - - 285.0
+        - 110.2
+      - - 300.0
+        - 116.7
+      - - 315.0
+        - 123.6
+      - - 330.0
+        - 131.0
+      - - 345.0
+        - 138.4
+  o:
+    construction: even brush ring (constant-width pen around an elliptical centre line)
+    outer_ellipse:
+      cx: 222.4
+      cy: 262.0
+      rx: 223.7
+      ry: 266.4
+    inner_ellipse_1966:
+      cx: 223.0
+      cy: 262.5
+      rx: 86.9
+      ry: 137.7
+  p:
+    construction: bowl = inner ellipse + outward pen (thickness profile) ; stem rectangle with slanted descender cut
+    bowl_outer_ellipse:
+      cx: 238.4
+      cy: 259.7
+      rx: 199.0
+      ry: 265.8
+    bowl_inner_ellipse:
+      cx: 211.0
+      cy: 260.3
+      rx: 88.1
+      ry: 127.8
+    pen_profile_deg_thickness:
+    - - 0.0
+      - 138.3
+    - - 15.0
+      - 138.7
+    - - 30.0
+      - 140.0
+    - - 45.0
+      - 142.1
+    - - 60.0
+      - 144.4
+    - - 75.0
+      - 143.8
+    - - 90.0
+      - 134.9
+    - - 105.0
+      - 118.9
+    - - 120.0
+      - 104.2
+    - - 135.0
+      - 94.1
+    - - 150.0
+      - 87.9
+    - - 165.0
+      - 84.6
+    - - 180.0
+      - 83.6
+    - - 195.0
+      - 84.7
+    - - 210.0
+      - 88.2
+    - - 225.0
+      - 94.6
+    - - 240.0
+      - 105.0
+    - - 255.0
+      - 119.9
+    - - 270.0
+      - 136.2
+    - - 285.0
+      - 145.1
+    - - 300.0
+      - 145.4
+    - - 315.0
+      - 142.8
+    - - 330.0
+      - 140.4
+    - - 345.0
+      - 138.9
+    stem:
+      left: 1.0
+      right: 138.0
+      centre: 69.5
+    stem_cut:
+      x: 75.2
+      y: -173.5
+      angle_deg: 19.1
+    stem_square_end_y: 525
+  q:
+    construction: bowl = inner ellipse + outward pen (thickness profile) ; stem rectangle with slanted descender cut
+    bowl_outer_ellipse:
+      cx: 200.6
+      cy: 263.1
+      rx: 203.3
+      ry: 267.1
+    bowl_inner_ellipse:
+      cx: 232.0
+      cy: 261.3
+      rx: 92.1
+      ry: 127.5
+    pen_profile_deg_thickness:
+    - - 0.0
+      - 79.7
+    - - 15.0
+      - 81.2
+    - - 30.0
+      - 85.4
+    - - 45.0
+      - 92.8
+    - - 60.0
+      - 104.5
+    - - 75.0
+      - 120.7
+    - - 90.0
+      - 138.2
+    - - 105.0
+      - 148.7
+    - - 120.0
+      - 150.2
+    - - 135.0
+      - 147.9
+    - - 150.0
+      - 145.3
+    - - 165.0
+      - 143.4
+    - - 180.0
+      - 142.6
+    - - 195.0
+      - 142.8
+    - - 210.0
+      - 144.0
+    - - 225.0
+      - 145.9
+    - - 240.0
+      - 147.4
+    - - 255.0
+      - 145.2
+    - - 270.0
+      - 134.6
+    - - 285.0
+      - 117.7
+    - - 300.0
+      - 102.2
+    - - 315.0
+      - 91.2
+    - - 330.0
+      - 84.4
+    - - 345.0
+      - 80.7
+    stem:
+      left: 303.0
+      right: 445.0
+      centre: 374.0
+    stem_cut:
+      x: 303.3
+      y: -182.3
+      angle_deg: -86.7
+    stem_square_end_y: 525
+  r:
+    construction: stem + the n arch (counter width = n stem spacing), ended by the terminal cut
+    stem:
+      left: 0.0
+      right: 135.0
+      centre: 67.5
+    arch: same as n
+    terminal:
+      x: 314.3
+      y: 424.9
+      angle_deg: 75.0
+  s:
+    construction: traced from the 1966 drawing and narrowed (not constructed)
+  t:
+    construction: stem (slanted top cut) + crossbar; tail inside BLUE, outside ORANGE; RED rounds the stem lower-left
+    stem:
+      left: 89.0
+      right: 228.0
+      centre: 158.5
+    crossbar:
+      x0: 1.0
+      x1: 350.0
+      top_y: 527
+      thickness_at_full_weight: 131
+    red_ellipse:
+      cx: 220.9
+      cy: 353.1
+      rx: 202.8
+      ry: 355.3
+    blue_ellipse:
+      cx: 229.4
+      cy: 354.5
+      rx: 268.1
+      ry: 353.8
+    orange_ellipse:
+      cx: 287.6
+      cy: 192.5
+      rx: 66.9
+      ry: 64.7
+    ascender_cut:
+      x: 158.0
+      y: 679.0
+      angle_deg: 18.8
+    tail_terminal:
+      x: 341.0
+      y: 92.1
+      angle_deg: 80.3
+  u:
+    construction: n arch construction upside down
+    stems:
+    - left: 0.0
+      right: 131.0
+      centre: 65.5
+    - left: 299.0
+      right: 434.0
+      centre: 366.5
+    bowl:
+      outer_ellipse:
+        cx: 188.9
+        cy: 174.6
+        rx: 188.2
+        ry: 174.8
+      inner_ellipse:
+        cx: 213.3
+        cy: 200.4
+        rx: 78.3
+        ry: 62.8
+      pen_profile:
+      - - 0.0
+        - 83.4
+      - - 15.0
+        - 77.9
+      - - 30.0
+        - 75.4
+      - - 45.0
+        - 75.4
+      - - 60.0
+        - 77.2
+      - - 75.0
+        - 80.5
+      - - 90.0
+        - 84.7
+      - - 105.0
+        - 89.8
+      - - 120.0
+        - 95.8
+      - - 135.0
+        - 103.1
+      - - 150.0
+        - 111.9
+      - - 165.0
+        - 122.1
+      - - 180.0
+        - 132.4
+      - - 195.0
+        - 140.5
+      - - 210.0
+        - 145.1
+      - - 225.0
+        - 146.3
+      - - 240.0
+        - 144.9
+      - - 255.0
+        - 141.4
+      - - 270.0
+        - 136.2
+      - - 285.0
+        - 129.5
+      - - 300.0
+        - 121.3
+      - - 315.0
+        - 111.8
+      - - 330.0
+        - 101.6
+      - - 345.0
+        - 91.7
+  v:
+    construction: straight strokes of width T along these centre lines (direction p0->p1), cut flat at the y limits
+    strokes:
+    - p0:
+      - 149.0
+      - 315.7
+      p1:
+      - 183.2
+      - 221.8
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 370.4
+      - 314.8
+      p1:
+      - 403.6
+      - 409.2
+      y_from: 0.0
+      y_to: 525.0
+  w:
+    construction: straight strokes of width T along these centre lines (direction p0->p1), cut flat at the y limits
+    strokes:
+    - p0:
+      - 124.5
+      - 335.4
+      p1:
+      - 151.5
+      - 239.1
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 405.2
+      - 263.2
+      p1:
+      - 431.1
+      - 166.6
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 556.7
+      - 337.7
+      p1:
+      - 584.6
+      - 433.7
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 274.3
+      - 261.4
+      p1:
+      - 301.3
+      - 357.7
+      y_from: 0.0
+      y_to: 525.0
+    join_trim:
+      amount_fraction_of_T: 0.16
+      over_height: 230
+      note: outer edge pulled in at the bottoms and centre top
+  x:
+    construction: straight strokes of width T along these centre lines (direction p0->p1), cut flat at the y limits
+    strokes:
+    - p0:
+      - 259.5
+      - 271.6
+      p1:
+      - 314.4
+      - 355.2
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 282.1
+      - 277.3
+      p1:
+      - 336.5
+      - 193.4
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 282.5
+      - 277.5
+      p1:
+      - 335.9
+      - 192.9
+      y_from: 0.0
+      y_to: 525.0
+    - p0:
+      - 279.0
+      - 302.1
+      p1:
+      - 333.9
+      - 385.7
+      y_from: 0.0
+      y_to: 525.0
+  y:
+    construction: straight strokes of width T along these centre lines (direction p0->p1), cut flat at the y limits
+    strokes:
+    - p0:
+      - 306.4
+      - 41.0
+      p1:
+      - 340.9
+      - 134.9
+      y_from: -187.6
+      y_to: 525.0
+    - p0:
+      - 166.5
+      - 313.5
+      p1:
+      - 206.5
+      - 221.8
+      y_from: 0.0
+      y_to: 525.0
+  z:
+    construction: two bars + diagonal (perpendicular width T) starting 0.25 bar-thickness into each bar; bars cut flush with the diagonal
+    notes: bar thickness = 1966 bar thickness x T/140; x extent from the 1966 z

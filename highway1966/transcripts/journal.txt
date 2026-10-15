@@ -1,0 +1,21 @@
+
+=== Journal Entry 2026-10-10T19:23:49.265689+00:00 ===
+2026-10-10-19-23-49-fhwa-highway-narrow-1966-font.txt
+[Detailed font engineering session: creating TrueType fonts from 1966 FHWA Standard Alphabets specification sheets and photographs of two surviving narrow-lowercase highway signs in Palo Alto, CA. Includes image analysis, vectorization, font building code, series comparison overlays, and iterative refinement across multiple font variants.]
+
+
+
+
+=== Journal Entry 2026-10-14T18:31:05.926248+00:00 ===
+2026-10-14-18-31-05-highway-1966-font-family.txt
+[Font engineering session creating TrueType fonts from 1966 FHWA Standard Alphabets specification sheets. Covers hi-res scan tracing, skeleton-based width family generation, corner squaring, outline-based thinning, and iterative quality refinement across Series B–F. Includes bitmaps, overlays, specimens, and font files.]
+
+
+
+
+=== Journal Entry 2026-10-15T19:25:32.307561+00:00 ===
+2026-10-15-19-25-31-highway-1966-font-family.txt
+[Font engineering session creating TrueType/OpenType fonts from 1966 FHWA Standard Alphabets specification sheets. Covers hi-res scan tracing, skeleton-based width family generation, geometric/elliptical construction of all lowercase letters, comparison with 2000 FHWA official fonts, and iterative quality refinement across Series B–F plus E(M).]
+
+
+

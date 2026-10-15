@@ -1,0 +1,87 @@
+# Highway Gothic 1966 / 1961 font project — handoff
+
+Exported 2026-10-15 from a claude.ai session so work can continue in Claude Code.
+
+## Layout of this archive
+
+```
+work/                 every script and data file from the working directory (/home/claude/w)
+  p1961/              the 1961 "Standard Alphabets for Highway Signs" page scans (from 1961.zip)
+  ps/                 Type 1 fonts extracted from the 2000 FHWA PostScript file (.pfa)
+  *.pkl               bitmaps and parameters (glyph bitmaps are numpy uint8 arrays, 1 px = 1 font unit)
+outputs/              everything delivered so far (fonts, specimens, comparison sheets)
+transcripts/          full conversation transcripts from the claude.ai sessions (read these for decisions/history)
+```
+
+Not included (regenerable or already yours): `work/hr/` (76 MB of PNG conversions of the hi-res JP2
+scans, made by `hires.py` from the `Image063017043007_00NN.jp2` uploads) and the original uploaded scans.
+Scripts that reference `/mnt/user-data/uploads/...` or `hr/...` need those paths pointed at your copies.
+
+Font units: cap height 690, x-height 525, ascender 700, descender about -260. 1000 units/em.
+
+## Part 1 — 1966-based fonts (finished, delivered)
+
+Fonts in `outputs/`: `HighwayEven1966-{B,C,D,E,F}.ttf`, `Highway1966-EM-Constructed.ttf`
+(plus older traced references `Highway1966-E-Reference.ttf`, `Highway1966-EM.ttf`).
+Capitals/figures are traced from the 1966 sheets (`caps_*.pkl`); lowercase is geometrically constructed.
+
+Lowercase construction (dispatch in `assemble.py`, `SRC` dict):
+- `geomc2.py` o, e(old) brush ring · `geomc3.py` straight letters + Canvas · `geomc4.py` j (two-ellipse rings)
+- `geomc5.py` bowls b d p q (inner ellipse + outward pen profile; `right_to` widens only the counter)
+- `geomc6.py` c n m h r u · `geomc7.py` e · `geomc8.py` g · `geomc9.py` t f a · s is traced (`master_mk.pkl`)
+- Series parameters in `narrowmk.SER` (width factor f, stroke T): B .542/82, C .78/102, D .89/110, E 1.0/123, E(M) 1.0/140, F 1.10/132
+- Pipeline: regenerate letters into `lcE_<series>.pkl` → `buildfam.py <series>` → `fitspace.py <series>`
+  (spacing matched to the 2000 FHWA alphabet totals, deltas in `spacing_delta.json`)
+- Last changes: a's bowl outline drawn from the original (unwidened) counter so the notch at the stem shows;
+  t terminal shift reduced to (TM-T)/3 (in output units) so Series B's tail is longer.
+
+## Part 2 — 1961 dimensioned drawings (in progress)
+
+Goal: capitals and figures built exactly from the 1961 dimension tables (lines + circular arcs), for
+Series A (dropped by 1966), B, C, D, E, F.
+
+Page files `p1961/stdalphabets1961-NNN.png`: 000 cover, 008 intro text, then 6 pages per series:
+A 010 021 028 036 043 050 · B 058 066 072 079 087 095 · C 102 108 114 121 128 134 ·
+D 141 146 152 160 166 173 · E 180 186 193 201 209 216 · F 223 227 235 242 249 255.
+Page order within a series: 1 A–F, 2 G–L, 3 M–R, 4 S–X, 5 Y Z 1–4, 6 5–9 0
+(check: some series' pages may group differently).
+
+### Series E — complete (all 26 capitals + 10 figures)
+- `dim1961.py` page E-5 (Y Z 1 2 3 4) + shared `Grid` (mask raster, 1 unit/px), `raster()` for polygons
+- `dimE1.py` A–F · `dimE2.py` G–L · `dimE3.py` M–R (+ `strip`, `cross_solve` helpers) · `dimE4.py` S–X (+ `arc`, `internal_tangent`) · `dimE6.py` 5–9 0 (+ `oval` four-centre oval, `poly_mask`)
+- `seriesE1961.py` registry `REG[char]() -> (bitmap, x_left, baseline_row)`; results cached in `seriesE1961.pkl`
+- `dimcheck.py` overlays against the 1966 tracing (`caps_E.pkl`) and reports % area difference
+- Outputs: `seriesE-1961-constructed.png`, `seriesE-1961-vs-1966-overlay.png`, `pilot-1961-vs-traced.png`
+
+Each page file holds that page's table (8-inch and/or 18-inch row, inches) → font units (×690/8 or ×690/18).
+
+### Conventions learned (apply to the other series)
+- The intro (page 008): tangents, major arcs and control points first; connecting arcs of shorter radius
+  fitted afterwards — their radii/centres are approximate ("found by experiment"). Stroke uniform unless indicated.
+- Curves are circular arcs joined by tangency; most unlabelled centres follow from tangency to neighbours.
+- Overshoot (letter J or T or N on a page, about 10.8 units) above cap height / below baseline for round tops/bottoms.
+- Heights such as N, F, R, T, H on curved figures are measured from the overshoot lines, not baseline/cap height.
+- Large arcs are often centred on the opposite overshoot line (5's E/C arcs, 6/9's L arcs, 2's spine L at the baseline).
+- Recurring construction lines (e.g. x = D−O = 275.5 and x = P = 323.4 in Series E); terminals usually cut along the radius.
+- Dimension letters are per page; the same letter means different things on different pages.
+- Not every stroke is A: L's foot and T's bar use their own dimension.
+
+### Decisions made with the user (Series E)
+- 3: bar has a rectangular end at x=P extended as a rectangle to the construction line x=275.5 (no serif-like vertical).
+  Its right-side notch: arcs' natural crossing kept (R fits when measured from the overshoot line; J ~13 units off — table error).
+- 5: notch where the sloping stem foot meets the bowl's inner E−A arc; lower terminal tip on the left edge (H is ~7 units off).
+- N: diagonal's lower edge runs straight to (D−F, 0) and trims the right stem's foot.
+- K: arm's lower edge from the stem at height J to the top-right corner (O−N, cap), passing the crotch at cap−M.
+- W: Q is the height of the middle counter's apex; middle strokes rise from the bottom flats to it.
+- Q: tail rectangle F wide, from (W/2+L, BOT+K) to (W/2+O, BOT−P).
+- 6/9 (9 = 6 rotated 180°): tail made a connecting arc tangent to the bowl's N arc at the left edge, centred level
+  with the N centres, flat end on the cap line (6) / baseline (9) at M from the side → radius 492 instead of L=420.5.
+  This removed the 9's notch; the 6 now sits ~15 units inside the 1966 tracing on its upper left (open question:
+  alternative is radius L, tangent, tail 12–16 units wider than B).
+
+### Next steps
+1. Convert the Series E constructions from bitmaps to exact outlines (lines + arcs → quadratic/cubic contours) and
+   build a 1961 Series E capitals+figures font (optionally merged with the constructed lowercase).
+2. Do Series A, B, C, D, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
+   overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
+3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.
