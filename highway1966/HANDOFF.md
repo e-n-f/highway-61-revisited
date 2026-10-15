@@ -108,8 +108,9 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
   Series E calibration: p95 ≈ 1.2. Use it for the remaining series; letter boxes on the page are in pixels.
 - Constructions that differ from Series E, confirmed by the table and the scan:
   - B: outer bowls H and I both centred on x = D−F−H = D−I, tangent to the cap line/baseline; they cross at the crotch
-    (G). Counter arcs K, J are level with those centres, which makes them tangent to the middle bar exactly; they meet
-    the top/bottom bars at an angle, as drawn.
+    (G). Counter ends: arcs K, J level with those centres (which makes them tangent to the middle bar exactly), then
+    the outer arcs' offsets H−A, I−A towards the top/bottom bars (tangent to them; they share K's and J's right
+    extremes, so the joins are smooth and the stroke there is A). Corrected after review: K, J alone left corners.
   - C: upper arc N and lower arc O differ. G: big arc C = the letter height. O/0 (same dimensions): side arcs 690.
   - S: top arc C and upper bowl D share a centre height (touch on the left); lower bowl C and bottom arc E share a
     centre x (touch at the bottom). Lower tip at x=1.3.

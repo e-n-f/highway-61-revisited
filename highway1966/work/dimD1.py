@@ -28,19 +28,25 @@ def letter_A():
     return outer&~(inner&((g.Y<C)|(g.Y>C+A)))
 def letter_B():
     """outer bowls H (upper) and I (lower) centred on one vertical, tangent to the cap line and the baseline; they cross at
-    the crotch (height G).  Counters end in arcs K (upper) and J (lower), A in from the outer extremes (upper one F in)."""
+    the crotch (height G).  Counters end in arcs K (upper) and J (lower) towards the middle bar and the outer arcs' offsets H-A, I-A
+    towards the top and bottom bars, A in from the outer extremes (upper one F in)."""
     g=Grid(); D,E,F,G,H,I,J,K=[DIM[k] for k in 'DEFGHIJK']
     cu=np.array([D-F-H,CAP-H]); cl=np.array([D-I,I])
     # crotch: where the two outer circles cross
     dy=cu[1]-cl[1]; yi=cl[1]+(dy*dy+I*I-H*H)/(2*dy)
     outer=rect(g,0,cu[0],0,CAP)|(g.disk(cu,H)&(g.X>=cu[0])&(g.Y>=yi))|(g.disk(cl,I)&(g.X>=cl[0])&(g.Y<=yi))
     ut,ub=CAP-A,E+A; lt,lb=E,A
-    # counter arcs are centred level with their outer arcs' centres, which makes them tangent to the middle bar
-    # (CAP-H-K = E+A, I+J = E); they meet the top and bottom bars at a slight angle, as drawn
+    # counter ends: on the middle-bar side arcs K (upper) and J (lower), centred level with the outer arcs' centres, which
+    # makes them tangent to the middle bar (CAP-H-K = E+A, I+J = E); on the outer-bar side the outer arcs' own offsets
+    # H-A and I-A (stroke A), which are tangent to the top/bottom bars and meet K/J at their common right extreme
     ku=np.array([D-F-A-K,cu[1]]); kl=np.array([D-A-J,cl[1]])
-    cnt=(rect(g,A,ku[0],ub,ut)|(g.disk(ku,K)&(g.X>=ku[0])))&(g.Y>=ub)&(g.Y<=ut)
-    cnt|=(rect(g,A,kl[0],lb,lt)|(g.disk(kl,J)&(g.X>=kl[0])))&(g.Y>=lb)&(g.Y<=lt)
-    return outer&~cnt,{'crotch y':round(yi,1),'G':round(G,1),'centres x':(round(cu[0],1),round(cl[0],1))}
+    cnt=rect(g,A,ku[0],ub,cu[1])|(g.disk(ku,K)&(g.X>=ku[0])&(g.Y<=cu[1])&(g.Y>=ub))
+    cnt|=rect(g,A,cu[0],cu[1],ut)|(g.disk(cu,H-A)&(g.X>=cu[0])&(g.Y>=cu[1]))
+    cnt|=rect(g,A,kl[0],cl[1],lt)|(g.disk(kl,J)&(g.X>=kl[0])&(g.Y>=cl[1])&(g.Y<=lt))
+    cnt|=rect(g,A,cl[0],lb,cl[1])|(g.disk(cl,I-A)&(g.X>=cl[0])&(g.Y<=cl[1]))
+    info={'upper right extremes K / H-A':(round(ku[0]+K,2),round(cu[0]+H-A,2)),'lower J / I-A':(round(kl[0]+J,2),round(cl[0]+I-A,2)),
+          'H-A top vs CAP-A':(round(cu[1]+H-A,2),round(ut,2)),'I-A bottom vs A':(round(cl[1]-I+A,2),round(lb,2))}
+    return outer&~cnt,info
 def letter_C():
     """big arc R centred at mid-height (left side touches x=0); upper arc N and lower arc O touch the overshoot lines and
     are internally tangent to R; terminals at P below / Q above the overshoot lines, cut along the radius"""
