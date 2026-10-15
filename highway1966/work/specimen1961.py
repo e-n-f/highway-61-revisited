@@ -1,8 +1,8 @@
-"""specimen for Highway 1961 <series>: the constructed capitals/figures over the 1966 font, and running text"""
+"""specimen for Highway 61 Revisited <series>: the constructed capitals/figures over the 1966 font, and running text"""
 import sys
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
-F61 = '../outputs/Highway1961-%s.otf' % S; F66 = '../outputs/HighwayEven1966-%s.ttf' % S
+F61 = '../outputs/Highway61Revisited-%s.otf' % S; F66 = '../outputs/HighwayEven1966-%s.ttf' % S
 sz = 150
 f61 = ImageFont.truetype(F61, sz); f66 = ImageFont.truetype(F66, sz); small = ImageFont.truetype(F61, 64)
 lines = ['ABCDEFGHI', 'JKLMNOPQR', 'STUVWXYZ', '1234567890']

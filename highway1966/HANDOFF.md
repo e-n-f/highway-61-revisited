@@ -87,7 +87,7 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
 - `outline.py`: recovers lines and circular arcs from the polygon vertices (concyclic runs of short chords), draws arcs
   as cubic Béziers of ≤45° each. Max deviation from the exact construction 0.012 units.
 - `tancheck.py`: lists joins that aren't tangent (arc pairs by their centre/radius gap, others by angle). Clean now.
-- `build1961.py E` → `outputs/Highway1961-E.otf` (cubic, fractional coordinates: the exact version) and `.ttf`
+- `build1961.py E` → `outputs/Highway61Revisited-E.otf` (font "Highway 61 Revisited E", after the Dylan album) (cubic, fractional coordinates: the exact version) and `.ttf`
   (quadratic, integer). Capitals and figures from the constructions, keeping the 1966 E glyphs' side bearings; lowercase
   and punctuation copied from `HighwayEven1966-E.ttf`. `specimen1961.py E` → `outputs/specimen-1961-E.png`.
 - Tangency fixes, found once the outlines were exact (the raster hid them). Following the 1961 note that shorter

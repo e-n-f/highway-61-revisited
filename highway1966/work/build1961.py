@@ -1,4 +1,4 @@
-"""Highway 1961 <series>: capitals and figures as exact outlines from the 1961 dimensioned drawings (vgeom + outline),
+"""Highway 61 Revisited <series>: capitals and figures as exact outlines from the 1961 dimensioned drawings (vgeom + outline),
 lowercase and punctuation taken over from the matching Highway Even 1966 font.  Writes an OTF (cubic arcs,
 fractional coordinates) and a TTF (quadratic, integer coordinates).
 
@@ -19,8 +19,8 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
 BASE = TTFont(os.path.join(OUT, 'HighwayEven1966-%s.ttf' % S))
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
-FAMILY = 'Highway 1961 %s' % S
-PS = 'Highway1961-%s' % S
+FAMILY = 'Highway 61 Revisited %s' % S
+PS = 'Highway61Revisited-%s' % S
 
 geoms = vgeom.install()
 order = BASE.getGlyphOrder()
