@@ -6,11 +6,12 @@ and slanted stem ends keep their angles.  series(S) -> {letter: segment contours
 import numpy as np, lcE, strokeop
 SQ=690/8; X=6*SQ
 import importlib
-A={S:importlib.import_module('dim%s1'%S).A for S in 'BCDEF'}     # the 1961 table strokes
-F={'B':0.475,'C':0.65,'D':0.825,'E':1.0,'F':1.175}
-F_LC={'B':0.55,'C':0.82,'D':0.919,'E':1.035,'F':1.124}
+A={S:importlib.import_module('dim%s1'%S).A for S in 'ABCDEF'}     # the 1961 table strokes
+F={'A':0.450,'B':0.475,'C':0.65,'D':0.825,'E':1.0,'F':1.175}
+F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.035,'F':1.124}
                                        # lower-case width factors: the whole a-z as wide as the FHWA 2000 font's,
                                        # in cap heights (lcwidth.py); the capitals keep the 1961 factors F
+                                       # Series A (no FHWA font): B's ratio F_LC/F, 0.55/0.475, times A's 0.450
 V_EM=(1+9/16)*SQ                       # E(M) lower-case stem, the source of the constructions
 D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
@@ -49,6 +50,38 @@ def _polygon(C):
     for r in rings:
         if len(r)>2: g=g.symmetric_difference(Polygon(r).buffer(0))
     return g
+TIDY=4.0
+def _tidy(geom):
+    """opening with mitred offsets of TIDY: removes hooks and slivers narrower than 2 TIDY, keeps corners (mitre limit
+    high enough for the acute ones) and arcs (concentric offsets) where they are.  (A closing as well would mend
+    nicks, but it fills in beside acute terminal tips and would soften the notches meant to be there.)"""
+    from shapely.geometry import Polygon, MultiPolygon
+    k=dict(join_style=2,mitre_limit=100.0)
+    def keep(g):
+        ps=[p for p in getattr(g,'geoms',[g]) if p.area>50]
+        return ps[0] if len(ps)==1 else MultiPolygon(ps)
+    g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
+    return keep(g)
+def _s_direct(f,gx,ey,k):
+    """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
+    lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
+    condense2; the spine's tangent points scale; each terminal line keeps its angle and passes through the mapped
+    middle of the original cut, moved out by the offsets.  The construction then re-solves its tangencies exactly
+    (offsetting the outline would part the non-axis joins: an arc moves by changing its semi-axes)."""
+    import lcgeom, lcoutline
+    d=lcE.dims()['s']; p={kk:(v if kk.endswith('th') else v*SQ) for kk,v in d.items()}
+    ink=lambda e: (e[0]*f,e[1]*k-ey,e[2]*f+gx,e[3]*k-ey)
+    hole=lambda e: (e[0]*f,e[1]*k-ey,e[2]*f-gx,e[3]*k+ey)
+    u1,u2,um,l1,l2,lm=lcE.s_ellipses(p)
+    q=dict(p); q['ell']=(ink(u1),ink(u2),hole(um),ink(l1),ink(l2),hole(lm))
+    q['C1x'],q['C1a']=p['C1x']*f,p['C1a']*f-gx; q['C2x'],q['C2a']=p['C2x']*f,p['C2a']*f-gx
+    q['s1'],q['s2']=p['s1']*f,p['s2']*f
+    for p0,p1,n in cuts('s'):
+        m=(p0+p1)/2; pre='ut' if m[1]>X/2 else 'lt'
+        mm=np.array([m[0]*f,m[1]*k-ey])+strokeop._support(n,(gx,0.0))+strokeop._support(n,(0.0,-ey))
+        q[pre+'x'],q[pre+'y']=mm; q[pre+'ref']=tuple(mm-n*30.0)      # a point on the ink side of the cut
+    lcgeom.REG.clear(); g=lcE.clean(lcE.letter_s_ell(q)); prims=list(lcgeom.REG)
+    return [[tuple(sg) for sg in segs] for segs in lcoutline.contours(g,prims)]
 def series(S,f=None,only=None):
     f=F_LC[S] if f is None else f; T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
@@ -63,6 +96,8 @@ def series(S,f=None,only=None):
     out={}
     for c,(g,prims) in lcE.series().items():
         if only and c not in only: continue
+        if c=='s':                                      # built from its mapped construction
+            out[c]=_s_direct(f,gx,ey,k); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
             out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)
@@ -73,7 +108,9 @@ def series(S,f=None,only=None):
             for _ in range(8):                       # shorter if it would reach another part of the letter
                 st=(gu&Polygon([p0-u*2,p1+u*2,p1+u*2+n*Dx,p0-u*2+n*Dx])).difference(gc)
                 gap=2*max(gx,0)/f+6                  # clearance that survives the scaling and the growth
-                if st.intersection(gc.buffer(gap)).area<1.15*L*gap+30: break
+                near=Polygon([p0-u*15-n*15,p1+u*15-n*15,p1+u*15+n*15,p0-u*15+n*15])
+                clear=st.distance(gc.difference(near)) if not st.is_empty else 1e9    # e.g. the e's bar
+                if st.intersection(gc.buffer(gap)).area<1.15*L*gap+30 and clear>=3: break
                 Dx*=0.75
             DX[(tuple(p0),tuple(p1))]=Dx
             stubs.append(st); gl=gl|st
@@ -116,9 +153,13 @@ def series(S,f=None,only=None):
                     E=Polygon([e-u*15,e+u*15,e+u*15+n*15,e-u*15+n*15])
                     geom=geom.difference(E)
         geom=lcE.clean(geom)
-        if geom.geom_type=='MultiPolygon':            # stray bits of a stub (a dot is far larger)
+        if geom.geom_type=='MultiPolygon':            # stray bits of a stub: keep the body and the dot (above X)
             from shapely.geometry import MultiPolygon
-            ps=[q for q in geom.geoms if q.area>1000]; geom=ps[0] if len(ps)==1 else MultiPolygon(ps)
+            body=max(geom.geoms,key=lambda q:q.area)
+            ps=[body]+[q for q in geom.geoms if q is not body and c in 'ij' and q.bounds[1]>X]
+            geom=ps[0] if len(ps)==1 else MultiPolygon(ps)
+        if gx<0:                                     # the outline was eroded sideways (Series A): its re-cuts and
+            geom=_tidy(geom)                         # junctions leave nicks and hooks a few units wide
         out[c]=[[tuple(sg) for sg in segs] for segs in lcoutline.contours(geom,prims2)]
     return out
 if __name__=='__main__':
