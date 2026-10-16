@@ -41,7 +41,7 @@ INIT={
  'j':dict(x0=2.0,x1=3.54,hx=4.24,hB=-2.93,hyl=0.0,hR=4.9,hyr=-1.6,icy=0.0,ia=1.25,ib=1.21,
           tx=4.84,ty=-1.8,tth=90.0,dx=2.733,dy=7.185,dr=0.85),
 
- 's':dict(UL=-0.012,Uyl=4.174,UR=4.870,Uyr=3.478,Uxt=1.971,UT=6.133,Uxb=3.48,UB=1.91,LL=0.000,Lyl=1.913,LR=4.904,Lyr=1.855,Lxt=1.45,LT=4.17,Lxb=2.667,LB=-0.081,uiL=1.59,uiyl=4.24,uiR=5.3,uiyr=3.3,uixt=2.4,uiT=4.66,uixb=2.3,uiB=3.8,liL=-0.3,liyl=2.0,liR=3.28,liyr=1.81,lixt=2.6,liT=2.3,lixb=2.48,liB=1.37,utx=4.325,uty=4.858,ltx=0.197,lty=1.229,utth=65.000,ltth=67.000),
+ 's':dict(xt=2.274,T=6.121,xb=2.517,B=-0.095,U1a=3.894,U1b=3.071,L1a=4.154,L1b=2.967,U2a=2.229,U2b=1.802,UMa=2.729,UMb=2.37,L2a=2.415,L2b=1.834,LMa=2.636,LMb=2.376,s1=3.387,s2=1.703,C1x=2.22,C1a=0.616,C2x=2.685,C2a=0.676,utx=4.316,uty=4.707,utth=65.529,ltx=0.312,lty=1.31,ltth=67.683),
 }
 TIES={'o':[('Oxb','Oxt'),('Ixb','Ixt'),('Ixt','Oxt')],'j':[('hx','tx')],
       'e':[('Oyr','yb')]}           # e: the right side's extreme on the bar's lower edge (it meets the bar round)

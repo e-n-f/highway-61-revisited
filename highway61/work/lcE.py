@@ -217,7 +217,7 @@ def under(q,x0,side):
     return Polygon(np.vstack([[q.L,3000],E,[x0,3000]])).buffer(0)
 def shifted(g,pre,dy):
     return Quad(g[pre+'L'],g[pre+'yl']+dy,g[pre+'R'],g[pre+'yr']+dy,g[pre+'xt'],g[pre+'T']+dy,g[pre+'xb'],g[pre+'B']+dy)
-def letter_s(p):
+def letter_s_quads(p):
     """two outer quad ovals: the upper (U) gives the top arc, the left side and the spine's lower edge; the lower (L)
     the bottom arc, the right side and the spine's upper edge.  The counters are quad ovals UI (resting on L's upper
     edge) and LI (hanging under U's lower edge), each touching the spine edge tangentially; past the touching point
@@ -242,9 +242,79 @@ def letter_s(p):
     Wu=(UI|Hu|under(shifted(p,'ui',du),xu,1)).difference(LO)      # the upper counter, open to the right
     Wl=(LI|Hl|under(shifted(p,'li',dl),xl,-1)).difference(UO)      # the lower counter, open to the left
     return fuse(UO|LO).difference(Wu).difference(Wl)
+def _ey(cx,cy,a,b,x,sg):
+    """y of the ellipse's upper (sg=1) or lower (sg=-1) arc at x"""
+    t=min(abs(x-cx)/a,1.0); return cy+sg*b*np.sqrt(1-t*t)
+def _cut_meets(p,pre,e,hi=True):
+    """where the terminal line crosses ellipse e: the upper crossing (hi) or the lower"""
+    cx,cy,a,b=e; th=np.radians(p[pre+'th']); u=np.array([np.cos(th),np.sin(th)]); o=np.array([p[pre+'x'],p[pre+'y']])
+    d=o-np.array([cx,cy]); A=u[0]**2/a**2+u[1]**2/b**2; B=2*(d[0]*u[0]/a**2+d[1]*u[1]/b**2); C=d[0]**2/a**2+d[1]**2/b**2-1
+    disc=B*B-4*A*C
+    if disc<0: return o
+    pts=[o+u*(-B-np.sqrt(disc))/(2*A),o+u*(-B+np.sqrt(disc))/(2*A)]
+    return max(pts,key=lambda q:q[1]) if hi else min(pts,key=lambda q:q[1])
+def _F(e,P):
+    cx,cy,a,b=e; return ((P[:,0]-cx)/a)**2+((P[:,1]-cy)/b)**2-1
+def _touching(cx,a,Fin,Fout,y0,b0):
+    """an ellipse centred at x = cx, half-width a, inside the region Fin <= 0 and outside the region Fout < 0,
+    touching both (exactly: the extreme over the ellipse is refined continuously): its centre y, half-height and the
+    two touching points"""
+    from scipy.optimize import fsolve, minimize_scalar
+    t=np.linspace(0,2*np.pi,721)[:-1]; h=t[1]-t[0]
+    def pt(v,th): return np.array([[cx+a*np.cos(th),v[0]+abs(v[1])*np.sin(th)]])
+    def ext(v,F,sg):                               # sg=1: max of F over the ellipse, -1: min; and where
+        P=np.c_[cx+a*np.cos(t),v[0]+abs(v[1])*np.sin(t)]; k=np.argmax(sg*F(P))
+        r=minimize_scalar(lambda th:-sg*F(pt(v,th))[0],bounds=(t[k]-h,t[k]+h),method='bounded',options={'xatol':1e-12})
+        return sg*-r.fun,r.x
+    def eqs(v): return [ext(v,Fin,1)[0],ext(v,Fout,-1)[0]]
+    v=fsolve(eqs,[y0,b0],xtol=1e-12)
+    return v[0],abs(v[1]),pt(v,ext(v,Fin,1)[1])[0],pt(v,ext(v,Fout,-1)[1])[0]
+def _tangent(e,x,sg):
+    """point on the upper (sg=1) / lower (sg=-1) arc of e at x, and the unit tangent there (pointing to +x)"""
+    cx,cy,a,b=e; y=_ey(cx,cy,a,b,x,sg); dydx=-(b*b*(x-cx))/(a*a*(y-cy)) if abs(y-cy)>1e-9 else 0.0
+    u=np.array([1.0,dydx]); return np.array([x,y]),u/np.linalg.norm(u)
+def s_ellipses(p):
+    """the six ellipses of the s, (cx, cy, a, b): U1 U2 UM through the top point, L1 L2 LM through the bottom point"""
+    xt,T,xb,B=p['xt'],p['T'],p['xb'],p['B']
+    up=lambda k: (xt,T-p[k+'b'],p[k+'a'],p[k+'b']); lo=lambda k: (xb,B+p[k+'b'],p[k+'a'],p[k+'b'])
+    return up('U1'),up('U2'),up('UM'),lo('L1'),lo('L2'),lo('LM')
+def letter_s_ell(p):
+    """the s as ellipses (the user's reading of the 1966 drawing).  Upper family, all through the top point (xt, T):
+    the big ellipse U1 (the top stroke's upper edge, to the upper terminal line), U2 (the upper left side and, with
+    its bottom arc, the spine's lower edge) and UM (its bottom arc the bottom stroke's upper edge).  Lower family,
+    all through the bottom point (xb, B): L1 (the bottom stroke's lower edge, from the lower terminal line), L2 (the
+    lower right side and, with its top arc, the spine's upper edge) and LM (its top arc the top stroke's underside).
+    The spine's middle is straight: its upper edge leaves L2's top arc at x = s1 along the tangent, its lower edge
+    leaves U2's bottom arc at x = s2 along the tangent.  The counters are the bands inside LM above the spine's upper
+    edge and inside UM below its lower edge, each ended by a small ellipse (C1, C2: centre x and half-width given)
+    touching both of the band's edges."""
+    if 'ell' in p: u1,u2,um,l1,l2,lm=p['ell']           # ellipses given directly (a condensed s: lccondense)
+    else: u1,u2,um,l1,l2,lm=s_ellipses(p)
+    xt,xb=u1[0],l1[0]
+    U1,U2,UM,L1,L2,LM=[ellipse(*e) for e in (u1,u2,um,l1,l2,lm)]
+    q1,v1=_tangent(l2,p['s1'],1); q2,v2=_tangent(u2,p['s2'],-1)
+    above1=lambda P: (P[:,1]-q1[1])*v1[0]-(P[:,0]-q1[0])*v1[1]          # > 0 above the spine's upper edge line
+    below2=lambda P: -((P[:,1]-q2[1])*v2[0]-(P[:,0]-q2[0])*v2[1])       # > 0 below the spine's lower edge line
+    y1,b1,ta,tb=_touching(p['C1x'],p['C1a'],lambda P:_F(lm,P),above1,_ey(*lm,p['C1x'],1)-0.6*p['C1a'],0.4*p['C1a'])
+    y2,b2,sa,sb=_touching(p['C2x'],p['C2a'],lambda P:_F(um,P),below2,_ey(*um,p['C2x'],-1)+0.6*p['C2a'],0.4*p['C2a'])
+    C1=ellipse(p['C1x'],y1,p['C1a'],b1); C2=ellipse(p['C2x'],y2,p['C2a'],b2)
+    def beyond(q,u,keep):                          # the half-plane past the line through q along u, on keep's side
+        return side(q,np.degrees(np.arctan2(u[1],u[0])),keep)
+    S1=beyond(q1,v1,(q1[0],q1[1]-100))&box(-3000,-3000,q1[0],3000)     # below the straight part of the upper edge
+    S2=beyond(q2,v2,(q2[0],q2[1]+100))&box(q2[0],-3000,3000,3000)      # above the straight part of the lower edge
+    Wu=C1|(LM.difference(L2).difference(S1)&beyond(ta,tb-ta,(p['C1x']+1000,y1)))
+    Wl=C2|(UM.difference(U2).difference(S2)&beyond(sa,sb-sa,(p['C2x']-1000,y2)))
+    yu=_cut_meets(p,'ut',lm,True)[1] if not NOCUT else u1[1]; yl=_cut_meets(p,'lt',um,False)[1] if not NOCUT else l1[1]
+    Tu=U1&box(xt,max(u1[1],yu),3000,3000)&term(p,p.get('utref',(xt,u1[1])),'ut')
+    Tl=L1&box(-3000,-3000,xb,min(l1[1],yl))&term(p,p.get('ltref',(xb,l1[1])),'lt')
+    if not NOCUT:                                   # U2 and L2 also stop at the terminal lines (outside LM, UM)
+        U2=U2.difference(box(-3000,-3000,3000,3000).difference(term(p,p.get('utref',(xt,u1[1])),'ut')).difference(LM))
+        L2=L2.difference(box(-3000,-3000,3000,3000).difference(term(p,p.get('ltref',(xb,l1[1])),'lt')).difference(UM))
+    spine=(S1&box(-3000,-3000,3000,3000)).intersection(S2)&box(min(q1[0],q2[0]),-3000,max(q1[0],q2[0]),3000)
+    return fuse((U2|Tu|spine).difference(Wu)|(L2|Tl|spine).difference(Wl))
 LETTERS={'o':letter_o,'n':letter_n,'a':letter_a,'e':letter_e,'g':letter_g,'l':letter_l,'i':letter_i,'h':letter_h,
          'm':letter_m,'u':letter_u,'r':letter_r,
-         'b':letter_b,'d':letter_d,'p':letter_p,'q':letter_q,'c':letter_c,'t':letter_t,'j':letter_j,'f':letter_f,'s':letter_s}
+         'b':letter_b,'d':letter_d,'p':letter_p,'q':letter_q,'c':letter_c,'t':letter_t,'j':letter_j,'f':letter_f,'s':letter_s_ell}
 def fuse(g,e=1e-3):
     """weld pieces that only touch along an edge (float slivers between unions)"""
     return g.buffer(e,join_style=2).buffer(-e,join_style=2)

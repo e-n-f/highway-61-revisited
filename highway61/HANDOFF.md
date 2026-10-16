@@ -354,6 +354,21 @@ ends keep their angles.
   edge, so the side ran straight down below it.  `lcfitall.TIES['e']` now ties `Oyr` to `yb` (the extreme on the bar's
   lower edge) and the e was refitted (p95 4.44 against 4.50 before).  Every series' e changes by 5-8 units.
 
+### s as ellipses (Claude Code session 2026-10-16)
+- Following the user's reading of the 1966 drawing, `lcE.letter_s_ell` replaces the two-quad-oval s
+  (`letter_s_quads`, kept).  Upper family, all through the top point: U1 (big: the top stroke's upper edge to the
+  upper terminal line), U2 (upper left side; its bottom arc the spine's lower edge), UM (its bottom arc the bottom
+  stroke's upper edge).  Lower family through the bottom point: L1, L2, LM likewise.  The spine's middle is straight
+  (the user's suggestion): its edges leave L2's top arc and U2's bottom arc along their tangents at x = s1, s2.  The
+  counters are the bands inside LM above the spine and inside UM below it, each ended by a small ellipse (C1, C2:
+  centre x and half-width fitted) that touches both band edges exactly (`_touching`).  Terminal lines cut U1/L1 and,
+  beyond the terminal corners, U2/L2 outside LM/UM.  Fit p95 4.12 (snapped) against the quad-oval s's 4.77.
+- The condensed and expanded s are built by mapping the construction, not by offsetting its outline
+  (`lccondense._s_direct`): ink ellipses a*f+gx, b*k-ey; counter ellipses a*f-gx, b*k+ey; centres (x f, y k-ey);
+  C1/C2 and s1/s2 scaled; each cut keeps its angle through the mapped middle of the original cut.  Offsetting the
+  outline parted its non-axis joins (strokeop moves an arc by changing its semi-axes, exact only at axis points), so
+  the construction re-solves its tangencies instead.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
