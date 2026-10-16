@@ -293,6 +293,9 @@ ends keep their angles.
   D, E, ModE and F 2000 have A-Z a-z 0-9 and ! " # $ & ( ) * + , - . / : = ? @ cent (no apostrophe or curly quotes,
   no space); HighwayD98 and HighwayME98 are fragments.  The fonts carry a URW 1998 copyright notice, so they are
   git-ignored; regenerate them from the PostScript.  Their caps are 285 units of a 1000 em, x-height 208.
+- `work/fhwaspecimen.py` -> `outputs/comparison-1966-vs-2000.png`: two-column specimen (B C D | E E(M) F), sign copy,
+  complete lower case, capitals, figures and punctuation in each font at equal cap height with natural spacing (the
+  FHWA fonts get our space of the same series, in cap heights).
 - `work/fhwacompare.py` -> `outputs/compare-fhwa2000.png`: each series (E(M) vs ModE) at equal cap height, two lines
   in each font and a per-glyph overlay (ours red, FHWA blue, both black).
 
