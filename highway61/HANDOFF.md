@@ -6,6 +6,11 @@ Exported 2026-10-15 from a claude.ai session so work can continue in Claude Code
 > Highway 61 Revisited fonts (`Highway61Revisited-*.otf/.ttf`) and the specimens `specimen-lc-series.png` and
 > `comparison-1966-vs-2000.png` moved to the repository's top level, where the scripts now write them.  References
 > below to `outputs/Highway61Revisited-*` and to those two specimens mean the top-level files.
+>
+> **2026-10-16 cleanup:** the files in `outputs/` left over from earlier stages (superseded fonts, specimens and
+> overlays that no current script makes) were deleted, as were the committed copies of the FHWA 2000 fonts
+> (`outputs/fhwa2000/`, `work/ps/`); `work/fhwa2otf.py` recreates those from the publication.  `outputs/` now holds
+> only the base fonts the build reads and the outputs of current scripts.  Older files named below are in git history.
 
 ## Layout of this archive
 
