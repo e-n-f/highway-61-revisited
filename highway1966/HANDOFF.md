@@ -185,7 +185,47 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
 - `scanfit.edge_samples` and the 4×4-opening trick (drawn outlines survive, thin dimension lines don't) were used to
   measure arcs where the labels were ambiguous.
 
+### Series E(M) lower case — constructed from the 1966 grid sheets (Claude Code session 2026-10-16)
+No dimensioned drawings exist for the lower case; the user supplied hi-res scans of pp. 33-35 (`work/lc1966/p3[345].jpg`)
+and overlay drawings showing ellipses (bowls, shoulders, hooks) and straight construction lines (stems, slanted
+ascender tops and descender bottoms, terminal cuts, diagonals).
+- `lcgrid.py`: every printed grid line fitted individually (common shear, then per-line fit); scan points map to grid
+  squares by interpolating between neighbouring lines.  One square = 1 inch at 8-inch letters = 86.25 units; x-height
+  6 squares (517.5), ascender 8 (690), descender g/j 3, p/q/y about 2.2-2.4.
+- `lcscan.py` / `lcview.py`: sub-pixel letter outlines in grid squares / font units (`lc1966/contours.pkl` cache).
+  Printing gain measured from flat baselines and x-heights: 1.5 units per side (`lcmodel.SPREAD`).
+- `lcgeom.py`: the curve primitive is the **quad oval** — four quarter-ellipses (axis-aligned) joined at their axis
+  points, so tangent-continuous; an ellipse is the special case.  This matches the user's paired ellipses (e.g. e's
+  left half from one ellipse, right half from another).  Every quarter used is recorded in `lcgeom.REG`.
+- `lcE.py`: one construction per letter (o n a e g l i h m u r b d p q c t f j s), parameters in squares in
+  `lc1966/fit.json`, adopted values = fit snapped to 1/32 square, angles to 0.5 degree (`lcE.dims()`).
+  k v w x y z are straight-line polygons (`lcpoly.py` -> `lc1966/poly.json`: each edge fitted as a line, vertices
+  = intersections, snapped to 1/32 square, baseline/x-height/ascender exact).
+- `lcfitall.py <letters>`: fits a construction to the scan (two-sided distance, soft-L1, plus a per-letter x offset
+  `ox` for grid registration); `evaluate()` reports median/p95 of the snapped values and writes overlays.
+- `lcoutline.py`: exact outlines: each polygon edge is classified as straight or as lying on one of the recorded
+  quarter-ellipses; runs become elliptical arcs drawn as cubic Beziers (<= 45 degrees of parameter each).
+- `build1961.py E` now replaces a-z with these constructions (side bearings kept from Highway Even 1966 E);
+  `lcspecimen.py` -> `outputs/specimen-lc-E.png` (text + every letter over its scan).
+- Constructions in brief: n/h/m/r/u: stems 1 9/16 square, shoulder = two quarter-ellipses sharing the top point
+  (right one tangent to the right stem's outer edge), counter = ellipse wider than the counter cut by the stems
+  (m: second arch reaches over the middle stem; u = n turned 180 degrees).  a/d/g/q/b/p: bowl = two quad ovals
+  sharing the left (b/p: right) extreme and top/bottom points (the quarters running into the stem are independent),
+  counter ellipse cut by the stem edge.  a: arch quad oval minus an underside circle; gap = circle outside the bowl.
+  e: outer quad oval cut by the bar's vertical end; counters = two ellipses; terminal 3:4 slope.  c: outer quad oval,
+  counter ellipse, opening = wedge between two terminal lines.  g: tail = outer/inner ellipses below their centres.
+  t/f/j: one hook construction (stem, two quarter-ellipses sharing the bottom point, inner ellipse tangent to the
+  stem, terminal cut), mirrored for j and f.  s: two outer quad ovals (each supplies one arc, one side and one
+  spine edge) minus two counter ellipses, each counter opening past its terminal.  Ascender tops slope 0.4 (2:5),
+  p/q descender bottoms 0.354.
+- Fit quality (snapped, p95 of scan<->model distance, units): most letters 2-4; f 5, t 7 (the tail tip flares more
+  than an ellipse allows), s 8 (counter ends), i/j 4.6 (dot / grid offset).  Not yet harmonised across letters
+  (stem widths 1.53-1.57 squares, overshoots 0.06-0.11) — a candidate for a cleanup pass with shared values.
+- Note the x-height mismatch with the 1966 tracings (525) — the constructions use 6 squares = 517.5.
+
 ### Next steps
+0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; ask the
+   user to review the lower-case specimen.
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
 2. Do Series A page by page with the same structure: read each page's table, write `dim<S><page>.py`,

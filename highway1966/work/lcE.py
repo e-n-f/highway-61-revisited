@@ -71,14 +71,129 @@ def letter_g(p):
     tail=outer.difference(inner)&term(p,(xr,0))
     B=bowl(p); C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])
     return (tail|B).difference(C&box(-100,-100,xs,800))
-LETTERS={'o':letter_o,'n':letter_n,'a':letter_a,'e':letter_e,'g':letter_g}
+def slanted(x0,x1,y0,ytop,s):
+    """stem from x0 to x1, bottom y0, top cut by the line through (x1, ytop) of slope s"""
+    return Polygon([(x0,y0),(x1,y0),(x1,ytop),(x0,ytop-s*(x1-x0))])
+def slanted_bottom(x0,x1,ytop,ybot,s):
+    """stem from x0 to x1, top ytop, bottom cut by the line through (x0, ybot) of slope s"""
+    return Polygon([(x0,ybot),(x1,ybot+s*(x1-x0)),(x1,ytop),(x0,ytop)])
+def xform(g,start,mx=None,rot=None,my=None):
+    """mirror about x = mx, or rotate 180 degrees about rot, both the geometry and the ellipses recorded since start"""
+    import lcgeom
+    from shapely import affinity
+    R=lcgeom.REG
+    for i in range(start,len(R)):
+        cx,cy,a,b=R[i]
+        R[i]=(2*mx-cx,cy,a,b) if mx is not None else (cx,2*my-cy,a,b) if my is not None else (2*rot[0]-cx,2*rot[1]-cy,a,b)
+    if mx is not None: return affinity.scale(g,-1,1,origin=(mx,0))
+    if my is not None: return affinity.scale(g,1,-1,origin=(0,my))
+    return affinity.rotate(g,180,origin=rot)
+def arch(p,xl,w,x2,pre='',clip=None):
+    """an n-arch between a stem ending at xl+w and the stem x2..x2+w: shoulder quarter-ellipses sharing the top point
+    (oxt, T), the right one tangent to the right stem's outer edge at oyr, the left reaching oL at oyl; counter: an
+    ellipse (ccx, ccy, ca, cb) cut by the stems' inner edges.  Returns (ink above the stems, counter)"""
+    g=lambda k: p[pre+k]; xr=x2+w
+    O=Quad(xl+g('oL'),g('oyl'),xr,g('oyr'),xl+g('oxt'),g('T'),xl+g('oxt'),min(g('oyl'),g('oyr'))-1).poly()
+    O=O&box(xl+w if clip is None else clip,min(g('oyl'),g('oyr')),xr,800)
+    cnt=(box(xl+w,-10,x2,g('ccy'))|ellipse(xl+g('ccx'),g('ccy'),g('ca'),g('cb')))&box(xl+w,-10,x2,800)
+    return O|box(x2,0,xr,g('oyr')),cnt
+def letter_l(p):
+    return slanted(0,p['w'],0,p['ytop'],p['s'])
+def letter_i(p):
+    return box(p['x0'],0,p['x0']+p['w'],X)|ellipse(p['dx'],p['dy'],p['dr'],p['dr'])
+def letter_h(p):
+    ink,cnt=arch(p,0,p['w'],p['x2'])
+    return (slanted(0,p['w'],0,p['ytop'],p['s'])|ink).difference(cnt)
+def letter_m(p):
+    w=p['w']; ink1,c1=arch(p,0,w,p['x2'],'')
+    ink2,c2=arch(p,p['x2'],w,p['x3'],'r',clip=p['x2'])
+    return fuse(box(0,0,w,X)|ink1|ink2).difference(c1).difference(c2)
+def letter_u(p):
+    """the n turned through 180 degrees"""
+    import lcgeom
+    k=len(lcgeom.REG); g=letter_n(p)
+    return xform(g,k,rot=((p['x2']+p['w'])/2,X/2))
+def letter_r(p):
+    """stem and an n shoulder, cut by the terminal line"""
+    ink,cnt=arch(p,0,p['w'],p['x2'])
+    return (box(0,0,p['w'],X)|((ink.difference(cnt))&term(p,(0,X)))).difference(box(-100,-100,800,0))
+def bowl_left(p,pre='B'):
+    """bowl joined to a stem on its left: two quad ovals sharing the right extreme and the top and bottom points"""
+    g=lambda k: p[pre+k]
+    return (Quad(g('L'),g('yl'),g('R'),g('yr'),g('xt'),g('T'),g('xb'),g('B')).poly()|
+            Quad(g('L2'),g('yl2'),g('R'),g('yr'),g('xt'),g('T'),g('xb'),g('B')).poly())
+def letter_d(p):
+    C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])&box(-100,-100,p['xs'],800)
+    return (slanted(p['xs'],p['xr'],0,p['ytop'],p['s'])|bowl(p)).difference(C)
+def letter_q(p):
+    C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])&box(-100,-100,p['xs'],800)
+    return (slanted_bottom(p['xs'],p['xr'],X,p['ybot'],p['sb'])|bowl(p)).difference(C)
+def letter_b(p):
+    C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])&box(p['w'],-100,800,800)
+    return (slanted(0,p['w'],0,p['ytop'],p['s'])|bowl_left(p)).difference(C)
+def letter_p(p):
+    C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])&box(p['w'],-100,800,800)
+    return (slanted_bottom(0,p['w'],X,p['ybot'],p['sb'])|bowl_left(p)).difference(C)
+def letter_c(p):
+    """outer quad oval O, counter ellipse I; the opening is the wedge to the right of both terminal lines (upper
+    through (ux, uy) at uth, lower through (lx, ly) at lth)"""
+    O=quad(p,'O').poly(); I=ellipse(p['ix'],p['iy'],p['ia'],p['ib'])
+    far=(p['OR']+300,p['Oyr'])
+    wedge=side((p['ux'],p['uy']),p['uth'],far)&side((p['lx'],p['ly']),p['lth'],far)
+    return O.difference(I).difference(wedge)
+def hook(p,top):
+    """a stem x0..x1 from `top` down into a hook turning right: quarter-ellipses sharing the bottom point (hx, hB), the
+    left one rounding the stem's outer edge from height hyl, the right one rising to hR at hyr; inside, an ellipse
+    (ia, ib) centred at height icy, tangent to the stem's inner edge, below the open side; cut by the terminal line"""
+    x0,x1=p['x0'],p['x1']
+    BLq=ellipse(p['hx'],p['hyl'],p['hx']-x0,p['hyl']-p['hB'])&box(x0,-1000,p['hx'],p['hyl'])
+    BRq=ellipse(p['hx'],p['hyr'],p['hR']-p['hx'],p['hyr']-p['hB'])&box(p['hx'],-1000,p['hR'],p['hyr'])
+    ink=fuse(box(x0,p['hyl'],x1,top)|BLq|BRq)
+    inner=ellipse(x1+p['ia'],p['icy'],p['ia'],p['ib'])|box(x1,p['icy'],3000,3000)
+    ink=ink.difference(inner)
+    right=box(x1,-3000,3000,3000)
+    return fuse(ink.difference(right)|(ink&right&term(p,(p['hx'],p['hB']+1))))
+def letter_t(p):
+    return fuse(hook(p,p['hyl']+1)|slanted(p['x0'],p['x1'],p['hyl'],p['ytop'],p['s'])|box(p['bx0'],p['by'],p['bx1'],X))
+def letter_j(p):
+    """the hook turned to the left (mirrored about the stem's axis), stem up to the x-height, and the dot"""
+    import lcgeom
+    k=len(lcgeom.REG); g=hook(p,X); g=xform(g,k,mx=(p['x0']+p['x1'])/2)
+    return g|ellipse(p['dx'],p['dy'],p['dr'],p['dr'])
+def letter_f(p):
+    """the hook turned upside down (about the line y = X/2... mirrored about y = 3 squares), with the bar"""
+    import lcgeom
+    k=len(lcgeom.REG); my=X/2
+    g=hook(p,2*my-0.0)
+    g=xform(g,k,my=my)
+    return fuse(g|box(p['bx0'],p['by'],p['bx1'],X))
+def letter_s(p):
+    """two outer quad ovals: the upper (U) gives the top arc, the left side and the spine's lower edge; the lower (L)
+    the bottom arc, the right side and the spine's upper edge.  Counters: the upper inner ellipse UI outside L, the lower LI
+    outside U, each opening past its terminal line and beyond its centre line"""
+    UO=quad(p,'U').poly(); LO=quad(p,'L').poly()
+    UI=ellipse(p['uix'],p['uiy'],p['uia'],p['uib']); LI=ellipse(p['lix'],p['liy'],p['lia'],p['lib'])
+    Hu=side((p['utx'],p['uty']),p['utth'],(p['UR']+300,p['UT'])); Hl=side((p['ltx'],p['lty']),p['ltth'],(p['LL']-300,p['LB']))
+    Wu=(UI|Hu|box(p['uix'],-1000,3000,p['uiy'])).difference(LO)      # the upper counter, open to the right
+    Wl=(LI|Hl|box(-3000,p['liy'],p['lix'],3000)).difference(UO)      # the lower counter, open to the left
+    return fuse(UO|LO).difference(Wu).difference(Wl)
+LETTERS={'o':letter_o,'n':letter_n,'a':letter_a,'e':letter_e,'g':letter_g,'l':letter_l,'i':letter_i,'h':letter_h,
+         'm':letter_m,'u':letter_u,'r':letter_r,
+         'b':letter_b,'d':letter_d,'p':letter_p,'q':letter_q,'c':letter_c,'t':letter_t,'j':letter_j,'f':letter_f,'s':letter_s}
+def fuse(g,e=1e-3):
+    """weld pieces that only touch along an edge (float slivers between unions)"""
+    return g.buffer(e,join_style=2).buffer(-e,join_style=2)
+def polys():
+    import json, os
+    fn=os.path.join(os.path.dirname(os.path.abspath(__file__)),'lc1966','poly.json')
+    return json.load(open(fn)) if os.path.exists(fn) else {}
 def dims():
     """adopted dimensions (squares): the scan fits in lc1966/fit.json snapped to 1/32 square, angles to 0.5 degree"""
     import json, os
     fn=os.path.join(os.path.dirname(os.path.abspath(__file__)),'lc1966','fit.json')
     out={}
     for ch,r in json.load(open(fn)).items():
-        out[ch]={k:(round(v*2)/2 if k.endswith('th') else round(v*32)/32) for k,v in r.items()}
+        out[ch]={k:(round(v*2)/2 if k.endswith('th') else round(v*1000)/1000 if k in ('s','sb') else round(v*32)/32) for k,v in r.items()}
     return out
 def series():
     """{letter: (geometry, quarter-ellipses used)} in font units"""
@@ -86,6 +201,8 @@ def series():
     res={}
     for ch,d in dims().items():
         lcgeom.REG.clear()
-        g=LETTERS[ch]({k:(v if k.endswith('th') else v*SQ) for k,v in d.items()})
+        g=LETTERS[ch]({k:(v if (k.endswith('th') or k in ('s','sb')) else v*SQ) for k,v in d.items()})
         res[ch]=(g,list(lcgeom.REG))
+    for ch,V in polys().items():
+        res[ch]=(Polygon(np.array(V)*SQ),[])
     return res

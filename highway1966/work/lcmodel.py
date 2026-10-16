@@ -33,7 +33,8 @@ def fit(ch,build,p0,names,fixed=None,region=None,verbose=True,ftol=1e-6):
     def par(v):
         d=dict(fixed); d.update(zip(free,v)); return d
     def res(v):
-        g=build(par(v)).buffer(SPREAD,join_style=2); M=boundary_pts(g)
+        try: g=build(par(v)).buffer(SPREAD,join_style=2); M=boundary_pts(g)
+        except Exception: return np.full(len(S)+NM,50.0)
         if region is not None: M=M[region(M[:,0],M[:,1])]
         if len(M)==0: return np.full(len(S)+NM,1e3)
         M=M[np.linspace(0,len(M)-1,NM).astype(int)]

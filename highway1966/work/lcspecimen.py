@@ -7,7 +7,7 @@ from fontTools.pens.recordingPen import DecomposingRecordingPen
 import lcE
 OUT=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','outputs')
 F=TTFont(os.path.join(OUT,'Highway61Revisited-E.otf')); gs=F.getGlyphSet(); cm=F.getBestCmap(); hm=F['hmtx']
-DONE=set(lcE.dims())
+DONE=set(lcE.dims())|set(lcE.polys())
 def glyph_poly(name,s):
     pen=DecomposingRecordingPen(gs); gs[name].draw(pen); polys=[]; cur=None
     for op,a in pen.value:
@@ -28,17 +28,24 @@ def line(img,text,x,y,s):
         d.text((x,y),ch,font=font,fill=col,anchor='ls'); x+=d.textlength(ch,font=font)
     img[:]=np.array(im)
 def main():
-    W=2000; img=np.full((700,W,3),255,np.uint8)
-    for i,t in enumerate(['one gang', 'an age ago', 'Orange Neon', 'abcdefghijklmnopqrstuvwxyz']):
-        line(img,t,40,150+i*160,0.22 if i<3 else 0.11)
+    W=2400; img=np.full((700,W,3),255,np.uint8)
+    for i,t in enumerate(['Highway 61 Revisited', 'jumpy quiz of lowercase', 'Exit 42 Mendocino', 'abcdefghijklmnopqrstuvwxyz']):
+        line(img,t,40,170+i*170,0.15 if i<3 else 0.11)
     from lcmodel import overlay
     import lcgeom
     tiles=[]
-    for ch,d in lcE.dims().items():
-        g=lcE.LETTERS[ch]({k:(v if k.endswith('th') else v*lcE.SQ) for k,v in d.items()})
-        fn='/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/_lc_%s.png'%ch; overlay(ch,g,fn,scale=0.6); tiles.append(cv2.imread(fn))
-    h=max(t.shape[0] for t in tiles)
-    row=np.hstack([np.vstack([t,np.full((h-t.shape[0],t.shape[1],3),255,np.uint8)]) for t in tiles])
-    if row.shape[1]<W: row=np.hstack([row,np.full((h,W-row.shape[1],3),255,np.uint8)])
-    cv2.imwrite(os.path.join(OUT,'specimen-lc-E.png'),np.vstack([img,row[:, :W]]))
+    ser=lcE.series()
+    for ch in 'abcdefghijklmnopqrstuvwxyz':
+        if ch not in ser: continue
+        g=ser[ch][0]
+        if ch in lcE.dims(): g=__import__('shapely').affinity.translate(g,lcE.dims()[ch].get('ox',0)*lcE.SQ)
+        fn='/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/_lc_%s.png'%ch; overlay(ch,g,fn,scale=0.3); tiles.append(cv2.imread(fn))
+    h=max(t.shape[0] for t in tiles); rows=[]; cur=[]; w=0
+    for t in tiles+[None]:
+        if t is None or w+t.shape[1]>W:
+            r=np.hstack([np.vstack([x,np.full((h-x.shape[0],x.shape[1],3),255,np.uint8)]) for x in cur])
+            rows.append(np.hstack([r,np.full((h,W-r.shape[1],3),255,np.uint8)])); cur=[]; w=0
+            if t is None: break
+        cur.append(t); w+=t.shape[1]
+    cv2.imwrite(os.path.join(OUT,'specimen-lc-E.png'),np.vstack([img]+rows))
 main()
