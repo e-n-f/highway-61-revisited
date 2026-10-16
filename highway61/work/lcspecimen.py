@@ -6,7 +6,8 @@ from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import DecomposingRecordingPen
 import lcE
 OUT=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','outputs')
-F=TTFont(os.path.join(OUT,'Highway61Revisited-E.otf')); gs=F.getGlyphSet(); cm=F.getBestCmap(); hm=F['hmtx']
+DIST=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..')
+F=TTFont(os.path.join(DIST,'Highway61Revisited-E.otf')); gs=F.getGlyphSet(); cm=F.getBestCmap(); hm=F['hmtx']
 DONE=set(lcE.dims())|set(lcE.polys())
 def glyph_poly(name,s):
     pen=DecomposingRecordingPen(gs); gs[name].draw(pen); polys=[]; cur=None
@@ -21,7 +22,7 @@ def glyph_poly(name,s):
 def line(img,text,x,y,s):
     """PIL text, constructed letters (and capitals) in black, the rest in grey"""
     from PIL import Image, ImageDraw, ImageFont
-    font=ImageFont.truetype(os.path.join(OUT,'Highway61Revisited-E.otf'),int(1000*s))
+    font=ImageFont.truetype(os.path.join(DIST,'Highway61Revisited-E.otf'),int(1000*s))
     im=Image.fromarray(img); d=ImageDraw.Draw(im)
     for ch in text:
         col=(0,0,0) if (ch in DONE or ch.isupper() or ch==' ') else (150,150,150)

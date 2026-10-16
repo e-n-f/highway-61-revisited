@@ -21,6 +21,7 @@ import vgeom, outline, lcoutline, strokeop
 
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
+DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')   # the fonts go to the repository's top level
 BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' else 'HighwayEven1966-%s.ttf' % S))
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
@@ -158,6 +159,6 @@ def setup(fb, outlines_kind):
     fb.setupPost(keepGlyphNames=True)
 
 
-fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(OUT, PS + '.otf'))
-fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(OUT, PS + '.ttf'))
+fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(DIST, PS + '.otf'))
+fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(DIST, PS + '.ttf'))
 print('wrote', PS + '.otf', PS + '.ttf')

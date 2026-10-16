@@ -7,7 +7,7 @@ from fontTools.pens.recordingPen import RecordingPen
 from shapely.geometry import Polygon
 from shapely.validation import explain_validity
 S=sys.argv[1]
-F=TTFont(f'../outputs/Highway61Revisited-{S}.otf'); gs=F.getGlyphSet()
+F=TTFont(f'../../Highway61Revisited-{S}.otf'); gs=F.getGlyphSet()
 names=[c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']+['zero','one','two','three','four','five','six','seven','eight','nine']+list('abcdefghijklmnopqrstuvwxyz')
 for n in names:
     rp=RecordingPen(); gs[n].draw(rp); rings=[]; cur=[]; segs=[]

@@ -2,6 +2,11 @@
 
 Exported 2026-10-15 from a claude.ai session so work can continue in Claude Code.
 
+> **2026-10-16 reorganisation:** this directory was renamed from `highway1966/` to `highway61/`, and the
+> Highway 61 Revisited fonts (`Highway61Revisited-*.otf/.ttf`) and the specimens `specimen-lc-series.png` and
+> `comparison-1966-vs-2000.png` moved to the repository's top level, where the scripts now write them.  References
+> below to `outputs/Highway61Revisited-*` and to those two specimens mean the top-level files.
+
 ## Layout of this archive
 
 ```

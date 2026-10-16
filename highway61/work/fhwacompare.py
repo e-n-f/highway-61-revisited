@@ -10,7 +10,7 @@ import os, numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from fontTools.ttLib import TTFont
 from fontTools.pens.boundsPen import BoundsPen
-W=os.path.dirname(os.path.abspath(__file__)); OUT=os.path.join(W,'..','outputs'); FH=os.path.join(W,'..','fhwa2000')
+W=os.path.dirname(os.path.abspath(__file__)); OUT=os.path.join(W,'..','outputs'); DIST=os.path.join(W,'..','..'); FH=os.path.join(W,'..','fhwa2000')
 PAIRS=[('B','B'),('C','C'),('D','D'),('E','E'),('EM','ModE'),('F','F')]
 CAP=120                                         # cap height, pixels
 TEXT=['Exit 42 Mendocino Highway','Is "Hi-Fi!" said Jo. 1-2-3']
@@ -32,7 +32,7 @@ def main():
     rows=[]
     lab=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',30)
     for ours,theirs in PAIRS:
-        fo=font(os.path.join(OUT,f'Highway61Revisited-{ours}.otf'))
+        fo=font(os.path.join(DIST,f'Highway61Revisited-{ours}.otf'))
         ft=font(os.path.join(FH,f'Series{theirs}2000-Normal.otf'))
         cell=(int(CAP*1.25),int(CAP*1.9)); per=26
         groups=[g for g in CHARS.split(' ')]

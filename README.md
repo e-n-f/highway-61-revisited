@@ -7,8 +7,8 @@ traced. The goal is to improve on the official digital fonts, not to copy them.
 
 | Font | Files |
 |---|---|
-| Highway 61 Revisited B, C, D, E, F | `highway1966/outputs/Highway61Revisited-{B,C,D,E,F}.otf` / `.ttf` |
-| Highway 61 Revisited E(M) | `highway1966/outputs/Highway61Revisited-EM.otf` / `.ttf` |
+| Highway 61 Revisited B, C, D, E, F | `Highway61Revisited-{B,C,D,E,F}.otf` / `.ttf` |
+| Highway 61 Revisited E(M) | `Highway61Revisited-EM.otf` / `.ttf` |
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
 quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” -` and the space.
@@ -16,11 +16,14 @@ quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' 
 Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 units), x-height 517.5, ascender 690,
 descenders about −200 to −260.
 
-Specimens: `highway1966/outputs/specimen-lc-series.png` (all six series) and
-`highway1966/outputs/comparison-1966-vs-2000.png` (against the FHWA 2000 fonts). The detailed working history, with
-every construction decision, is in `highway1966/HANDOFF.md`.
+Specimens: `specimen-lc-series.png` (all six series) and `comparison-1966-vs-2000.png` (against the FHWA 2000
+fonts).  The fonts and these two specimens are at the top level of the repository; everything used to make them
+is under `highway61/`. The detailed working history, with
+every construction decision, is in `highway61/HANDOFF.md`.
 
 ## How the letterforms are represented
+
+Paths in this section are relative to `highway61/`.
 
 ### Capitals and figures: the 1961 dimensioned drawings
 
@@ -127,9 +130,9 @@ with the series, as the capitals' table strokes do:
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the
   capitals' diagonals do from series to series.
 - **Dots** of i and j scale with the stroke, with their tops kept on the ascender line.
-- **Spacing.** Side bearings come from the matching Highway Even 1966 font (`outputs/HighwayEven1966-<S>.ttf`), and
-  for E(M) from `outputs/Highway1966-EM-Constructed.ttf`. These are the earlier traced fonts of this project, whose
-  spacing was matched to the FHWA 2000 alphabets.
+- **Spacing.** Side bearings come from the matching Highway Even 1966 font
+  (`highway61/outputs/HighwayEven1966-<S>.ttf`), and for E(M) from `highway61/outputs/Highway1966-EM-Constructed.ttf`.
+  These are the earlier traced fonts of this project, whose spacing was matched to the FHWA 2000 alphabets.
 
 ## Regenerating the fonts
 
@@ -142,31 +145,32 @@ pip install fonttools shapely numpy scipy pillow opencv-python-headless
 These versions were used: fontTools 4.67, shapely 2.2, numpy 2.5, scipy 1.18, Pillow 12.3, OpenCV 5.0. The
 specimens use the DejaVu Sans font for their labels (`/usr/share/fonts/truetype/dejavu/`).
 
-All scripts run from `highway1966/work/` and write to `highway1966/outputs/`:
+All scripts run from `highway61/work/`.  The fonts and the two headline specimens are written to the top level
+of the repository, other specimens and working images to `highway61/outputs/`:
 
 ```
-cd highway1966/work
+cd highway61/work
 for S in B C D E EM F; do python3 build1961.py $S; done     # about 15–60 s per series; they can run in parallel
 for S in B C D E EM F; do python3 strokecheck.py $S; done   # every glyph must be a valid shape (no INVALID lines)
 ```
 
-`build1961.py <S>` writes `Highway61Revisited-<S>.otf` and `.ttf`. Rebuilding from a fresh clone reproduces the
+`build1961.py <S>` writes `Highway61Revisited-<S>.otf` and `.ttf` at the top level. Rebuilding from a fresh clone reproduces the
 committed fonts exactly, apart from the timestamp in the `head` table.
 
 The build reads these inputs, all in the repository:
 
 - the construction modules: `dim*.py`, `series*1961.py`, `vgeom.py`, `lcE.py`, `lccondense.py`, `punct.py`, `strokeop.py`
 - the lower-case parameters: `work/lc1966/fit.json` and `poly.json`
-- the base fonts for side bearings and glyph order: `outputs/HighwayEven1966-{B,C,D,E,F}.ttf` and
-  `outputs/Highway1966-EM-Constructed.ttf`
+- the base fonts for side bearings and glyph order: `highway61/outputs/HighwayEven1966-{B,C,D,E,F}.ttf` and
+  `highway61/outputs/Highway1966-EM-Constructed.ttf`
 
 The scans (`work/p1961/`, `work/lc1966/p3?.jpg`) are needed only for refitting and checking.
 
 Specimens:
 
 ```
-python3 lcseries.py          # outputs/specimen-lc-series.png: all six series
-python3 specimen1961.py D    # outputs/specimen-1961-D.png: one series' capitals and figures
+python3 lcseries.py          # specimen-lc-series.png (top level): all six series
+python3 specimen1961.py D    # highway61/outputs/specimen-1961-D.png: one series' capitals and figures
 ```
 
 Refitting and retuning, only when changing the designs:
@@ -182,10 +186,10 @@ The 2000 FHWA *Standard Highway Signs* alphabets publication embeds its fonts (S
 2000) as Type 1 font resources. Given the publication converted to PostScript (for example with `pdftops`):
 
 ```
-python3 fhwa2otf.py Alphabets.ps   # extracts highway1966/fhwa2000/*.pfa verbatim and converts them to .otf
-python3 fhwaspecimen.py            # outputs/comparison-1966-vs-2000.png: two-column specimen at equal cap height
-python3 fhwacompare.py             # outputs/compare-fhwa2000.png: per-glyph overlays
+python3 fhwa2otf.py Alphabets.ps   # extracts highway61/fhwa2000/*.pfa verbatim and converts them to .otf
+python3 fhwaspecimen.py            # comparison-1966-vs-2000.png (top level): two-column specimen at equal cap height
+python3 fhwacompare.py             # highway61/outputs/compare-fhwa2000.png: per-glyph overlays
 ```
 
-The extracted fonts carry a URW copyright notice, so they are not committed (`highway1966/fhwa2000/.gitignore`).
+The extracted fonts carry a URW copyright notice, so they are not committed (`highway61/fhwa2000/.gitignore`).
 `fhwaspecimen.py`, `fhwacompare.py` and `lcwidth.py` need them to be regenerated first.
