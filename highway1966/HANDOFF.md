@@ -280,6 +280,12 @@ ends keep their angles.
   quotedblright, quotedblleft = two of those, half a cap stroke apart; hyphen = the H's crossbar between the stems.
   All are lines and circles (exact).  Side bearings from the base fonts' glyphs.
 
+### Lighter b d p q bowls (Claude Code session 2026-10-16)
+- The user found the bowls of b d p q heavier than their neighbours: the fitted counters left them 1.59-1.66 squares
+  thick against the o's 1.56 (sides) and 1.50 (top/bottom).  `lcE.dims()` now enlarges each counter ellipse (centre x
+  kept, snapped to 1/32) so the bowl is `lcE.BOWL_T` = (1.53125, 1.5) squares thick at its free side, top and bottom
+  (`lcE.lighten`); fit.json is unchanged.  Every series inherits it through the E(M) constructions.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

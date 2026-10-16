@@ -268,7 +268,17 @@ def dims():
     out={}
     for ch,r in json.load(open(fn)).items():
         out[ch]={k:(round(v*2)/2 if k.endswith('th') else round(v*1000)/1000 if k in ('s','sb') else round(v*32)/32) for k,v in r.items()}
+    for ch in 'bdpq':
+        lighten(out[ch],ch in 'dq')
     return out
+BOWL_T=(1.53125,1.5)   # side and top/bottom thickness of the b d p q bowls (squares), as the o's; the fitted counters
+                       # left them 0.03-0.13 square heavier, which read as heavy next to o and g
+def lighten(d,stem_right):
+    """enlarge the bowl's counter ellipse (centre x kept) so the bowl is BOWL_T thick at its free side, top and bottom"""
+    ts,tt=BOWL_T
+    d['ca']=round((d['cx']-(d['BL']+ts) if stem_right else (d['BR']-ts)-d['cx'])*32)/32
+    d['cy']=round((d['BT']+d['BB'])/2*32)/32
+    d['cb']=round(((d['BT']-d['BB'])/2-tt)*32)/32
 def build(ch,nocut=False):
     """(geometry, quarter-ellipses) of one constructed letter, optionally without its cuts"""
     global NOCUT
