@@ -88,7 +88,12 @@ def _s_direct(f,gx,ey,k,S=None):
     lcgeom.REG.clear(); g=lcE.clean(lcE.letter_s_ell(q)); prims=list(lcgeom.REG)
     return [[tuple(sg) for sg in segs] for segs in lcoutline.contours(g,prims)]
 def series(S,f=None,only=None):
-    f=F_LC[S] if f is None else f; T=stroke(S)
+    f=F_LC[S] if f is None else f
+    lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
+    try: return _series(S,f,only)
+    finally: lcE.COND=0.0
+def _series(S,f,only):
+    T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
     t=ey                                        # stub length scale
     k=(X+2*ey)/X

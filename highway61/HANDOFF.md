@@ -395,6 +395,16 @@ ends keep their angles.
   12 (B) units; the narrowest width (twice the erosion that splits the s) goes from 0.77/0.76 to 0.89/0.87 of the
   stroke (E(M) 0.81, C-F 0.82-0.83).
 
+### e bar and a bowl top from the Palo Alto signs (2026-10-16)
+- Street View of two early-1960s signs on the Oregon Expressway, Palo Alto (Bayshore Fwy 2022, Business District
+  2018): lower-case widths match our Series C letter for letter (s narrower, r e a little wider).  Measured from
+  stroke centres (bloom-free): e bar centre 0.492/0.496 of the top-bottom stroke-centre span (ours 0.471), a bowl-top
+  centre 0.399 (ours 0.419); the e bar and a bowl top as thick as the top/bottom strokes (ours ~0.85).  Spacing on
+  the signs is about the stroke-scaled 1983 table (looser than the FHWA-matched spacing); left alone, as is the s.
+- `lcE.condensed_ae` (via `lcE.COND`, set by `lccondense.series` to 1 - F_LC): bar/bowl top towards the top stroke's
+  weight (w = min(1, c/C_REF), C_REF = 0.18 = Series C), grown into the e's lower opening / the a's gap, plus moves
+  E_DROP 0.0256 / A_RISE 0.012 squares x c/C_REF.  New C: e bar 0.493, a bowl top 0.401.  E, E(M), F unchanged.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

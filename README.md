@@ -137,6 +137,13 @@ with the series, as the capitals' table strokes do:
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the
   capitals' diagonals do from series to series.
 - **Dots** of i and j scale with the stroke, with their tops kept on the ascender line.
+- **The e's bar and the a's bowl top** get heavier with condensation (`lcE.condensed_ae`). In E(M) they are
+  lighter than the top and bottom strokes, as drawn in 1966. Two early-1960s Series C signs on the Oregon Expressway
+  in Palo Alto (Bayshore Fwy, Business District) have them as heavy as the other strokes. The extra weight goes into
+  the e's lower opening and into the a's gap under the arch, with a slight further move down for the bar and up for
+  the bowl top; the e's eye and the a's bowl counter keep their size. The change is in proportion to the condensation
+  (1 − the lower-case width factor), full at Series C's, and never heavier than the stroke. Series E, E(M) and F are
+  unchanged.
 - **Spacing** follows the spacing tables of the 1966 and 1983 *Standard Alphabets* (`work/spacingcheck.py` has
   them). For capitals and figures, Tables I and II give a code (1–4) from the preceding character and the group of
   the following one (B D E F H I K L M N P R U | C G O Q S X Z | A J T V W Y, and 1 5 | 2 3 6 8 9 0 | 4 7); Table VI
