@@ -150,9 +150,23 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
 - Tangency refits (by the Series E convention): O/Q/0 top arcs 174.9 → 175.3; 6/9 top/bottom arcs L 189.3 → 187.7;
   8 bottom arc 177.8 → 180.7. Unexplained label: 8's D (183.3; the upper centre is TOP−S = 522.9, not TOP−D 517.5).
 
+### Series B — complete (Claude Code session 2026-10-16)
+- `dimB1.py`..`dimB6.py` (pages 058 066 072 079 087 095), `seriesB1961.py`, `build1961.py B` →
+  `outputs/Highway61Revisited-B.otf/.ttf`. Every glyph fits its drawing with p95 ≤ 2.4 units. Same idioms as Series C.
+  Page B-6's 18-inch row is partly illegible: B-6 uses the 12-inch row (agrees with the 8-inch row).
+- Differences and decisions: M's diagonals meet at height L (not the baseline); P/R bowl side arc C centred on the
+  stem's left edge on the line K below the cap (corners therefore uneven); B counter corners H−A equal the table's I
+  (confirms the offset reading); S spine: C and D−A overlapped by 1.6 (an 8.6° kink), C refitted 274.3 → 270.3;
+  2: spine centre raised 4.6 above the baseline so the bowl sits on the overshoot line, stays tangent and the spine
+  stays vertical at the corner (best fit of four variants); 3: N/Q and R/Q pairs on different centre lines (S, T),
+  K joins lower Q to the notch, fillets H; 4: top flat F wider than the stem, diagonal and crossbar V; 1: flag drop I,
+  depth H (from the scan; the labels are ambiguous); 7: right edge reaches the bar 5 units past B (clipped at B);
+  O/Q/0 top arcs 134.2 → 136.9; 6/9 top arcs 140.2 → 140.6; 8 notch (246.8, 372.9) vs table (237.2, 366.6).
+- `dimE6.oval` now samples arcs at 0.25 units (small arcs were partly faceted); all four series rebuilt.
+
 ### Next steps
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
-2. Do Series A, B, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
+2. Do Series A, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
    overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.

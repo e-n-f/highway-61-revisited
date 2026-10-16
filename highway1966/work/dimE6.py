@@ -50,8 +50,9 @@ def oval(ct,rt,cl,rl,cb,rb,cr,rr):
         d=small-big; return big+rbig*d/np.linalg.norm(d)
     Ttl,Tbl,Tbr,Ttr=tp(ct,rt,cl,rl),tp(cb,rb,cl,rl),tp(cb,rb,cr,rr),tp(ct,rt,cr,rr)
     a=lambda c,p: np.degrees(np.arctan2(p[1]-c[1],p[0]-c[0]))
-    return np.vstack([arc(ct,rt,a(ct,Ttr),a(ct,Ttl),True),arc(cl,rl,a(cl,Ttl),a(cl,Tbl),True),
-                      arc(cb,rb,a(cb,Tbl),a(cb,Tbr),True),arc(cr,rr,a(cr,Tbr),a(cr,Ttr),True)])
+    st=0.25                                         # fine sampling, so small arcs are recovered exactly as arcs
+    return np.vstack([arc(ct,rt,a(ct,Ttr),a(ct,Ttl),True,st),arc(cl,rl,a(cl,Ttl),a(cl,Tbl),True,st),
+                      arc(cb,rb,a(cb,Tbl),a(cb,Tbr),True,st),arc(cr,rr,a(cr,Tbr),a(cr,Ttr),True,st)])
 def bowl6(g):
     B,L,N=DIM['B'],DIM['L'],DIM['N']; V=DIM['V']
     xc=B-V; yt=BOT+L; ym=(yt+BOT)/2                     # bowl: top at L above the bottom overshoot line
