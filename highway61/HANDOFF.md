@@ -379,6 +379,10 @@ ends keep their angles.
   (`pos <glyph> @class <value>`, ~2000 pairs, within about +-48 units), added by feaLib in `build1961.setup`.
   Lower case for series other than E(M): the table scaled by `lccondense.stroke(S)/V_EM` (the user's choice).
 - Result: all 776 capital/figure and 1352 lower-case table pairs within 1 unit in every series; outlines unchanged.
+- Lower case re-tightened (user: the fonts must be drop-in replacements for the FHWA ones): `spacing.LC_TIGHT`
+  multiplies the stroke-scaled table so the a-z advance sum equals FHWA 2000's (`lcspace.py`, imports build1961
+  without writing): B 0.608, C 0.635, D 0.736, E 0.447, F 0.814; A uses B's; E(M) is the table unscaled (canon;
+  its alphabet 23.25 cap heights against FHWA ModE's 23.95).  Totals now within 0.03 cap heights, kerned or not.
   Uncovered pairs (lc before capital, letter/figure, punctuation, space) rely on side bearings only.
 
 ### Next steps

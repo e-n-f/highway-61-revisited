@@ -8,7 +8,7 @@ left and right), and the remainder for each (preceding character, following clas
 
 Capitals and figures: Table I/II codes, space = factor x series stroke (E(M): Series E's spaces).  Lower case: the
 1983 E(M) table (capitals and lower case preceding), scaled for the other series by their lower-case stroke over
-E(M)'s.  Pairs the tables do not cover (lower case before a capital, letters and figures, punctuation) are left to
+E(M)'s and tightened to the FHWA 2000 alphabet widths (LC_TIGHT).  Pairs the tables do not cover (lower case before a capital, letters and figures, punctuation) are left to
 the side bearings."""
 import numpy as np
 import spacingcheck as sc
@@ -17,22 +17,30 @@ def classes():
     """(preceding characters, following classes as strings) for the three tables"""
     cap_f=['BDEFHIKLMNPRU','CGOQSXZ','AJTVWY']; num_f=['15','236890','47']
     return cap_f,num_f,sc.LCCOLS
-def targets(S):
-    """{(preceding char, following class name): space in font units}"""
+# Lower-case spaces relative to the E(M) table scaled by lower-case stroke, solved by lcspace.py so that each
+# series' a-z advances add up to the FHWA 2000 font's (as the lower-case widths are, lcwidth.py).  E(M) is the
+# table itself; Series A (no FHWA font) takes Series B's factor.
+LC_TIGHT={'B':0.608,'C':0.635,'D':0.736,'E':0.447,'F':0.814}
+def lc_scale(S):
+    """lower-case table scale for series S: E(M) 1, others their lower-case stroke over E(M)'s times LC_TIGHT"""
     import lccondense
+    if S=='EM': return 1.0
+    return lccondense.stroke(S)/lccondense.V_EM*LC_TIGHT.get('B' if S=='A' else S,1.0)
+def targets(S,lc=None):
+    """{(preceding char, following class name): space in font units}; lc overrides the lower-case scale"""
     cap_f,num_f,lc_f=classes(); st=sc.STROKE[S]; out={}
     for a,codes in sc.CODES.items():
         for g,cls in enumerate(cap_f): out[(a,cls)]=sc.FACTOR[codes[g]]*st
     for a,codes in sc.NCODES.items():
         for g,cls in enumerate(num_f): out[(a,cls)]=sc.FACTOR[codes[g]]*st
-    r=1.0 if S=='EM' else lccondense.stroke(S)/lccondense.V_EM
+    r=lc_scale(S) if lc is None else lc
     for row,vals in zip(sc.LCROWS,sc.LC375):
         for cls,v in zip(lc_f,vals):
             for a in row: out[(a,cls)]=v*sc.XH/375*r
     return out
-def solve(S,cur):
+def solve(S,cur,lc=None):
     """cur: {char: (lsb, rsb)} now.  Returns ({char: (lsb, rsb)}, {(char, class): kern})"""
-    T=targets(S); pre=sorted({a for a,_ in T}); cls=sorted({c for _,c in T})
+    T=targets(S,lc); pre=sorted({a for a,_ in T}); cls=sorted({c for _,c in T})
     ip={a:i for i,a in enumerate(pre)}; ic={c:len(pre)+i for i,c in enumerate(cls)}; n=len(pre)+len(cls)
     rows=[]; y=[]
     for (a,c),v in T.items():

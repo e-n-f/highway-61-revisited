@@ -142,14 +142,17 @@ with the series, as the capitals' table strokes do:
   0.8 or 0.4. E(M) uses Series E's spaces, as both editions do, and Series A, which has no table, uses the same
   factors of its own stroke. For the lower case, the 1983 table gives the space from the preceding character
   (capital or lower case, in 22 classes) and the following lower-case class (a c d e g o q | b h i k l m n p r u |
-  f w | j | s t | v y | x | z). It is for E(M); the other series get it scaled by their lower-case stroke over
-  E(M)'s.
+  f w | j | s t | v y | x | z). It is for E(M), whose lower case follows it as it stands. The other series get it
+  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.45–0.81) so
+  that each lower-case alphabet (the sum of the a–z advances) is as wide as the FHWA 2000 font's, as the
+  lower-case widths are; set in text, a line of lower case runs the same length as in the official font, so these
+  can stand in for it. Series A, with no FHWA font, takes Series B's factor.
 
   The tables are not additive, so they are met with side bearings and class kerning (`work/spacing.py`): each
   character gets its own right side bearing, every character of a following class the same left side bearing,
   chosen by least squares (pulled weakly towards the earlier bearings), and what remains for each (character,
   following class) pair is a GPOS `kern` value. All 2128 table pairs of each font come out within a unit of the
-  table (`python3 spacingcheck.py`). Pairs the tables do not cover (a lower-case letter before a capital, letters
+  table, as scaled (`python3 spacingcheck.py`). Pairs the tables do not cover (a lower-case letter before a capital, letters
   next to figures, punctuation, the space) are spaced by the side bearings alone. Punctuation keeps its side
   bearings from the matching Highway Even 1966 font (`highway61/outputs/HighwayEven1966-<S>.ttf`, for E(M)
   `highway61/outputs/Highway1966-EM-Constructed.ttf`), the earlier traced fonts of this project.
@@ -205,6 +208,7 @@ Refitting and retuning, only when changing the designs:
 ```
 python3 lcfitall.py nhm      # refit the named lower-case letters to the 1966 scans (rewrites lc1966/fit.json)
 python3 lcwidth.py B         # solve a series' lower-case width factor; copy the result into lccondense.F_LC
+python3 lcspace.py B         # then its lower-case spacing factor; copy the result into spacing.LC_TIGHT
 ```
 
 ### Comparison with the FHWA 2000 fonts
@@ -219,5 +223,5 @@ python3 fhwacompare.py             # highway61/outputs/compare-fhwa2000.png: per
 ```
 
 The repository does not include these fonts (`highway61/fhwa2000/` is git-ignored). They are part of the official
-publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py` or
-`lcwidth.py`, which need them.
+publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`,
+`lcwidth.py` or `lcspace.py`, which need them.
