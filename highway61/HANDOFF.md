@@ -395,6 +395,10 @@ ends keep their angles.
   12 (B) units; the narrowest width (twice the erosion that splits the s) goes from 0.77/0.76 to 0.89/0.87 of the
   stroke (E(M) 0.81, C-F 0.82-0.83).
 
+### w weight (2026-10-16)
+- `build1961.W_LIGHT` 0.15 -> 0.08 (user: the w had been lightened too much; give some back, not all).  Lower-case
+  alphabets stay within 0.03 cap heights of FHWA (LC_TIGHT unchanged).
+
 ### e bar and a bowl top from the Palo Alto signs (2026-10-16)
 - Street View of two early-1960s signs on the Oregon Expressway, Palo Alto (Bayshore Fwy 2022, Business District
   2018): lower-case widths match our Series C letter for letter (s narrower, r e a little wider).  Measured from

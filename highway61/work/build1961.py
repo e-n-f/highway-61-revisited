@@ -88,7 +88,7 @@ if S in 'ABCDEF':                                # condensed / expanded lower ca
     import lccondense
     for c, C in lccondense.series(S).items():
         new[c] = SegShifted(C, c)
-W_LIGHT = 0.15                                   # the w's strokes thinner by this fraction of the series stroke
+W_LIGHT = 0.08                                   # the w's strokes thinner by this fraction of the series stroke
 def _lighter_w(C, T):
     """offset inward by W_LIGHT*T/2, then baseline and x-height restored (four strokes in one letter read heavy)"""
     X = 517.5; d = W_LIGHT * T / 2
