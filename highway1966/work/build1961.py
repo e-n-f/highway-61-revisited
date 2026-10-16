@@ -83,6 +83,17 @@ if S in 'BCDEF':                                 # condensed / expanded lower ca
     import lccondense
     for c, C in lccondense.series(S).items():
         new[c] = SegShifted(C, c)
+W_LIGHT = 0.15                                   # the w's strokes thinner by this fraction of the series stroke
+def _lighter_w(C, T):
+    """offset inward by W_LIGHT*T/2, then baseline and x-height restored (four strokes in one letter read heavy)"""
+    X = 517.5; d = W_LIGHT * T / 2
+    bands = [(-1e9, d, 1.0, -d), (d, X - d, X / (X - 2 * d), -d * X / (X - 2 * d)), (X - d, 1e9, 1.0, d)]
+    return strokeop.vmap(strokeop.offset(C, -d), bands)
+if S in 'BCDEF':
+    new['w'] = SegShifted(_lighter_w(new['w'].c, lccondense.stroke(S)), 'w')
+else:
+    g, prims = lcE.series()['w']
+    new['w'] = SegShifted(_lighter_w(strokeop.from_lc(g, prims), (1 + 9 / 16) * 690 / 8), 'w')
 import punct
 from shapely.geometry import Polygon as _Poly
 def _glyph_poly(n):

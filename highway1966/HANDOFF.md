@@ -311,6 +311,11 @@ ends keep their angles.
   the outermost vertices anywhere on the cut line: at B 0.55 the inside of the t's foot crossed the t's terminal
   line and had a 15-unit notch taken out of it.  `series(S, f, only)` builds a subset of letters for tests.
 
+### Lighter w (Claude Code session 2026-10-16)
+- `build1961.W_LIGHT` = 0.15: in every series the w is offset inward by 0.075 x the series stroke and its baseline
+  and x-height restored (vmap bands), so its strokes are about 0.82 of the v's across (FHWA Series B 2000 w: 0.80;
+  their other series leave the w at v weight).  The offset also deepens the crotches.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
