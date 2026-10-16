@@ -164,9 +164,30 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
   O/Q/0 top arcs 134.2 → 136.9; 6/9 top arcs 140.2 → 140.6; 8 notch (246.8, 372.9) vs table (237.2, 366.6).
 - `dimE6.oval` now samples arcs at 0.25 units (small arcs were partly faceted); all four series rebuilt.
 
+### Series F — complete (Claude Code session 2026-10-16)
+- `dimF1.py`..`dimF6.py` (pages 223 227 235 242 249 255), `seriesF1961.py`, `build1961.py F` →
+  `outputs/Highway61Revisited-F.otf/.ttf`. Every glyph fits its drawing with p95 ≤ 4.7 units, except M (9.3: its
+  drawing is ~1.4% wider than the table; the table is followed). F-2/F-3 use the 12-inch row and F-5 the 8-inch row
+  (the scan cuts off the 18-inch row); the rows agree.
+- Constructions: B as the Series D B (counter arcs H, G tangent to the bar, outer offsets E−A, F−A); C a ring of
+  radius L = half the overshoot height; D, P, R semicircular bowls; O a circle; G jaw at the lower arc's extreme,
+  clipped to that arc below its centre (the bar's foot lies lower); S as Series E (top D, bottom C, bowls I, H,
+  internal-tangent spine); 2: top O on the axis x=Q, bowl K tangent to it, spine N at (N, 0), straight spine edges
+  (internal tangents; the bowl and spine stand 10.8 apart); 3: O arcs top and bottom on x=D−Q, bowls T (I in) and K,
+  bar on the notch height, counter ends tangent to O−A and the bar, A in from the bowls — table S 64.7 and F 97 can't
+  be tangent to both, refitted to 57.1 and 85.2 (the drawing agrees: measured 56 and 88); 4: diagonal and crossbar U;
+  5: bowl top E (centred low on the axis, top D above the overshoot line), right F, bottom C (centred high);
+  6/9: oval B × K with K measured from the baseline (then the side arc refits to 194.6 against L 194.1), tail an arc J
+  tangent to the bowl's left side and reaching the cap at B−M; 7: inner edge radius C through (B−O, 0) and the bar
+  corner (centre 11.7 above the baseline); 8: upper oval S/W with the counter's bottom E (inner, the bowl's E+A),
+  lower oval U/R with the counter's top T (inner): notch (543.8, 376.3) vs table (549.8, 377.3); 0: oval with sides J,
+  top/bottom refitted 318.6 → 322.1.
+- `scanfit.edge_samples` and the 4×4-opening trick (drawn outlines survive, thin dimension lines don't) were used to
+  measure arcs where the labels were ambiguous.
+
 ### Next steps
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
-2. Do Series A, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
+2. Do Series A page by page with the same structure: read each page's table, write `dim<S><page>.py`,
    overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.

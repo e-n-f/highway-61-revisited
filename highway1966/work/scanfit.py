@@ -70,3 +70,25 @@ def edge_samples(g, p, box, scale=0.858, reach=12):
     sx = ix[Y[ok], X[ok]]; sy = iy[Y[ok], X[ok]]
     S = np.c_[(sx - ox) / s, (oy - sy) / s]
     return P[ok], S
+
+
+def outline(p, box, width_units):
+    """the drawn letter's outer contour (background flood-filled from the box's corner), in font units: x from the
+    leftmost point, y from the lowest point, scaled so the contour is width_units wide"""
+    import cv2
+    x0, y0, x1, y1 = box
+    dark = page(p)[y0:y1, x0:x1].astype(np.uint8)
+    dark = cv2.dilate(dark, np.ones((3, 3), np.uint8))
+    ff = (1 - dark) * 255
+    mask = np.zeros((ff.shape[0] + 2, ff.shape[1] + 2), np.uint8)
+    cv2.floodFill(ff, mask, (0, 0), 128)
+    inside = (ff != 128).astype(np.uint8)
+    cs, _ = cv2.findContours(inside, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    c = max(cs, key=cv2.contourArea)[:, 0, :].astype(float)
+    s = (c[:, 0].max() - c[:, 0].min()) / width_units
+    return np.c_[(c[:, 0] - c[:, 0].min()) / s, (c[:, 1].max() - c[:, 1]) / s], s
+
+
+def circle_fit(P):
+    x, y = P[:, 0], P[:, 1]; M = np.c_[2 * x, 2 * y, np.ones(len(x))]; b = x * x + y * y
+    c = np.linalg.lstsq(M, b, rcond=None)[0]; return c[:2], float(np.sqrt(c[2] + c[0] ** 2 + c[1] ** 2))
