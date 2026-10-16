@@ -7,6 +7,7 @@ import numpy as np
 from shapely.geometry import box, Polygon
 from lcgeom import Quad, ellipse, half, slope_dir
 SQ=690/8; X=6*SQ
+NOCUT=False    # True: build letters without their terminal cuts and slanted stem ends (for lccondense)
 def U(p): return {k:(v*SQ if isinstance(v,(int,float)) else v) for k,v in p.items()}
 def quad(p,pre):
     g=lambda k: p[pre+k]
@@ -38,6 +39,7 @@ def bowl(p,pre='B'):
             Quad(g('L'),g('yl'),g('R2'),g('yr2'),g('xt'),g('T'),g('xb'),g('B')).poly())
 def term(p,ref,pre='t'):
     """terminal cut: the line through (tx, ty) at angle tth (degrees), keeping the side of ref"""
+    if NOCUT: return box(-3000,-3000,3000,3000)
     return side((p[pre+'x'],p[pre+'y']),p[pre+'th'],ref)
 def letter_a(p):
     """stem xs..xr; arch: quarter-ellipses sharing the top point (axt, aT), the right one tangent to the stem's outer
@@ -58,7 +60,7 @@ def letter_e(p):
     the bar; lower counter: ellipse LC with, to its right, everything above the terminal line"""
     O=quad(p,'O').poly()
     UC=ellipse(p['ux'],p['uy'],p['ua'],p['ub'])&box(-100,p['yt'],800,800)
-    H=term(p,(p['xc']+200,p['yb']))
+    H=Polygon() if NOCUT else term(p,(p['xc']+200,p['yb']))
     LC=(ellipse(p['lx'],p['ly'],p['la'],p['lb'])|H)&box(-100,-100,800,p['yb'])
     return O.difference(UC).difference(LC)
 def letter_g(p):
@@ -74,9 +76,11 @@ def letter_g(p):
     return (tail|B).difference(C&box(-100,-100,xs,800))
 def slanted(x0,x1,y0,ytop,s):
     """stem from x0 to x1, bottom y0, top cut by the line through (x1, ytop) of slope s"""
+    if NOCUT: return box(x0,y0,x1,max(ytop,ytop-s*(x1-x0)))
     return Polygon([(x0,y0),(x1,y0),(x1,ytop),(x0,ytop-s*(x1-x0))])
 def slanted_bottom(x0,x1,ytop,ybot,s):
     """stem from x0 to x1, top ytop, bottom cut by the line through (x0, ybot) of slope s"""
+    if NOCUT: return box(x0,min(ybot,ybot+s*(x1-x0)),x1,ytop)
     return Polygon([(x0,ybot),(x1,ybot+s*(x1-x0)),(x1,ytop),(x0,ytop)])
 def xform(g,start,mx=None,rot=None,my=None):
     """mirror about x = mx, or rotate 180 degrees about rot, both the geometry and the ellipses recorded since start"""
@@ -148,7 +152,7 @@ def letter_c(p):
     O=quad(p,'O').poly(); I=ellipse(p['ix'],p['iy'],p['ia'],p['ib'])
     far=(p['OR']+300,p['Oyr'])
     wedge=side((p['ux'],p['uy']),p['uth'],far)&side((p['lx'],p['ly']),p['lth'],far)
-    return O.difference(I).difference(wedge)
+    return O.difference(I) if NOCUT else O.difference(I).difference(wedge)
 def hook(p,top):
     """a stem x0..x1 from `top` down into a hook turning right: quarter-ellipses sharing the bottom point (hx, hB), the
     left one rounding the stem's outer edge from height hyl, the right one rising to hR at hyr; inside, an ellipse
@@ -234,6 +238,7 @@ def letter_s(p):
     yu=p['uiyl']+du; yl=p['liyr']+dl
     UO=UO.poly(); LO=LO.poly()
     Hu=side((p['utx'],p['uty']),p['utth'],(p['UR']+300,p['UT'])); Hl=side((p['ltx'],p['lty']),p['ltth'],(p['LL']-300,p['LB']))
+    if NOCUT: Hu=Hl=Polygon()
     Wu=(UI|Hu|under(shifted(p,'ui',du),xu,1)).difference(LO)      # the upper counter, open to the right
     Wl=(LI|Hl|under(shifted(p,'li',dl),xl,-1)).difference(UO)      # the lower counter, open to the left
     return fuse(UO|LO).difference(Wu).difference(Wl)
@@ -264,6 +269,14 @@ def dims():
     for ch,r in json.load(open(fn)).items():
         out[ch]={k:(round(v*2)/2 if k.endswith('th') else round(v*1000)/1000 if k in ('s','sb') else round(v*32)/32) for k,v in r.items()}
     return out
+def build(ch,nocut=False):
+    """(geometry, quarter-ellipses) of one constructed letter, optionally without its cuts"""
+    global NOCUT
+    import lcgeom
+    d=dims()[ch]; lcgeom.REG.clear(); NOCUT=nocut
+    try: g=clean(LETTERS[ch]({k:(v if (k.endswith('th') or k in ('s','sb')) else v*SQ) for k,v in d.items()}))
+    finally: NOCUT=False
+    return g,list(lcgeom.REG)
 def series():
     """{letter: (geometry, quarter-ellipses used)} in font units"""
     import lcgeom

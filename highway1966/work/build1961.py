@@ -79,6 +79,10 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
+if S in 'BCDF':                                  # condensed / expanded lower case (lccondense)
+    import lccondense
+    for c, C in lccondense.series(S).items():
+        new[c] = SegShifted(C, c)
 if S == 'E':                                     # lower case narrowed by the same amount (the opposite change)
     X = 517.5; d = D_EM
     bands = [(-1e9, d, 1.0, -d), (d, X - d, X / (X - 2 * d), -d * X / (X - 2 * d)), (X - d, 1e9, 1.0, d)]
@@ -92,11 +96,17 @@ src = lambda n: new[n] if n in new else gs[n]
 DESC = {'E': '1961 Standard Alphabets for Highway Signs, Series E: capitals and figures constructed from the dimensioned '
              'drawings (straight lines and circular arcs); lower case constructed from the 1966 E(M) sheets and narrowed '
              'to Series E stroke weight; punctuation from Highway Even 1966 E.',
+        'B': None, 'C': None, 'D': None, 'F': None,
         'EM': 'Series E(M): 1961 Series E capitals and figures with the stroke widened to one-fifth of the letter height '
               '(1966 recommendation); lower case constructed from the 1966 E(M) sheets (lines and quarter-ellipses); '
               'punctuation from Highway 1966 E(M).'}.get(S, '1961 Standard Alphabets for Highway Signs, Series %s: '
               'capitals and figures constructed from the dimensioned drawings (straight lines and circular arcs); '
               'lowercase and punctuation from Highway Even 1966 %s.' % (S, S))
+if S in 'BCDF':
+    DESC = ('1961 Standard Alphabets for Highway Signs, Series %s: capitals and figures constructed from the dimensioned '
+            'drawings (straight lines and circular arcs); lower case from the 1966 E(M) constructions, with the core '
+            'width scaled as the 1961 capitals are and the series stroke weight; punctuation from Highway Even 1966 %s.'
+            % (S, S))
 
 
 def setup(fb, outlines_kind):

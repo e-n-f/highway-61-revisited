@@ -45,13 +45,21 @@ def tangent(s,end):
         t=s[4]+(s[5] if end else 0.0); v=_etan(s[3],t)*np.sign(s[5])
     return v/np.linalg.norm(v)
 # ---------------------------------------------------------------------------------------------------- offset
+def _support(n,d):
+    """the offset vector for outward normal n: d is a number (a circle) or (dx, dy) (an axis-aligned ellipse: the
+    Minkowski sum with an ellipse moves a line by its support distance along the normal)"""
+    if np.isscalar(d): return n*d
+    dx,dy=d; sg=1.0 if (dx if dx!=0 else dy)>=0 else -1.0; h=np.hypot(n[0]*dx,n[1]*dy)
+    if h<1e-12: return np.zeros(2)
+    return sg*np.array([dx*dx*n[0],dy*dy*n[1]])/max(h,1e-12)
 def _moved(s,d):
     """the moved carrier of a segment: ('L', point, direction) or ('E', ellipse)"""
     if s[0]=='L':
         u=tangent(s,0); n=np.array([-u[1],u[0]])            # left of travel = away from the ink
-        return ('L',s[1]+n*d,u)
+        return ('L',s[1]+_support(n,d),u)
     cx,cy,a,b=s[3]; k=np.sign(s[5])                         # travelling anticlockwise: the centre is on the left
-    return ('E',(cx,cy,a-k*d,b-k*d))
+    dx,dy=(d,d) if np.isscalar(d) else d
+    return ('E',(cx,cy,a-k*dx,b-k*dy))
 def _on(c,t):
     return c[1]+c[2]*t if c[0]=='L' else _ept(c[1],t)
 def _don(c,t):
@@ -73,17 +81,19 @@ def _intersect(c1,c2,guess):
         t1+=dt[0]; t2+=dt[1]
     p=_on(c1,t1)
     return p if np.hypot(*(_on(c1,t1)-_on(c2,t2)))<1e-6 else None
-def offset_contour(segs,d):
+def offset_contour(segs,d,tags=None):
     """offset one contour; segments that the offset makes vanish or run backwards are dropped and their neighbours
-    re-joined, until none are left"""
-    segs=list(segs)
+    re-joined, until none are left.  With tags (one per segment), returns (segments, surviving tags)"""
+    segs=list(segs); tags=list(tags) if tags is not None else None
     for _ in range(len(segs)):
         out=_offset_once(segs,d)
-        if len(segs)<=2: return out
-        bad=[i for i,(s,o) in enumerate(zip(segs,out)) if _reversed(s,o)]
-        if not bad: return out
-        segs=[s for i,s in enumerate(segs) if i not in bad[:1]]
-    return out
+        if len(segs)<=2: break
+        idx=_offset_once.idx
+        bad=[i for k,i in enumerate(idx) if i>=0 and _reversed(segs[i],out[k])]
+        if not bad: break
+        segs=[s for i,s in enumerate(segs) if i!=bad[0]]
+        if tags is not None: tags=[t for i,t in enumerate(tags) if i!=bad[0]]
+    return (out,tags) if tags is not None else out
 def _reversed(s,o):
     if s[0]=='L':
         return (o[2]-o[1])@(s[2]-s[1])<=0
@@ -92,33 +102,44 @@ def _reversed(s,o):
     # an arc whose chord now points against the original chord has turned inside out
     c0=s[2]-s[1]; c1=o[2]-o[1]
     return np.hypot(*c0)>1e-6 and abs(s[5])<np.pi and c0@c1<0
+MITRE=None      # when set, corners whose mitre would reach further than MITRE times the offset are bevelled
 def _offset_once(segs,d):
     n=len(segs); C=[_moved(s,d) for s in segs]
-    J=[]
+    J=[]; BEV={}
     for i in range(n):
         a,b=segs[i-1],segs[i]; P=a[2]                         # joint between segment i-1 and i
         ua,ub=tangent(a,1),tangent(b,0)
         na=np.array([-ua[1],ua[0]]); nb=np.array([-ub[1],ub[0]])
         smooth=np.degrees(np.arccos(np.clip(ua@ub,-1,1)))<0.5
         if smooth:
-            J.append(P+(na+nb)/np.linalg.norm(na+nb)*d); continue
+            J.append(P+_support((na+nb)/np.linalg.norm(na+nb),d)); continue
         # a corner: intersect the moved carriers near the mitre point
-        m=na+nb; g=P+m/max(np.linalg.norm(m),1e-9)*d/max(np.cos(np.arccos(np.clip(na@nb,-1,1))/2),0.2)
+        dd=d if np.isscalar(d) else max(abs(d[0]),abs(d[1]))*(np.sign(d[0]) if d[0]!=0 else np.sign(d[1]))
+        m=na+nb; g=P+m/max(np.linalg.norm(m),1e-9)*dd/max(np.cos(np.arccos(np.clip(na@nb,-1,1))/2),0.2)
         q=_intersect(C[i-1],C[i],g)
-        J.append(q if q is not None else g)
-    out=[]
+        q=q if q is not None else g
+        if MITRE is not None and np.hypot(*(q-P))>MITRE*abs(dd):
+            pa=P+_support(na,d); pb=P+_support(nb,d); BEV[i]=(pa,pb); J.append(None); continue
+        J.append(q)
+    out=[]; IDX=[]
     for i in range(n):
-        p0,p1=J[i],J[(i+1)%n]; s=segs[i]
+        if i in BEV: out.append(('L',BEV[i][0],BEV[i][1])); IDX.append(-1)
+        IDX.append(i)
+        j=(i+1)%n
+        p0=BEV[i][1] if i in BEV else J[i]; p1=BEV[j][0] if j in BEV else J[j]; s=segs[i]
         if s[0]=='L': out.append(('L',p0,p1)); continue
         e=C[i][1]; t0=_par(e,p0); t1=_par(e,p1); k=np.sign(s[5])
         if n==1: out.append(('E',p0,p1,e,t0,s[5])); continue      # a whole ellipse (a dot)
         sw=(t1-t0)%(2*np.pi) if k>0 else -((t0-t1)%(2*np.pi))
         if abs(sw)>abs(s[5])+np.pi: sw=0.0                    # the arc vanished (crossed over itself)
         out.append(('E',p0,p1,e,t0,sw))
+    _offset_once.idx=IDX
     return out
-def clean(segs,minlen=0.05):
-    """drop segments that collapsed to (nearly) nothing"""
-    return [s for s in segs if np.hypot(*(s[2]-s[1]))>minlen or (s[0]=='E' and abs(s[5])>1e-3)]
+def clean(segs,minlen=0.05,tags=None):
+    """drop segments that collapsed to (nearly) nothing; with tags, return (segments, tags)"""
+    keep=[i for i,s in enumerate(segs) if np.hypot(*(s[2]-s[1]))>minlen or (s[0]=='E' and abs(s[5])>1e-3)]
+    out=[segs[i] for i in keep]
+    return (out,[tags[i] for i in keep]) if tags is not None else out
 def offset(contours,d):
     return [clean(offset_contour(c,d)) for c in contours]
 # ---------------------------------------------------------------------------------------------------- vertical map
@@ -177,15 +198,16 @@ def draw(contours,pen,dx=0.0,dy=0.0):
             else:
                 for bz in lcoutline.beziers(s): pen.curveTo(T(bz[1]),T(bz[2]),T(bz[3]))
         pen.closePath()
-def to_polygons(contours,n=16):
-    """flattened rings (for checks and overlays)"""
+def to_polygons(contours,n=16,step=None):
+    """flattened rings (for checks and overlays); step: largest parameter step in radians (overrides n)"""
     rings=[]
     for segs in contours:
         pts=[]
         for s in segs:
             if s[0]=='L': pts.append(s[1])
             else:
-                for t in np.linspace(0,1,n,endpoint=False): pts.append(_ept(s[3],s[4]+s[5]*t))
+                m=n if step is None else max(2,int(np.ceil(abs(s[5])/step)))
+                for t in np.linspace(0,1,m,endpoint=False): pts.append(_ept(s[3],s[4]+s[5]*t))
         rings.append(np.array(pts))
     return rings
 def clip_y(contours,yc,below=True):
@@ -206,4 +228,95 @@ def clip_y(contours,yc,below=True):
             while j<n and B[j]: j+=1
             cs.append(('L',P[i][1],P[j-1][2])); i=j
         out.append(cs)
+    return out
+
+# ---------------------------------------------------------------------------------------------------- condensing
+def scale_x(contours,f):
+    out=[]
+    for segs in contours:
+        cs=[]
+        for s in segs:
+            M=lambda p: np.array([p[0]*f,p[1]])
+            if s[0]=='L': cs.append(('L',M(s[1]),M(s[2])))
+            else:
+                cx,cy,a,b=s[3]; cs.append(('E',M(s[1]),M(s[2]),(cx*f,cy,a*f,b),s[4],s[5]))
+        out.append(cs)
+    return out
+def _carrier(s):
+    return ('L',s[1],tangent(s,0)) if s[0]=='L' else ('E',s[3])
+def _rebuild(s,p0,p1):
+    if s[0]=='L': return ('L',p0,p1)
+    e=s[3]; t0=_par(e,p0); t1=_par(e,p1); k=np.sign(s[5])
+    sw=(t1-t0)%(2*np.pi) if k>0 else -((t0-t1)%(2*np.pi))
+    if abs(s[5])>=2*np.pi-1e-6: sw=s[5]
+    return ('E',p0,p1,e,t0,sw)
+def reangle(segs,tags,pivot_y=258.75):
+    """turn every line tagged with an angle (degrees, direction of travel) back to that angle about its midpoint, and
+    re-join it to its neighbours"""
+    segs=list(segs); n=len(segs)
+    for i,t in enumerate(tags):
+        if t is None or segs[i][0]!='L': continue
+        s=segs[i]; u=np.array([np.cos(np.radians(t)),np.sin(np.radians(t))])
+        # pivot on the end farther from mid x-height: a stem's top corner stays on the ascender line, a descender's
+        # bottom corner on its line
+        m=s[1] if abs(s[1][1]-pivot_y)>abs(s[2][1]-pivot_y) else s[2]
+        if u@(s[2]-s[1])<0: u=-u
+        L=('L',m,u)
+        a,b=segs[i-1],segs[(i+1)%n]
+        p0=_intersect(_carrier(a),L,s[1]); p1=_intersect(L,_carrier(b),s[2])
+        if p0 is None or p1 is None: continue
+        segs[i-1]=_rebuild(a,a[1],p0); segs[i]=('L',p0,p1); segs[(i+1)%n]=_rebuild(b,p1,b[2])
+    return segs
+def terminal_tags(segs,maxlen=160.0,turn=15.0,par=0.85):
+    """the direction (degrees) of each terminal cut, None elsewhere: a short slanted line meeting both neighbours at
+    corners, the neighbours (the stroke's two sides) running roughly parallel"""
+    n=len(segs); tags=[None]*n
+    for i,s in enumerate(segs):
+        if s[0]!='L': continue
+        v=s[2]-s[1]; L=np.hypot(*v); ang=np.degrees(np.arctan2(v[1],v[0]))
+        if L>maxlen or min(ang%180,abs(ang%180-90),180-ang%180)<1.0: continue
+        a=tangent(segs[i-1],1); b=tangent(s,0); c=tangent(s,1); d=tangent(segs[(i+1)%n],0)
+        if np.degrees(np.arccos(np.clip(a@b,-1,1)))<turn or np.degrees(np.arccos(np.clip(c@d,-1,1)))<turn: continue
+        if abs(a@d)<par: continue
+        tags[i]=ang
+    return tags
+def condense(contours,f,t,tx,ty,X,metric=None,reangle_terms=True):
+    """narrow a lower-case letter: offset inwards by t (a thin core), scale x by f, turn the terminal cuts back to their
+    angles, map y so the baseline, x-height, ascender and descender come back to their lines once the strokes are
+    thickened, then offset outwards by (tx, ty) (horizontal and vertical half-strokes)"""
+    out=[]; dots=[]
+    for segs in contours:
+        tags=terminal_tags(segs) if reangle_terms else [None]*len(segs)
+        if len(segs)==1 and segs[0][0]=='E':          # a dot: kept round, its radius changed by the mean half-stroke
+            cx,cy,a,b=segs[0][3]; r=a-t+(tx+ty)/2
+            yc=cy+(t-ty if cy>X-t else ty-t if cy<t else 0)
+            p=np.array([cx*f+r,yc]); dots.append([('E',p,p,(cx*f,yc,r,r),0.0,2*np.pi*np.sign(segs[0][5]))]); continue
+        core,tg=offset_contour(segs,-t,tags)
+        core,tg=clean(core,tags=tg)
+        core=scale_x([core],f)[0]
+        core=reangle(core,tg)
+        out.append(clean(core))
+    k=(X-2*ty)/(X-2*t)
+    out=vmap(out,[(-1e9,t,1.0,ty-t),(t,X-t,k,ty-t*k),(X-t,1e9,1.0,t-ty)])
+    return [clean(offset_contour(clean(c),(tx,ty))) for c in out]+dots
+
+def condense2(contours,f,gx,ey,X,mitre=None):
+    """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),
+    stretch y so that, after the vertical offset by -ey (horizontal strokes to weight), the baseline and x-height are
+    back on their lines; dots are kept round"""
+    out=[]; dots=[]
+    for segs in contours:
+        if len(segs)==1 and segs[0][0]=='E':
+            cx,cy,a,b=segs[0][3]; dots.append((cx,cy,a,np.sign(segs[0][5]))); continue
+        out.append(scale_x([segs],f)[0])
+    global MITRE
+    MITRE=mitre
+    try: out=[clean(offset_contour(clean(c),(gx,0.0))) for c in out]
+    finally: MITRE=None
+    k=(X+2*ey)/X
+    out=vmap(out,[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)])
+    out=[clean(offset_contour(clean(c),(0.0,-ey))) for c in out]
+    for cx,cy,a,sg in dots:
+        r=a+(gx-ey)/2; yc=cy if cy<=X else cy+ey-ey
+        p=np.array([cx*f+r,yc]); out.append([('E',p,p,(cx*f,yc,r,r),0.0,2*np.pi*sg)])
     return out

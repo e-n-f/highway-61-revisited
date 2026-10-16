@@ -249,6 +249,27 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   check against.  Curves crossing the band lines get a tangent change of at most about 1 degree.
 - `strokecheck.py E|EM`: every glyph's flattened outline must be a valid shape (all pass).
 
+### Condensed (B, C, D) and expanded (F) lower case (Claude Code session 2026-10-16)
+`lccondense.py` makes each series' lower case from the E(M) constructions, by the rule the 1961 capitals follow:
+the width less the stroke scales by f = 0.475 / 0.65 / 0.825 / 1.175 (B C D F; measured from the 1961 capitals), and
+the stroke steps with the series as the capitals' table strokes do (B 83.0, C 93.8, D 104.6, E 115.4, F 126.1 units;
+E(M) 135).  Both vertical and horizontal strokes come out at the series stroke, and terminal cuts and slanted stem
+ends keep their angles.
+- `strokeop.condense2`: scale x by f; offset the outline horizontally by gx = (T - V f)/2 (vertical strokes to T);
+  stretch y so that a vertical offset by -ey = -(V - T)/2 (horizontal strokes to T) lands the baseline and x-height
+  back on their lines; dots stay round.  (An earlier "thin core" method — offset in, scale, offset out — collapsed
+  every feature thinner than twice the core offset, e.g. the t's tail; it is still in strokeop.condense, unused.)
+- Terminals: each letter is also built without its cuts (`lcE.build(c, nocut=True)`, the `NOCUT` switch); the cut
+  lines are the cut letter's outline lines inside the uncut letter (`cuts`).  A short stub of the uncut letter is
+  added beyond each cut (kept clear of other parts of the letter), the whole is condensed, and each cut is made
+  again at its original angle through the mapped edge point at its middle; what is removed beyond it is the condensed
+  image of the stub (condensed separately with a band of the letter on the near side), and any small ears left at
+  the cut's two ends.  k (a straight-line letter) gets the same treatment for its slanted stem top; v w x y z are
+  condensed directly (their diagonals change angle, as the capitals' do).
+- Outlines are recovered exactly (lines and elliptical arcs, lcoutline) from the result; `strokecheck.py <S>`
+  validates every glyph.  `build1961.py B|C|D|F` now uses these lower cases; specimen `outputs/specimen-lc-series.png`.
+- Spacing (side bearings) is still that of the Highway Even 1966 fonts' lower case for each series.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
