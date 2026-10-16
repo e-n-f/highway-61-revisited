@@ -228,6 +228,27 @@ ascender tops and descender bottoms, terminal cuts, diagonals).
   (stem widths 1.53-1.57 squares, overshoots 0.06-0.11) — a candidate for a cleanup pass with shared values.
 - Note the x-height mismatch with the 1966 tracings (525) — the constructions use 6 squares = 517.5.
 
+### Series E(M) capitals and Series E lower case by stroke change (Claude Code session 2026-10-16)
+The 1966 sheets recommend capitals and numerals for the E(M) lower case be "Series E uppercase, but with the stroke
+width widened to approximately one-fifth of the letter height".  `strokeop.py` changes stroke weight on the exact
+outlines: every segment moves sideways by d (lines along their normal, circular/elliptical arcs to the concentric
+arc with radius / semi-axes changed by d), corners are re-intersected, segments that vanish or reverse are dropped,
+then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-aligned ellipses).
+- E(M) capitals and figures (`build1961.py EM` -> `Highway61Revisited-EM.otf/.ttf`): Series E constructions offset
+  by d = (690/5 - A)/2 = 9.70 (A = 3 3/32 in at 18 in = 118.59) and squeezed about mid-height by 690/(690+2d) back to
+  baseline and cap line (vertical strokes 138, horizontal 134; letters about 19 units wider); an acute corner pushed
+  through the baseline (M's middle point) is clipped back to it.  Lower case: the E(M) constructions; spacing (side
+  bearings) from `Highway1966-EM-Constructed.ttf`.
+- Checked against the 1983 E(M) tracings (`caps_EM.pkl`): `emverify.py` -> `outputs/verify-EM-caps.png`; median
+  distance 1-10 units per glyph, p95 mostly 5-19 (mean 13.9).  Straight letters match closely; the 1983 drawings
+  redraw some details (L's bar, J narrower, G and R bars, S, 6, 9), which is where the larger differences are.
+  Choosing between offset-and-squeeze and offset-and-clip: squeeze fitted better (mean p95 12.8 against 15.2).
+- Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
+  (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the
+  baseline, x-height, ascender and descenders stay on their lines.  No pre-digital Series E lower case exists to
+  check against.  Curves crossing the band lines get a tangent change of at most about 1 degree.
+- `strokecheck.py E|EM`: every glyph's flattened outline must be a valid shape (all pass).
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
