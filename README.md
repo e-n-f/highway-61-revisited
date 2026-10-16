@@ -1,9 +1,16 @@
-# standard-alphabets
+# Highway 61 Revisited
 
-Standard Alphabets for Highway Signs: **Highway 61 Revisited**, a family of digital fonts reconstructed from the
-U.S. Bureau of Public Roads' *Standard Alphabets for Highway Signs*. The capitals and figures come from the 1961
-dimensioned drawings, and the lower case from the 1966 grid sheets. Each is rebuilt as exact geometry rather than
-traced. The goal is to improve on the official digital fonts, not to copy them.
+**Highway 61 Revisited**, a family of fonts, is a faithful revival of the
+[1961 Standard Alphabets for Highway Signs](https://www.trafficsign.us/oldmutcd/oldstds/stdalphabets1961.pdf), including the long-forgotten Series A,
+and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archive.org/details/standard-alphabets-for-highway-signs-1966/page/n29/mode/2up),
+with the addition of a pleasing, consistent generalization of the
+1966 lower case to the widths and weight of the rest of the series.
+
+It is a protest against the ugly and inconsistent lower case and punctuation
+of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
+which since 2009 have been required on American street name signs.
+
+----------
 
 | Font | Files |
 |---|---|
