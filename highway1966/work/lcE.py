@@ -155,6 +155,8 @@ def hook(p,top):
     (ia, ib) centred at height icy, tangent to the stem's inner edge, below the open side; cut by the terminal line"""
     x0,x1=p['x0'],p['x1']
     BLq=ellipse(p['hx'],p['hyl'],p['hx']-x0,p['hyl']-p['hB'])&box(x0,-1000,p['hx'],p['hyl'])
+    if abs(p['tth']-90)<30:                              # a steep terminal cut: the outer curve runs out past it,
+        p=dict(p,hR=max(p['hR'],line_x(p['tx'],p['ty'],p['tth'],p['hyr'])+0.75*SQ))   # so the cut ends in a corner
     BRq=ellipse(p['hx'],p['hyr'],p['hR']-p['hx'],p['hyr']-p['hB'])&box(p['hx'],-1000,p['hR'],p['hyr'])
     ink=fuse(box(x0,p['hyl'],x1,top)|BLq|BRq)
     # between the stem's inner edge and the bottom point, down to where the quarters begin, is solid
@@ -165,8 +167,10 @@ def hook(p,top):
     if p['icy']>min(p['hyl'],p['hyr']): ink=fuse(ink|box(x1,min(p['hyl'],p['hyr']),x1+p['ia'],p['icy']))
     inner=ellipse(x1+p['ia'],p['icy'],p['ia'],p['ib'])|box(x1,p['icy'],3000,3000)
     ink=ink.difference(inner)
-    right=box(x1+p['ia'],-3000,3000,3000)
-    return fuse(ink.difference(right)|(ink&right&term(p,(p['hx'],p['hB']+1))))
+    # a shallow cut (t) applies only beyond the inner ellipse's centre, so it cannot reach the counter's stem side;
+    # a steep one (f, j) applies everywhere right of the stem
+    right=box(x1+(0 if abs(p['tth']-90)<30 else p['ia']),-3000,3000,3000)
+    return fuse(ink.difference(right)|(ink&right&term(p,(x1,p['hB']+1))))
 def letter_t(p):
     return fuse(hook(p,p['by'])|slanted(p['x0'],p['x1'],p['hyl'],p['ytop'],p['s'])|box(p['bx0'],p['by'],p['bx1'],X))
 def letter_j(p):
