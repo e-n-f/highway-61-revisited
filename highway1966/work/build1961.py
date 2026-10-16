@@ -4,7 +4,7 @@ fractional coordinates) and a TTF (quadratic, integer coordinates).
 
 usage: python3 build1961.py [series]      (B C D E F, and EM)
 
-E: 1961 Series E capitals and figures with the lower case narrowed from E(M) weight to Series E weight (strokeop).
+E: 1961 Series E capitals and figures with the lower case narrowed from E(M) weight to Series E weight (lccondense).
 EM: the 1966 recommendation for capitals to go with the E(M) lower case, "Series E uppercase, but with the stroke
 width widened to approximately one-fifth of the letter height": the Series E outlines offset by (690/5 - A)/2 and
 squeezed back to the cap height (strokeop), with the E(M) lower case as constructed.
@@ -79,15 +79,9 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
-if S in 'BCDF':                                  # condensed / expanded lower case (lccondense)
+if S in 'BCDEF':                                 # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
     for c, C in lccondense.series(S).items():
-        new[c] = SegShifted(C, c)
-if S == 'E':                                     # lower case narrowed by the same amount (the opposite change)
-    X = 517.5; d = D_EM
-    bands = [(-1e9, d, 1.0, -d), (d, X - d, X / (X - 2 * d), -d * X / (X - 2 * d)), (X - d, 1e9, 1.0, d)]
-    for c, (g, prims) in lcE.series().items():
-        C = strokeop.vmap(strokeop.offset(strokeop.from_lc(g, prims), -d), bands)
         new[c] = SegShifted(C, c)
 import punct
 from shapely.geometry import Polygon as _Poly

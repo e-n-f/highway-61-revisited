@@ -296,6 +296,18 @@ ends keep their angles.
 - `work/fhwacompare.py` -> `outputs/compare-fhwa2000.png`: each series (E(M) vs ModE) at equal cap height, two lines
   in each font and a per-glyph overlay (ours red, FHWA blue, both black).
 
+### Lower-case widths matched to FHWA 2000 (Claude Code session 2026-10-16)
+- At the user's request the lower case of each series is as wide in total (sum of the a-z advances, in cap heights)
+  as the FHWA 2000 font's: `lccondense.F_LC` = B 0.55, C 0.82, D 0.919, E 1.035, F 1.124 (were 0.475, 0.65, 0.825,
+  1.0, 1.175, the capitals' 1961 factors, which stay in `lccondense.F`).  Solved by `lcwidth.py <S>` (secant on the
+  build's own advances).  Before: B -6.7%, C -11.7%, D -5.7%, E -1.8%, F +2.5% against FHWA; now all within 0.1%.
+  E(M) was already within 0.3% and is unchanged.
+- The Series E lower case now goes through `lccondense.series('E')` like the others (f = 1 reproduced the old
+  offset-and-bands narrowing to within 0.3% in width), so it can be widened with its cuts kept at their angles.
+- Ear removal after a re-cut (lccondense) now takes the two ends of the straight run of outline along the cut, not
+  the outermost vertices anywhere on the cut line: at B 0.55 the inside of the t's foot crossed the t's terminal
+  line and had a 15-unit notch taken out of it.  `series(S, f, only)` builds a subset of letters for tests.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

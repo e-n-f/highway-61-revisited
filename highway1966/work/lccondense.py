@@ -8,6 +8,9 @@ SQ=690/8; X=6*SQ
 import importlib
 A={S:importlib.import_module('dim%s1'%S).A for S in 'BCDEF'}     # the 1961 table strokes
 F={'B':0.475,'C':0.65,'D':0.825,'E':1.0,'F':1.175}
+F_LC={'B':0.55,'C':0.82,'D':0.919,'E':1.035,'F':1.124}
+                                       # lower-case width factors: the whole a-z as wide as the FHWA 2000 font's,
+                                       # in cap heights (lcwidth.py); the capitals keep the 1961 factors F
 V_EM=(1+9/16)*SQ                       # E(M) lower-case stem, the source of the constructions
 D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
@@ -46,8 +49,8 @@ def _polygon(C):
     for r in rings:
         if len(r)>2: g=g.symmetric_difference(Polygon(r).buffer(0))
     return g
-def series(S):
-    f=F[S]; T=stroke(S)
+def series(S,f=None,only=None):
+    f=F_LC[S] if f is None else f; T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
     t=ey                                        # stub length scale
     k=(X+2*ey)/X
@@ -59,6 +62,7 @@ def series(S):
     from shapely.geometry import Polygon
     out={}
     for c,(g,prims) in lcE.series().items():
+        if only and c not in only: continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
             out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)
@@ -90,13 +94,25 @@ def series(S):
             Sg=_polygon(Cs).buffer(3.0,join_style=2)
             H=Polygon([m-u*3000,m+u*3000,m+u*3000+n*3000,m-u*3000+n*3000])
             geom=geom.difference(H&Sg)
-            # ears: whatever is left beyond the cut close to its two ends (found exactly on the output's outline)
-            V=[np.array(q) for pg in getattr(geom,'geoms',[geom]) for r in [pg.exterior,*pg.interiors] for q in r.coords]
+            # ears: whatever is left beyond the cut close to its two ends (found exactly on the output's outline): the
+            # ends of the straight run of outline along the cut line nearest the cut's middle (another part of the
+            # letter that merely crosses the line further on, like the inside of a wider t's foot, is not an ear)
             half=np.linalg.norm(p1-p0)*max(f,1)/2+40
-            V=[q for q in V if abs((q-m)@n)<0.05 and abs((q-m)@u)<half]
-            if len(V)>=2:
-                tt=[(q-m)@u for q in V]
-                for e in (V[int(np.argmin(tt))],V[int(np.argmax(tt))]):
+            runs=[]
+            for pg in getattr(geom,'geoms',[geom]):
+                for r in [pg.exterior,*pg.interiors]:
+                    Q=np.array(r.coords)
+                    for a,b in zip(Q[:-1],Q[1:]):
+                        if abs((a-m)@n)<0.05 and abs((b-m)@n)<0.05:
+                            ta,tb=sorted(((a-m)@u,(b-m)@u))
+                            if tb-ta>1e-6 and ta<half and tb>-half: runs.append([ta,tb])
+            runs.sort(); merged=[]
+            for ta,tb in runs:
+                if merged and ta<=merged[-1][1]+0.05: merged[-1][1]=max(merged[-1][1],tb)
+                else: merged.append([ta,tb])
+            if merged:
+                ta,tb=min(merged,key=lambda iv: 0 if iv[0]<=0<=iv[1] else min(abs(iv[0]),abs(iv[1])))
+                for e in (m+u*ta,m+u*tb):
                     E=Polygon([e-u*15,e+u*15,e+u*15+n*15,e-u*15+n*15])
                     geom=geom.difference(E)
         geom=lcE.clean(geom)
