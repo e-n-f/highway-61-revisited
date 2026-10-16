@@ -286,6 +286,16 @@ ends keep their angles.
   kept, snapped to 1/32) so the bowl is `lcE.BOWL_T` = (1.53125, 1.5) squares thick at its free side, top and bottom
   (`lcE.lighten`); fit.json is unchanged.  Every series inherits it through the E(M) constructions.
 
+### FHWA 2000 comparison (Claude Code session 2026-10-16)
+- `work/fhwa2otf.py <Alphabets.pdftops.ps>` writes the Type 1 fonts embedded in the 2000 Standard Highway Signs
+  Alphabets PostScript (`%%BeginResource: font ...+SeriesB2000-Normal` etc.) verbatim to `fhwa2000/<name>.pfa` and
+  converts them to `.otf` (outlines and advances unchanged, cmap from glyph names, 250-unit space added).  Series B, C,
+  D, E, ModE and F 2000 have A-Z a-z 0-9 and ! " # $ & ( ) * + , - . / : = ? @ cent (no apostrophe or curly quotes,
+  no space); HighwayD98 and HighwayME98 are fragments.  The fonts carry a URW 1998 copyright notice, so they are
+  git-ignored; regenerate them from the PostScript.  Their caps are 285 units of a 1000 em, x-height 208.
+- `work/fhwacompare.py` -> `outputs/compare-fhwa2000.png`: each series (E(M) vs ModE) at equal cap height, two lines
+  in each font and a per-glyph overlay (ours red, FHWA blue, both black).
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
