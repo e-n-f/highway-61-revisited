@@ -275,7 +275,8 @@ ends keep their angles.
   C 50.7, D 56.5, F 68.1), the dot's top kept on the ascender line (`strokeop.condense2(dot_scale=...)`).
 - `punct.py`, used by `build1961.py` for every series: period = the font's i dot on the baseline; comma = the y's
   tail below the baseline, raised so its top is level with the period's top; quoteright and quotesingle = the comma
-  turned 180 degrees with its top on the cap line; quoteleft = the comma with its top on the cap line; quotedbl,
+  raised so its top is on the cap line; quoteleft = the comma turned 180 degrees with its top on the cap line;
+  exclam = the i turned upside down, its dot on the baseline; quotedbl,
   quotedblright, quotedblleft = two of those, half a cap stroke apart; hyphen = the H's crossbar between the stems.
   All are lines and circles (exact).  Side bearings from the base fonts' glyphs.
 
