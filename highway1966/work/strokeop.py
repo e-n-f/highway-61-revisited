@@ -300,7 +300,7 @@ def condense(contours,f,t,tx,ty,X,metric=None,reangle_terms=True):
     out=vmap(out,[(-1e9,t,1.0,ty-t),(t,X-t,k,ty-t*k),(X-t,1e9,1.0,t-ty)])
     return [clean(offset_contour(clean(c),(tx,ty))) for c in out]+dots
 
-def condense2(contours,f,gx,ey,X,mitre=None):
+def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
     """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),
     stretch y so that, after the vertical offset by -ey (horizontal strokes to weight), the baseline and x-height are
     back on their lines; dots are kept round"""
@@ -317,6 +317,8 @@ def condense2(contours,f,gx,ey,X,mitre=None):
     out=vmap(out,[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)])
     out=[clean(offset_contour(clean(c),(0.0,-ey))) for c in out]
     for cx,cy,a,sg in dots:
-        r=a+(gx-ey)/2; yc=cy if cy<=X else cy+ey-ey
+        # dots scale with the stroke (dot_scale = series stroke / source stroke) and keep their top where it was
+        r=a*dot_scale if dot_scale else a+(gx-ey)/2
+        yc=cy+a-r
         p=np.array([cx*f+r,yc]); out.append([('E',p,p,(cx*f,yc,r,r),0.0,2*np.pi*sg)])
     return out

@@ -89,6 +89,18 @@ if S == 'E':                                     # lower case narrowed by the sa
     for c, (g, prims) in lcE.series().items():
         C = strokeop.vmap(strokeop.offset(strokeop.from_lc(g, prims), -d), bands)
         new[c] = SegShifted(C, c)
+import punct
+from shapely.geometry import Polygon as _Poly
+def _glyph_poly(n):
+    o = new[n]
+    if isinstance(o, SegShifted):
+        g = _Poly()
+        for r in strokeop.to_polygons(o.c, step=0.004):
+            if len(r) > 2: g = g.symmetric_difference(_Poly(r).buffer(0))
+        return g
+    return o.geom
+for n, C in punct.make(_glyph_poly).items():
+    new[n] = SegShifted(C, n)
 width = {n: (new[n].width if n in new else hmtx[n][0]) for n in order}
 src = lambda n: new[n] if n in new else gs[n]
 

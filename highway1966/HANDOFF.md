@@ -270,6 +270,15 @@ ends keep their angles.
   validates every glyph.  `build1961.py B|C|D|F` now uses these lower cases; specimen `outputs/specimen-lc-series.png`.
 - Spacing (side bearings) is still that of the Highway Even 1966 fonts' lower case for each series.
 
+### Dots and punctuation (Claude Code session 2026-10-16)
+- i and j dots in B C D F scale with the stroke: radius = E(M) dot radius x series stroke / E(M) stroke (B 44.8,
+  C 50.7, D 56.5, F 68.1), the dot's top kept on the ascender line (`strokeop.condense2(dot_scale=...)`).
+- `punct.py`, used by `build1961.py` for every series: period = the font's i dot on the baseline; comma = the y's
+  tail below the baseline, raised so its top is level with the period's top; quoteright and quotesingle = the comma
+  turned 180 degrees with its top on the cap line; quoteleft = the comma with its top on the cap line; quotedbl,
+  quotedblright, quotedblleft = two of those, half a cap stroke apart; hyphen = the H's crossbar between the stems.
+  All are lines and circles (exact).  Side bearings from the base fonts' glyphs.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

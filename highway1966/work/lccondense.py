@@ -60,7 +60,7 @@ def series(S):
     out={}
     for c,(g,prims) in lcE.series().items():
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
-            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X); continue
+            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)
         cs=cuts(c); gl=gc; stubs=[]; DX={}
         for p0,p1,n in cs:
@@ -74,7 +74,7 @@ def series(S):
             DX[(tuple(p0),tuple(p1))]=Dx
             stubs.append(st); gl=gl|st
         gl=lcE.clean(gl)
-        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0)
+        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM)
         geom=_polygon(C)
         prims2=[s[3] for cc in C for s in cc if s[0]=='E']
         for (p0,p1,n),st in zip(cs,stubs):
