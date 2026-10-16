@@ -72,20 +72,25 @@ def fig7():
 def fig8():
     """two four-centre ovals.  Upper: top arc W on the overshoot line, side arcs R on the line T below it, touching F in
     from the sides, bottom arc W tangent to them.  Lower: bottom arc N on the overshoot line, side arcs S on the line T
-    above it touching x=0 and B, top arc W tangent to them.  Counters concentric (A; W-A is the table's Y).  Notch:
-    where the bowls cross (table: U above the bottom overshoot line)."""
+    above it touching x=0 and B, top arc tangent to them.  Counters concentric (A; W-A is the table's Y).  The waist
+    between the counters is dimensioned A thick: with the lower top arc W it comes out 36 units, so that arc is refitted
+    (W -> about 118) to put the lower counter's top A below the upper one's bottom; this also brings the notch, where
+    the bowls cross, from 8.5 above to 3.7 below the table's U above the bottom overshoot line."""
+    from scipy.optimize import brentq
     B,F,N,R,S,T,U,W,Y=[DIM[k] for k in 'BFNRSTUWY']
     xc=B/2; yT=TOP-T; yB=BOT+T
     ctu=np.array([xc,TOP-W]); clu=np.array([F+R,yT]); cru=np.array([B-F-R,yT])
     cbu=np.array([xc,yT-np.sqrt((R-W)**2-(F+R-xc)**2)])
     cbl=np.array([xc,BOT+N]); cll=np.array([S,yB]); crl=np.array([B-S,yB])
-    ctl=np.array([xc,yB+np.sqrt((S-W)**2-(S-xc)**2)])
+    yct=lambda w: yB+np.sqrt((S-w)**2-(S-xc)**2)             # centre of a top arc w tangent to the sides S
+    W2=brentq(lambda w: yct(w)+w-A-(cbu[1]-(W-A)-A),W,xc-1)    # lower counter top A below the upper counter bottom
+    ctl=np.array([xc,yct(W2)])
     up=lambda d: pm(oval(ctu,W-d,clu,R-d,cbu,W-d,cru,R-d))
-    lo=lambda d: pm(oval(ctl,W-d,cll,S-d,cbl,N-d,crl,S-d))
+    lo=lambda d: pm(oval(ctl,W2-d,cll,S-d,cbl,N-d,crl,S-d))
     m=(up(0)|lo(0))&~up(A)&~lo(A)
     bd=up(0).geom.exterior.intersection(lo(0).geom.exterior)
     pts=sorted([(p.x,p.y) for p in getattr(bd,'geoms',[bd])],key=lambda p:-p[0])
-    return m,{'notch':tuple(round(v,1) for v in pts[0]),'table notch height':round(BOT+U,1),'W-A vs Y':(round(W-A,1),round(Y,1)),
+    return m,{'notch':tuple(round(v,1) for v in pts[0]),'table notch height':round(BOT+U,1),'lower top arc':round(W2,1),'W-A vs Y':(round(W-A,1),round(Y,1)),
               'upper top W/R gap':round((R-W)-np.linalg.norm(clu-ctu),1),'lower N/S gap':round((S-N)-np.linalg.norm(cll-cbl),1)}
 def fig0():
     """width AA, side arcs Z: the dimensions of the letter O (G, I on page A-3), so the same construction; the top and

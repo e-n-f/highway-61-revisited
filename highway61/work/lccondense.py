@@ -64,7 +64,10 @@ def _tidy(geom):
         return ps[0] if len(ps)==1 else MultiPolygon(ps)
     g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
     return keep(g)
-def _s_direct(f,gx,ey,k):
+S_SPINE={'A':-9.0,'B':-12.0}   # the s spine's tangent points moved towards the lobes' extremes (units): the most
+                                # condensed spines come out steeper and thinner (narrowest 0.77, 0.76 of the stroke
+                                # against 0.81-0.83 elsewhere); this makes them 0.89, 0.87
+def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
     condense2; the spine's tangent points scale; each terminal line keeps its angle and passes through the mapped
@@ -77,7 +80,7 @@ def _s_direct(f,gx,ey,k):
     u1,u2,um,l1,l2,lm=lcE.s_ellipses(p)
     q=dict(p); q['ell']=(ink(u1),ink(u2),hole(um),ink(l1),ink(l2),hole(lm))
     q['C1x'],q['C1a']=p['C1x']*f,p['C1a']*f-gx; q['C2x'],q['C2a']=p['C2x']*f,p['C2a']*f-gx
-    q['s1'],q['s2']=p['s1']*f,p['s2']*f
+    q['s1'],q['s2']=p['s1']*f-S_SPINE.get(S,0.0),p['s2']*f+S_SPINE.get(S,0.0)
     for p0,p1,n in cuts('s'):
         m=(p0+p1)/2; pre='ut' if m[1]>X/2 else 'lt'
         mm=np.array([m[0]*f,m[1]*k-ey])+strokeop._support(n,(gx,0.0))+strokeop._support(n,(0.0,-ey))
@@ -99,7 +102,7 @@ def series(S,f=None,only=None):
     for c,(g,prims) in lcE.series().items():
         if only and c not in only: continue
         if c=='s':                                      # built from its mapped construction
-            out[c]=_s_direct(f,gx,ey,k); continue
+            out[c]=_s_direct(f,gx,ey,k,S); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
             out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)

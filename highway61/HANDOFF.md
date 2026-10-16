@@ -387,6 +387,14 @@ ends keep their angles.
   does; the FHWA alphabet width is made up by spacing (LC_TIGHT E 0.447 -> 0.508).
   Uncovered pairs (lc before capital, letter/figure, punctuation, space) rely on side bearings only.
 
+### Series A 8 waist, condensed s spine (2026-10-16)
+- Series A 8 (`dimA6.fig8`): with the lower bowl's top arc W the waist between the counters came out 36 units, not
+  the dimensioned A (64.7).  That arc is refitted (W 107.8 -> 117.8, still tangent to the side arcs S) so the lower
+  counter's top is A below the upper's bottom; the notch moves from 375.1 to 362.9 (table U: 366.6).
+- Condensed s spine (`lccondense.S_SPINE`): its tangent points s1/s2 moved towards the lobes' extremes by 9 (A) and
+  12 (B) units; the narrowest width (twice the erosion that splits the s) goes from 0.77/0.76 to 0.89/0.87 of the
+  stroke (E(M) 0.81, C-F 0.82-0.83).
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
