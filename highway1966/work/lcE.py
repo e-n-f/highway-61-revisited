@@ -54,9 +54,9 @@ def letter_a(p):
     left=box(-100,-100,xs,800)
     return (arch|stem|B).difference(Uc.difference(B)&left).difference(C&left)
 def letter_e(p):
-    """outer quad oval O cut by the vertical xc (the bar's end); bar from yb to yt; upper counter: ellipse UC above
+    """outer quad oval O, whose right side curves down to the bar's lower edge (no cut); bar from yb to yt; upper counter: ellipse UC above
     the bar; lower counter: ellipse LC with, to its right, everything above the terminal line"""
-    O=quad(p,'O').poly()&box(-100,-100,p['xc'],800)
+    O=quad(p,'O').poly()
     UC=ellipse(p['ux'],p['uy'],p['ua'],p['ub'])&box(-100,p['yt'],800,800)
     H=term(p,(p['xc']+200,p['yb']))
     LC=(ellipse(p['lx'],p['ly'],p['la'],p['lb'])|H)&box(-100,-100,800,p['yb'])
