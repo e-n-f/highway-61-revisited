@@ -128,9 +128,31 @@ Each page file holds that page's table (8-inch and/or 18-inch row, inches) → f
   nominal); O/Q/0 top/bottom arcs refitted for tangency 220.4 → 223.4; 6/9 side arcs 198.9 → 195.9; 5's lower
   terminal tip on the left edge (y 23.4 vs the table's I above the overshoot line, 27.6).
 
+### Series C — complete (Claude Code session 2026-10-16)
+- `dimC1.py`..`dimC6.py` (pages 102 108 114 121 128 134), `seriesC1961.py`; `build1961.py C` →
+  `outputs/Highway61Revisited-C.otf/.ttf`; `specimen1961.py C`. Every glyph fits its drawing with p95 ≤ 1.2 units
+  (W: 5.7, its drawing is ~3% wider than its own table's M; the table is followed). Tables agree across rows except
+  C-5 N (167–170, 18-inch used) and C-5 D, whose 18-inch entry prints 9 7/8 (9 27/32 used, as the other rows).
+- `scanfit.edge_samples` snaps a model's boundary to the drawn lines so the drawing's own arcs can be fitted
+  (used to settle the 3 and 8).
+- Series C idioms: horizontal terminal cuts at an arc's centre height (C, G, S, 2, 3 lower), with a straight run
+  up to a dimensioned height where one is given (C lower: N; S lower: F); two arcs on one centre line touching at a
+  side extreme (S, 3, 8, 5); flat-topped bowls with corner arcs whose counters are the bowl offset by A (B, P, R:
+  `dimC1._counter_end`).
+- Specific constructions: B middle bar centred on the crotch height J; G bar top F above the bottom overshoot line
+  (scan); K arm to (L, cap), leg to (B, 0); 2 spine M centred on the baseline at x=M, bowl R by tangency (top 1.6
+  above the overshoot line); 3: upper N+L, lower R+Q, T from Q to the notch on L at height D (U then reads 6 units
+  wider than drawn), fillets G at the bar; 5: D, F, E arcs, F centred at height G; 6/9: oval with the tail on the
+  left side arc M; 7: ring centred on the baseline through (P, 0) (inner edge reaches the bar corner at 377.4 vs B
+  377.3); 8: upper circle S + side arcs W, lower R sides + S bottom (refitted 177.8 → 180.7), counters: lower R−A /
+  S−A / T, upper a V-stadium whose bottom is A above the lower counter (scan); notch (312.1, 377.6) vs table
+  (312.7, 377.3); 0 = O.
+- Tangency refits (by the Series E convention): O/Q/0 top arcs 174.9 → 175.3; 6/9 top/bottom arcs L 189.3 → 187.7;
+  8 bottom arc 177.8 → 180.7. Unexplained label: 8's D (183.3; the upper centre is TOP−S = 522.9, not TOP−D 517.5).
+
 ### Next steps
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
-2. Do Series A, B, C, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
+2. Do Series A, B, F page by page with the same structure: read each page's table, write `dim<S><page>.py`,
    overlay against the 1966 tracings (`caps_B/C/D/F.pkl`); Series A has no tracing to compare against.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.

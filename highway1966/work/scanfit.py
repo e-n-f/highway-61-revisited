@@ -7,6 +7,7 @@ from scipy.ndimage import distance_transform_edt
 from scipy.optimize import minimize
 SCRATCH = '/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/'
 _pages = {}
+_last = {}
 def page(p):
     if p not in _pages: _pages[p] = np.array(Image.open('p1961/stdalphabets1961-%s.png' % p).convert('L')) < 128
     return _pages[p]
@@ -38,6 +39,7 @@ def fit(g, p, box, scale=0.858, out=None):
                 if best is None or c < best[0]: best = (c, (s, ox, oy))
     r = minimize(lambda v: cost(v, 6.0), best[1], method='Nelder-Mead', options={'xatol': 0.05, 'fatol': 1e-4})
     s, ox, oy = r.x
+    _last['v'] = r.x
     X = ox + s * P[:, 0]; Y = oy - s * P[:, 1]
     ok = (X >= 0) & (X < W - 1) & (Y >= 0) & (Y < H - 1)
     d = dt[np.round(Y[ok]).astype(int), np.round(X[ok]).astype(int)] / s
@@ -47,3 +49,24 @@ def fit(g, p, box, scale=0.858, out=None):
             img[max(0, y - 1):y + 2, max(0, x - 1):x + 2] = (220, 0, 0)
         Image.fromarray(img).save(SCRATCH + out)
     return {'scale': round(s, 4), 'median': round(float(np.median(d)), 2), 'p95': round(float(np.percentile(d, 95)), 2), 'max': round(float(d.max()), 1)}
+
+
+def edge_samples(g, p, box, scale=0.858, reach=12):
+    """fit g to the drawing, then snap each boundary point of g to the nearest drawn pixel (within reach px); returns
+    (model points, snapped points) in font units, for fitting the drawing's own arcs"""
+    from scipy.ndimage import distance_transform_edt
+    res = fit(g, p, box, scale)
+    x0, y0, x1, y1 = box
+    dark = page(p)[y0:y1, x0:x1]
+    # recover the transform the fit chose
+    P = boundary_pts(g, 1.0)
+    s = res['scale']
+    best = _last['v']
+    s, ox, oy = best
+    dt, (iy, ix) = distance_transform_edt(~dark, return_indices=True)
+    X = np.round(ox + s * P[:, 0]).astype(int); Y = np.round(oy - s * P[:, 1]).astype(int)
+    ok = (X >= 0) & (X < dark.shape[1]) & (Y >= 0) & (Y < dark.shape[0])
+    ok[ok] &= dt[Y[ok], X[ok]] <= reach
+    sx = ix[Y[ok], X[ok]]; sy = iy[Y[ok], X[ok]]
+    S = np.c_[(sx - ox) / s, (oy - sy) / s]
+    return P[ok], S
