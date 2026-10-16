@@ -8,10 +8,12 @@ SQ=690/8; X=6*SQ
 import importlib
 A={S:importlib.import_module('dim%s1'%S).A for S in 'ABCDEF'}     # the 1961 table strokes
 F={'A':0.450,'B':0.475,'C':0.65,'D':0.825,'E':1.0,'F':1.175}
-F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.035,'F':1.124}
+F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.0,'F':1.124}
                                        # lower-case width factors: the whole a-z as wide as the FHWA 2000 font's,
                                        # in cap heights (lcwidth.py); the capitals keep the 1961 factors F
                                        # Series A (no FHWA font): B's ratio F_LC/F, 0.55/0.475, times A's 0.450
+                                       # Series E: 1, E(M)'s forms exactly (as the capitals); its spacing
+                                       # (spacing.LC_TIGHT) makes up the alphabet width instead
 V_EM=(1+9/16)*SQ                       # E(M) lower-case stem, the source of the constructions
 D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
