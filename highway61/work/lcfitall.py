@@ -43,7 +43,8 @@ INIT={
 
  's':dict(UL=-0.012,Uyl=4.174,UR=4.870,Uyr=3.478,Uxt=1.971,UT=6.133,Uxb=3.48,UB=1.91,LL=0.000,Lyl=1.913,LR=4.904,Lyr=1.855,Lxt=1.45,LT=4.17,Lxb=2.667,LB=-0.081,uiL=1.59,uiyl=4.24,uiR=5.3,uiyr=3.3,uixt=2.4,uiT=4.66,uixb=2.3,uiB=3.8,liL=-0.3,liyl=2.0,liR=3.28,liyr=1.81,lixt=2.6,liT=2.3,lixb=2.48,liB=1.37,utx=4.325,uty=4.858,ltx=0.197,lty=1.229,utth=65.000,ltth=67.000),
 }
-TIES={'o':[('Oxb','Oxt'),('Ixb','Ixt'),('Ixt','Oxt')],'j':[('hx','tx')]}
+TIES={'o':[('Oxb','Oxt'),('Ixb','Ixt'),('Ixt','Oxt')],'j':[('hx','tx')],
+      'e':[('Oyr','yb')]}           # e: the right side's extreme on the bar's lower edge (it meets the bar round)
 def sc(n): return 1.0 if (n.endswith('th') or n in ('s','sb')) else SQ
 def resolve(p,ties):
     for _ in range(5):

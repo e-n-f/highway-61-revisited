@@ -2,7 +2,7 @@
 lowercase and punctuation taken over from the matching Highway Even 1966 font.  Writes an OTF (cubic arcs,
 fractional coordinates) and a TTF (quadratic, integer coordinates).
 
-usage: python3 build1961.py [series]      (B C D E F, and EM)
+usage: python3 build1961.py [series]      (A B C D E F, and EM)
 
 E: 1961 Series E capitals and figures with the lower case narrowed from E(M) weight to Series E weight (lccondense).
 EM: the 1966 recommendation for capitals to go with the E(M) lower case, "Series E uppercase, but with the stroke
@@ -22,7 +22,11 @@ import vgeom, outline, lcoutline, strokeop
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
 DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')   # the fonts go to the repository's top level
-BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' else 'HighwayEven1966-%s.ttf' % S))
+BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' else 'HighwayEven1966-%s.ttf' % ('B' if S == 'A' else S)))
+# Series A has no 1966 font: its spacing is Series B's scaled.  Across B..F the capitals' and figures' mean side bearing
+# is linear in the stroke (table A); extrapolated to Series A's stroke it is 0.766 of B's, the space 0.814 of B's.
+SB_SCALE = 0.766 if S == 'A' else 1.0
+SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited %s' % ('E(M)' if S == 'EM' else S)
@@ -40,7 +44,7 @@ class SegShifted:
         import numpy as np
         P = np.vstack(strokeop.to_polygons(contours)); x0, x1 = P[:, 0].min(), P[:, 0].max()
         bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0]; rsb = hmtx[name][0] - bp.bounds[2]
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
         s.c, s.dx = contours, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -53,7 +57,7 @@ class Shifted:
         s.prims = prims
         x0, y0, x1, y1 = geom.bounds
         bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0]; rsb = hmtx[name][0] - bp.bounds[2]
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
         s.geom, s.dx = geom, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -80,7 +84,7 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
-if S in 'BCDEF':                                 # condensed / expanded lower case (lccondense), E narrowed to its stroke
+if S in 'ABCDEF':                                # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
     for c, C in lccondense.series(S).items():
         new[c] = SegShifted(C, c)
@@ -90,7 +94,7 @@ def _lighter_w(C, T):
     X = 517.5; d = W_LIGHT * T / 2
     bands = [(-1e9, d, 1.0, -d), (d, X - d, X / (X - 2 * d), -d * X / (X - 2 * d)), (X - d, 1e9, 1.0, d)]
     return strokeop.vmap(strokeop.offset(C, -d), bands)
-if S in 'BCDEF':
+if S in 'ABCDEF':
     new['w'] = SegShifted(_lighter_w(new['w'].c, lccondense.stroke(S)), 'w')
 else:
     g, prims = lcE.series()['w']
@@ -107,24 +111,20 @@ def _glyph_poly(n):
     return o.geom
 for n, C in punct.make(_glyph_poly).items():
     new[n] = SegShifted(C, n)
-width = {n: (new[n].width if n in new else hmtx[n][0]) for n in order}
+width = {n: (new[n].width if n in new else int(round(hmtx[n][0] * (SPACE_SCALE if n == 'space' else 1)))) for n in order}
 src = lambda n: new[n] if n in new else gs[n]
 
 
-DESC = {'E': '1961 Standard Alphabets for Highway Signs, Series E: capitals and figures constructed from the dimensioned '
-             'drawings (straight lines and circular arcs); lower case constructed from the 1966 E(M) sheets and narrowed '
-             'to Series E stroke weight; punctuation from Highway Even 1966 E.',
-        'B': None, 'C': None, 'D': None, 'F': None,
-        'EM': 'Series E(M): 1961 Series E capitals and figures with the stroke widened to one-fifth of the letter height '
-              '(1966 recommendation); lower case constructed from the 1966 E(M) sheets (lines and quarter-ellipses); '
-              'punctuation from Highway 1966 E(M).'}.get(S, '1961 Standard Alphabets for Highway Signs, Series %s: '
-              'capitals and figures constructed from the dimensioned drawings (straight lines and circular arcs); '
-              'lowercase and punctuation from Highway Even 1966 %s.' % (S, S))
-if S in 'BCDF':
-    DESC = ('1961 Standard Alphabets for Highway Signs, Series %s: capitals and figures constructed from the dimensioned '
-            'drawings (straight lines and circular arcs); lower case from the 1966 E(M) constructions, with the core '
-            'width scaled as the 1961 capitals are and the series stroke weight; punctuation from Highway Even 1966 %s.'
-            % (S, S))
+DESC = ('1961 Standard Alphabets for Highway Signs, Series %s: capitals and figures constructed from the dimensioned '
+        'drawings (straight lines and circular arcs); lower case from the 1966 E(M) constructions (lines and '
+        'quarter-ellipses), its width and stroke set for the series; punctuation made from the letters.' % S)
+if S == 'A':
+    DESC += ' Series A was dropped in 1966 and never had a lower case: this one follows the rule of the others; spacing ' \
+            'is Series B\'s scaled to Series A\'s stroke.'
+if S == 'EM':
+    DESC = ('Series E(M): 1961 Series E capitals and figures with the stroke widened to one-fifth of the letter height '
+            '(1966 recommendation); lower case constructed from the 1966 E(M) sheets (lines and quarter-ellipses); '
+            'punctuation made from the letters.')
 
 
 def setup(fb, outlines_kind):
