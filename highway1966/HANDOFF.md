@@ -207,25 +207,30 @@ ascender tops and descender bottoms, terminal cuts, diagonals).
   quarter-ellipses; runs become elliptical arcs drawn as cubic Beziers (<= 45 degrees of parameter each).
 - `build1961.py E` now replaces a-z with these constructions (side bearings kept from Highway Even 1966 E);
   `lcspecimen.py` -> `outputs/specimen-lc-E.png` (text + every letter over its scan).
-- Constructions in brief: n/h/m/r/u: stems 1 9/16 square, shoulder = two quarter-ellipses sharing the top point
-  (right one tangent to the right stem's outer edge), counter = ellipse wider than the counter cut by the stems
-  (m: second arch reaches over the middle stem; u = n turned 180 degrees).  a/d/g/q/b/p: bowl = two quad ovals
-  sharing the left (b/p: right) extreme and top/bottom points (the quarters running into the stem are independent),
-  counter ellipse cut by the stem edge.  a: arch quad oval minus an underside circle; gap = circle outside the bowl.
-  e: outer quad oval cut by the bar's vertical end; counters = two ellipses; terminal 3:4 slope.  c: outer quad oval,
-  counter ellipse, opening = wedge between two terminal lines.  g: tail = outer/inner ellipses below their centres.
-  t/f/j: one hook construction (stem, two quarter-ellipses sharing the bottom point, inner ellipse tangent to the
-  stem, terminal cut), mirrored for j and f.  s: two outer quad ovals (each supplies one arc, one side and one
-  spine edge) minus two counter ellipses, each counter opening past its terminal.  Ascender tops slope 0.4 (2:5),
-  p/q descender bottoms 0.354.
-- Fit quality (snapped, p95 of scan<->model distance, units): most letters 2-4; f 5, t 7 (the tail tip flares more
-  than an ellipse allows), s 8 (counter ends), i/j 4.6 (dot / grid offset).  Not yet harmonised across letters
+- Constructions in brief (all joins tangent unless a corner is drawn in the scan; `lcnotch.py` flags any corner
+  that touches a short segment — the only ones left are the bowl/stem notches at the baseline of b and d):
+  n/h/m/r/u: stems about 1 9/16 square, shoulder = two quarter-ellipses sharing the top point (right one tangent to the
+  right stem's outer edge); counter = quarter-ellipses tangent to both stems' inner edges, sharing a top point
+  (`counter_arch`); m's second arch reaches over the middle stem; u = n turned 180 degrees.
+  a/d/g/q/b/p: bowl = two quad ovals sharing the left (b/p: right) extreme and top/bottom points, counter ellipse cut
+  by the stem edge.  a: arch quad oval minus an underside quad oval tangent to the stem's inner edge; gap = underside
+  outside the bowl.  e: outer quad oval cut by the bar's vertical end; counters = two ellipses; terminal 3:4 slope.
+  c: outer quad oval, counter ellipse, opening = wedge between two terminal lines.  g: tail = outer/inner ellipses.
+  t/f/j: one hook construction (stem, two quarter-ellipses sharing the bottom point, below the right one's vertical
+  tangent the edge runs straight on; inner ellipse tangent to the stem; terminal cut beyond the inner ellipse's
+  centre), mirrored for j and f.  s: two outer quad ovals (each gives one arc, one side, one spine edge); each counter
+  is a quad oval shifted vertically until it touches the spine edge from outside (`rest`), so the counter's round end
+  runs tangentially into the spine edge; past the contact the counter is bounded by its own far edge and opens past
+  its terminal line; the counter and outer ovals all run out past the terminal lines so every cut ends in a corner.
+  Ascender tops slope 0.4 (2:5), p/q descender bottoms 0.354.
+- Fit quality (snapped, p95 of scan<->model distance, units): most letters 2-4; f, s about 5, t 5.5 (the tail's
+  lower right is straighter than an ellipse), i 4.6 (dot / grid offset).  Not yet harmonised across letters
   (stem widths 1.53-1.57 squares, overshoots 0.06-0.11) — a candidate for a cleanup pass with shared values.
 - Note the x-height mismatch with the 1966 tracings (525) — the constructions use 6 squares = 517.5.
 
 ### Next steps
-0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; ask the
-   user to review the lower-case specimen.
+0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
+   reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
 1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
    they give spacing.
 2. Do Series A page by page with the same structure: read each page's table, write `dim<S><page>.py`,

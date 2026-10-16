@@ -17,12 +17,12 @@ def letter_o(p):
     return quad(p,'O').poly().difference(quad(p,'I').poly())
 def letter_n(p):
     """stems w wide at 0 and x2; shoulder: right quarter of an ellipse tangent to the right stem's outer edge, left
-    quarter of a flatter one, sharing the top point (xt, T); counter: the upper half of an ellipse (ccx, ccy, ca, cb) wider than the
-    counter, cut by the stems' inner edges"""
+    quarter of a flatter one, sharing the top point (xt, T); counter: quarter-ellipses tangent to the stems' inner edges at cyl, cyr,
+    sharing the top point (cxt, cT)"""
     w,x2=p['w'],p['x2']; xr=x2+w
     O=Quad(p['oL'],p['oyl'],xr,p['oyr'],p['oxt'],p['T'],p['oxt'],p['oyl']-1).poly()&box(-50,min(p['oyl'],p['oyr']),xr,800)
-    stems=box(0,0,w,X)|box(x2,0,xr,p['oyr'])
-    cnt=(box(w,-10,x2,p['ccy'])|ellipse(p['ccx'],p['ccy'],p['ca'],p['cb']))&box(w,-10,x2,800)
+    stems=box(0,0,w,X)|box(x2,0,xr,p['oyr'])|box(w,0,x2,max(p['oyl'],p['oyr'])+0.01)
+    cnt=counter_arch(w,x2,p['cyl'],p['cyr'],p['cxt'],p['cT'])
     body=(stems|(O&box(w,-10,xr,800))).difference(cnt)
     return body
 def side(pt,th,ref):
@@ -41,12 +41,13 @@ def term(p,ref,pre='t'):
     return side((p[pre+'x'],p[pre+'y']),p[pre+'th'],ref)
 def letter_a(p):
     """stem xs..xr; arch: quarter-ellipses sharing the top point (axt, aT), the right one tangent to the stem's outer
-    edge at height ayr, the left one reaching aL at height ayl, cut by the terminal line; underside: circle (ux, uy, ur);
+    edge at height ayr, the left one reaching aL at height ayl, cut by the terminal line; underside: quad oval U (top point (uxt, uT), left extreme uL at uyl,
+    tangent to the stem's inner edge at uyr);
     bowl: ellipse B; counter: ellipse C; gap and counter end at the stem's inner edge"""
     xs,xr=p['xs'],p['xr']
     A=Quad(p['aL'],p['ayl'],xr,p['ayr'],p['axt'],p['aT'],p['axt'],min(p['ayl'],p['ayr'])-1).poly()
     A=A&box(-100,min(p['ayl'],p['ayr']),xr,800)
-    Uc=ellipse(p['ux'],p['uy'],p['ur'],p['ur'])
+    Uc=Quad(p['uL'],p['uyl'],xs,p['uyr'],p['uxt'],p['uT'],p['uxt'],2*p['uyl']-p['uT']).poly()
     B=bowl(p); C=ellipse(p['cx'],p['cy'],p['ca'],p['cb'])
     arch=A.difference(Uc)&term(p,(xr,X))
     stem=box(xs,0,xr,p['ayr']+1)|(A&box(xs,0,xr,800))
@@ -91,12 +92,19 @@ def xform(g,start,mx=None,rot=None,my=None):
 def arch(p,xl,w,x2,pre='',clip=None):
     """an n-arch between a stem ending at xl+w and the stem x2..x2+w: shoulder quarter-ellipses sharing the top point
     (oxt, T), the right one tangent to the right stem's outer edge at oyr, the left reaching oL at oyl; counter: an
-    ellipse (ccx, ccy, ca, cb) cut by the stems' inner edges.  Returns (ink above the stems, counter)"""
+    arch of quarter-ellipses tangent to the stems' inner edges at heights cyl and cyr, sharing the top point (cxt, cT).
+    Returns (ink above the stems, counter)"""
     g=lambda k: p[pre+k]; xr=x2+w
     O=Quad(xl+g('oL'),g('oyl'),xr,g('oyr'),xl+g('oxt'),g('T'),xl+g('oxt'),min(g('oyl'),g('oyr'))-1).poly()
     O=O&box(xl+w if clip is None else clip,min(g('oyl'),g('oyr')),xr,800)
-    cnt=(box(xl+w,-10,x2,g('ccy'))|ellipse(xl+g('ccx'),g('ccy'),g('ca'),g('cb')))&box(xl+w,-10,x2,800)
-    return O|box(x2,0,xr,g('oyr')),cnt
+    cnt=counter_arch(xl+w,x2,g('cyl'),g('cyr'),xl+g('cxt'),g('cT'))
+    return fuse(O|box(x2,0,xr,g('oyr'))|box(xl+w,0,x2,max(g('oyl'),g('oyr'))+0.01)),cnt
+def counter_arch(x0,x2,yl,yr,xt,T):
+    """a counter between vertical edges x0 and x2, closed at the top by quarter-ellipses tangent to the edges at
+    heights yl and yr and sharing the top point (xt, T)"""
+    lo=min(yl,yr)
+    Q=Quad(x0,yl,x2,yr,xt,T,xt,lo-1).poly()&box(x0,lo,x2,800)
+    return fuse(box(x0,-10,x2,lo)|Q|box(x0,lo-1,xt,yl)|box(xt,lo-1,x2,yr))
 def letter_l(p):
     return slanted(0,p['w'],0,p['ytop'],p['s'])
 def letter_i(p):
@@ -149,12 +157,18 @@ def hook(p,top):
     BLq=ellipse(p['hx'],p['hyl'],p['hx']-x0,p['hyl']-p['hB'])&box(x0,-1000,p['hx'],p['hyl'])
     BRq=ellipse(p['hx'],p['hyr'],p['hR']-p['hx'],p['hyr']-p['hB'])&box(p['hx'],-1000,p['hR'],p['hyr'])
     ink=fuse(box(x0,p['hyl'],x1,top)|BLq|BRq)
+    # between the stem's inner edge and the bottom point, down to where the quarters begin, is solid
+    ink=fuse(ink|box(min(x1,p['hx']),min(p['hyl'],p['hyr']),max(x1,p['hx']),top))
+    # below the right quarter's vertical tangent the outer edge runs straight on, down to the inner ellipse's centre
+    if p['icy']>p['hyr']: ink=fuse(ink|box(p['hx'],p['hyr'],p['hR'],p['icy']))
+    # and so is the strip beside the inner ellipse, from the hook body up to the ellipse's centre
+    if p['icy']>min(p['hyl'],p['hyr']): ink=fuse(ink|box(x1,min(p['hyl'],p['hyr']),x1+p['ia'],p['icy']))
     inner=ellipse(x1+p['ia'],p['icy'],p['ia'],p['ib'])|box(x1,p['icy'],3000,3000)
     ink=ink.difference(inner)
-    right=box(x1,-3000,3000,3000)
+    right=box(x1+p['ia'],-3000,3000,3000)
     return fuse(ink.difference(right)|(ink&right&term(p,(p['hx'],p['hB']+1))))
 def letter_t(p):
-    return fuse(hook(p,p['hyl']+1)|slanted(p['x0'],p['x1'],p['hyl'],p['ytop'],p['s'])|box(p['bx0'],p['by'],p['bx1'],X))
+    return fuse(hook(p,p['by'])|slanted(p['x0'],p['x1'],p['hyl'],p['ytop'],p['s'])|box(p['bx0'],p['by'],p['bx1'],X))
 def letter_j(p):
     """the hook turned to the left (mirrored about the stem's axis), stem up to the x-height, and the dot"""
     import lcgeom
@@ -167,15 +181,57 @@ def letter_f(p):
     g=hook(p,2*my-0.0)
     g=xform(g,k,my=my)
     return fuse(g|box(p['bx0'],p['by'],p['bx1'],X))
+def line_x(x0,y0,th,y):
+    t=np.radians(th); return x0+(y-y0)*np.cos(t)/np.sin(t)
+def rest(q,m,side):
+    """vertical shift for quad oval m so that it rests on quad oval q from above (side=1; m's lower quarters touch q)
+    or hangs under it (side=-1; m's upper quarters touch q), touching from outside.  Returns (shift, x of the contact)"""
+    Q=m.quarters()
+    E=np.vstack([quarter(*Q[k],k) for k in (('BL','BR') if side>0 else ('TL','TR'))])
+    if side>0: lo,hi=min(q.yl,q.yr)-m.B,q.T-m.B+10
+    else: lo,hi=q.B-m.T-10,max(q.yl,q.yr)-m.T
+    for _ in range(60):
+        c=(lo+hi)/2; clear=q.dist(E+[0,c]).min()>0
+        if (side>0)==clear: hi=c
+        else: lo=c
+    c=hi if side>0 else lo
+    d=q.dist(E+[0,c]); return c,E[int(np.argmin(np.abs(d))),0]
+def under(q,x0,side):
+    """side=1: everything below q's upper edge to the right of x0 (out to q's right extreme); side=-1: everything above
+    q's lower edge to the left of x0 (out to q's left extreme)"""
+    Q=q.quarters()
+    if side>0:
+        E=np.vstack([quarter(*Q['TL'],'TL')[::-1],quarter(*Q['TR'],'TR')[::-1]])   # left extreme -> top -> right extreme
+        E=E[E[:,0]>=x0]
+        return Polygon(np.vstack([[x0,-3000],E,[q.R,-3000]])).buffer(0)
+    E=np.vstack([quarter(*Q['BL'],'BL'),quarter(*Q['BR'],'BR')])               # left extreme -> bottom -> right extreme
+    E=E[E[:,0]<=x0]
+    return Polygon(np.vstack([[q.L,3000],E,[x0,3000]])).buffer(0)
+def shifted(g,pre,dy):
+    return Quad(g[pre+'L'],g[pre+'yl']+dy,g[pre+'R'],g[pre+'yr']+dy,g[pre+'xt'],g[pre+'T']+dy,g[pre+'xb'],g[pre+'B']+dy)
 def letter_s(p):
     """two outer quad ovals: the upper (U) gives the top arc, the left side and the spine's lower edge; the lower (L)
-    the bottom arc, the right side and the spine's upper edge.  Counters: the upper inner ellipse UI outside L, the lower LI
-    outside U, each opening past its terminal line and beyond its centre line"""
-    UO=quad(p,'U').poly(); LO=quad(p,'L').poly()
-    UI=ellipse(p['uix'],p['uiy'],p['uia'],p['uib']); LI=ellipse(p['lix'],p['liy'],p['lia'],p['lib'])
+    the bottom arc, the right side and the spine's upper edge.  The counters are quad ovals UI (resting on L's upper
+    edge) and LI (hanging under U's lower edge), each touching the spine edge tangentially; past the touching point
+    the counter is bounded by the spine edge, and it opens past its terminal line"""
+    from lcgeom import quarter
+    globals()['quarter']=quarter
+    p=dict(p)
+    # the outer ovals run out past the terminal lines, so each cut ends in a sharp corner
+    p['LL']=min(p['LL'],line_x(p['ltx'],p['lty'],p['ltth'],p['Lyl'])-2.0)
+    p['UR']=max(p['UR'],line_x(p['utx'],p['uty'],p['utth'],p['Uyr'])+2.0)
+    UO=quad(p,'U'); LO=quad(p,'L')
+    du,xu=rest(LO,quad(p,'ui'),1); dl,xl=rest(UO,quad(p,'li'),-1)
+    for _ in range(2):                                   # the counters run out past their terminal lines
+        p['uiR']=max(p['uiR'],line_x(p['utx'],p['uty'],p['utth'],p['uiyr']+du)+2.0)
+        p['liL']=min(p['liL'],line_x(p['ltx'],p['lty'],p['ltth'],p['liyl']+dl)-2.0)
+        du,xu=rest(LO,quad(p,'ui'),1); dl,xl=rest(UO,quad(p,'li'),-1)
+    UI=shifted(p,'ui',du).poly(); LI=shifted(p,'li',dl).poly()
+    yu=p['uiyl']+du; yl=p['liyr']+dl
+    UO=UO.poly(); LO=LO.poly()
     Hu=side((p['utx'],p['uty']),p['utth'],(p['UR']+300,p['UT'])); Hl=side((p['ltx'],p['lty']),p['ltth'],(p['LL']-300,p['LB']))
-    Wu=(UI|Hu|box(p['uix'],-1000,3000,p['uiy'])).difference(LO)      # the upper counter, open to the right
-    Wl=(LI|Hl|box(-3000,p['liy'],p['lix'],3000)).difference(UO)      # the lower counter, open to the left
+    Wu=(UI|Hu|under(shifted(p,'ui',du),xu,1)).difference(LO)      # the upper counter, open to the right
+    Wl=(LI|Hl|under(shifted(p,'li',dl),xl,-1)).difference(UO)      # the lower counter, open to the left
     return fuse(UO|LO).difference(Wu).difference(Wl)
 LETTERS={'o':letter_o,'n':letter_n,'a':letter_a,'e':letter_e,'g':letter_g,'l':letter_l,'i':letter_i,'h':letter_h,
          'm':letter_m,'u':letter_u,'r':letter_r,
@@ -183,6 +239,15 @@ LETTERS={'o':letter_o,'n':letter_n,'a':letter_a,'e':letter_e,'g':letter_g,'l':le
 def fuse(g,e=1e-3):
     """weld pieces that only touch along an edge (float slivers between unions)"""
     return g.buffer(e,join_style=2).buffer(-e,join_style=2)
+def clean(g,e=0.01):
+    """weld touching pieces and drop slivers (holes or pieces under one square unit)"""
+    g=fuse(g,e)
+    ps=[]
+    for p in getattr(g,'geoms',[g]):
+        if p.area<1: continue
+        ps.append(Polygon(p.exterior,[i for i in p.interiors if Polygon(i).area>=1]))
+    from shapely.geometry import MultiPolygon
+    return ps[0] if len(ps)==1 else MultiPolygon(ps)
 def polys():
     import json, os
     fn=os.path.join(os.path.dirname(os.path.abspath(__file__)),'lc1966','poly.json')
@@ -201,7 +266,7 @@ def series():
     res={}
     for ch,d in dims().items():
         lcgeom.REG.clear()
-        g=LETTERS[ch]({k:(v if (k.endswith('th') or k in ('s','sb')) else v*SQ) for k,v in d.items()})
+        g=clean(LETTERS[ch]({k:(v if (k.endswith('th') or k in ('s','sb')) else v*SQ) for k,v in d.items()}))
         res[ch]=(g,list(lcgeom.REG))
     for ch,V in polys().items():
         res[ch]=(Polygon(np.array(V)*SQ),[])

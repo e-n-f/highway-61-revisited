@@ -9,9 +9,9 @@ def load():
 INIT={
  'o':dict(OL=0.387,Oyl=3.0,OR=5.586,Oyr=3.0,Oxt=2.99,OT=6.08,Oxb=2.99,OB=-0.06,
           IL=1.99,Iyl=3.0,IR=4.02,Iyr=3.0,Ixt=3.0,IT=4.55,Ixb=3.0,IB=1.46),
- 'n':dict(w=1.58,x2=3.5,oL=1.0,oyl=4.0,oyr=3.92,oxt=2.79,T=6.09,ccx=2.56,ccy=3.4,ca=1.1,cb=1.05),
+ 'n':dict(w=1.58,x2=3.5,oL=1.0,oyl=4.0,oyr=3.92,oxt=2.79,T=6.09,cyl=3.4,cyr=3.4,cxt=2.56,cT=4.45),
 
- 'a':dict(xs=3.39,xr=5.0,aL=-0.0,ayl=4.71,ayr=3.84,axt=2.689,aT=6.087,ux=2.414,uy=2.059,ur=2.595,
+ 'a':dict(xs=3.39,xr=5.0,aL=-0.0,ayl=4.71,ayr=3.84,axt=2.689,aT=6.087,uL=-0.18,uyl=2.06,uyr=4.1,uxt=2.41,uT=4.65,
           BL=-0.1,Byl=1.99,BR=4.36,Byr=1.99,BR2=4.36,Byr2=1.99,Bxt=2.13,BT=4.05,Bxb=2.13,BB=-0.07,cx=2.44,cy=2.05,ca=1.0,cb=0.707,tx=0.678,ty=4.776,tth=-63.1+180),
  'e':dict(OL=-0.06,Oyl=3.0,OR=5.22,Oyr=2.58,Oxt=2.75,OT=6.12,Oxb=2.53,OB=-0.07,xc=5.05,yb=2.53,yt=3.82,
           ux=2.532,uy=3.68,ua=0.836,ub=0.99,lx=2.66,ly=2.42,la=1.0,lb=1.0,tx=4.14,ty=1.335,tth=142.8),
@@ -20,11 +20,11 @@ INIT={
 
  'l':dict(w=1.57,ytop=8.0,s=0.4),
  'i':dict(x0=0.356,w=1.57,dx=1.14,dy=7.17,dr=0.78),
- 'h':dict(w=1.57,x2=3.37,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,ccx=2.55,ccy=3.44,ca=1.02,cb=1.05,ytop=8.0,s=0.4),
- 'm':dict(w=1.57,x2=3.39,x3=6.83,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,ccx=2.55,ccy=3.44,ca=1.02,cb=1.05,
-          roL=0.97,royl=3.96,royr=3.96,roxt=2.75,rT=6.11,rccx=2.55,rccy=3.44,rca=1.02,rcb=1.05),
- 'u':dict(w=1.57,x2=3.45,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,ccx=2.55,ccy=3.44,ca=1.02,cb=1.05),
- 'r':dict(w=1.57,x2=3.4,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,ccx=2.55,ccy=3.44,ca=1.02,cb=1.05,tx=3.75,ty=5.0,tth=75.0),
+ 'h':dict(w=1.57,x2=3.37,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,cyl=3.44,cyr=3.44,cxt=2.55,cT=4.49,ytop=8.0,s=0.4),
+ 'm':dict(w=1.57,x2=3.39,x3=6.83,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,cyl=3.44,cyr=3.44,cxt=2.55,cT=4.49,
+          roL=0.97,royl=3.96,royr=3.96,roxt=2.75,rT=6.11,rcyl=3.44,rcyr=3.44,rcxt=2.55,rcT=4.49),
+ 'u':dict(w=1.57,x2=3.45,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,cyl=3.44,cyr=3.44,cxt=2.55,cT=4.49),
+ 'r':dict(w=1.57,x2=3.4,oL=0.97,oyl=3.96,oyr=3.96,oxt=2.75,T=6.11,cyl=3.44,cyr=3.44,cxt=2.55,cT=4.49,tx=3.75,ty=5.0,tth=75.0),
 
  'd':dict(xs=3.357,xr=5.0,ytop=8.0,s=0.4,BL=-0.165,Byl=2.844,BR=4.615,Byr=3.323,BR2=4.941,Byr2=1.693,Bxt=1.994,BT=6.057,Bxb=2.039,BB=-0.073,cx=2.496,cy=2.994,ca=1.092,cb=1.529),
  'q':dict(xs=3.357,xr=5.0,ybot=-2.35,sb=0.364,BL=-0.165,Byl=2.844,BR=4.615,Byr=3.323,BR2=4.941,Byr2=1.693,Bxt=1.994,BT=6.057,Bxb=2.039,BB=-0.073,cx=2.496,cy=2.994,ca=1.092,cb=1.529),
@@ -41,7 +41,7 @@ INIT={
  'j':dict(x0=2.0,x1=3.54,hx=4.24,hB=-2.93,hyl=0.0,hR=4.9,hyr=-1.6,icy=0.0,ia=1.25,ib=1.21,
           tx=4.84,ty=-1.8,tth=90.0,dx=2.733,dy=7.185,dr=0.85),
 
- 's':dict(UL=-0.012,Uyl=4.174,UR=4.870,Uyr=3.478,Uxt=1.971,UT=6.133,Uxb=3.478,UB=1.913,LL=0.000,Lyl=1.913,LR=4.904,Lyr=1.855,Lxt=1.449,LT=4.174,Lxb=2.667,LB=-0.081,uix=3.014,uiy=3.826,uia=1.357,uib=0.754,lix=1.913,liy=2.203,lia=1.345,lib=0.835,utx=4.325,uty=4.858,ltx=0.197,lty=1.229,utth=65.000,ltth=67.000),
+ 's':dict(UL=-0.012,Uyl=4.174,UR=4.870,Uyr=3.478,Uxt=1.971,UT=6.133,Uxb=3.48,UB=1.91,LL=0.000,Lyl=1.913,LR=4.904,Lyr=1.855,Lxt=1.45,LT=4.17,Lxb=2.667,LB=-0.081,uiL=1.59,uiyl=4.24,uiR=5.3,uiyr=3.3,uixt=2.4,uiT=4.66,uixb=2.3,uiB=3.8,liL=-0.3,liyl=2.0,liR=3.28,liyr=1.81,lixt=2.6,liT=2.3,lixb=2.48,liB=1.37,utx=4.325,uty=4.858,ltx=0.197,lty=1.229,utth=65.000,ltth=67.000),
 }
 TIES={'o':[('Oxb','Oxt'),('Ixb','Ixt'),('Ixt','Oxt')]}
 def sc(n): return 1.0 if (n.endswith('th') or n in ('s','sb')) else SQ
