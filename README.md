@@ -124,8 +124,9 @@ with the series, as the capitals' table strokes do:
 
 - **Series A** was dropped in 1966 and never had a lower case or an FHWA digital font. Its lower case follows the
   same rule: stroke 61.5 by the series step, and a width factor keeping Series B's ratio of lower-case to capital factor.
-  Its spacing is Series B's, with every side bearing scaled by 0.766 and the space by 0.814: across B to F the
-  capitals' mean side bearing is linear in the stroke, and that is its value at Series A's stroke.
+  Its punctuation and space are spaced as Series B's, with every side bearing scaled by 0.766 and the space by 0.814:
+  across B to F the capitals' mean side bearing is linear in the stroke, and that is its value at Series A's stroke.
+  Letters and figures follow the spacing tables like the other series (below).
 - **Width factors.** The capitals' factors are measured from the 1961 capitals. The lower-case factors
   (`lccondense.F_LC`) are solved by `work/lcwidth.py` so that each lower-case alphabet (the sum of the a–z
   advances, in cap heights) is as wide as the FHWA 2000 font's. This opens up Series B noticeably.
@@ -134,9 +135,24 @@ with the series, as the capitals' table strokes do:
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the
   capitals' diagonals do from series to series.
 - **Dots** of i and j scale with the stroke, with their tops kept on the ascender line.
-- **Spacing.** Side bearings come from the matching Highway Even 1966 font
-  (`highway61/outputs/HighwayEven1966-<S>.ttf`), and for E(M) from `highway61/outputs/Highway1966-EM-Constructed.ttf`.
-  These are the earlier traced fonts of this project, whose spacing was matched to the FHWA 2000 alphabets.
+- **Spacing** follows the spacing tables of the 1966 and 1983 *Standard Alphabets* (`work/spacingcheck.py` has
+  them). For capitals and figures, Tables I and II give a code (1–4) from the preceding character and the group of
+  the following one (B D E F H I K L M N P R U | C G O Q S X Z | A J T V W Y, and 1 5 | 2 3 6 8 9 0 | 4 7); Table VI
+  gives the space for each code, between the two characters' extreme edges, as the series stroke times 1.5, 1.2,
+  0.8 or 0.4. E(M) uses Series E's spaces, as both editions do, and Series A, which has no table, uses the same
+  factors of its own stroke. For the lower case, the 1983 table gives the space from the preceding character
+  (capital or lower case, in 22 classes) and the following lower-case class (a c d e g o q | b h i k l m n p r u |
+  f w | j | s t | v y | x | z). It is for E(M); the other series get it scaled by their lower-case stroke over
+  E(M)'s.
+
+  The tables are not additive, so they are met with side bearings and class kerning (`work/spacing.py`): each
+  character gets its own right side bearing, every character of a following class the same left side bearing,
+  chosen by least squares (pulled weakly towards the earlier bearings), and what remains for each (character,
+  following class) pair is a GPOS `kern` value. All 2128 table pairs of each font come out within a unit of the
+  table (`python3 spacingcheck.py`). Pairs the tables do not cover (a lower-case letter before a capital, letters
+  next to figures, punctuation, the space) are spaced by the side bearings alone. Punctuation keeps its side
+  bearings from the matching Highway Even 1966 font (`highway61/outputs/HighwayEven1966-<S>.ttf`, for E(M)
+  `highway61/outputs/Highway1966-EM-Constructed.ttf`), the earlier traced fonts of this project.
 
 ## Regenerating the fonts
 
@@ -156,6 +172,7 @@ of the repository, and other specimens and checks to `highway61/outputs/`:
 cd highway61/work
 for S in A B C D E EM F; do python3 build1961.py $S; done     # about 15–60 s per series; they can run in parallel
 for S in A B C D E EM F; do python3 strokecheck.py $S; done   # every glyph must be a valid shape (no INVALID lines)
+python3 spacingcheck.py                                        # every table pair within a unit of the standard
 ```
 
 `build1961.py <S>` writes `Highway61Revisited-<S>.otf` and `.ttf` at the top level. Rebuilding from a fresh clone reproduces the
@@ -163,9 +180,10 @@ committed fonts exactly, apart from the timestamp in the `head` table.
 
 The build reads these inputs, all in the repository:
 
-- the construction modules: `dim*.py`, `series*1961.py`, `vgeom.py`, `lcE.py`, `lccondense.py`, `punct.py`, `strokeop.py`
+- the construction modules: `dim*.py`, `series*1961.py`, `vgeom.py`, `lcE.py`, `lccondense.py`, `punct.py`, `strokeop.py`,
+  and `spacing.py` with the tables in `spacingcheck.py`
 - the lower-case parameters: `work/lc1966/fit.json` and `poly.json`
-- the base fonts for side bearings and glyph order: `highway61/outputs/HighwayEven1966-{B,C,D,E,F}.ttf` and
+- the base fonts for glyph order and the punctuation's side bearings: `highway61/outputs/HighwayEven1966-{B,C,D,E,F}.ttf` and
   `highway61/outputs/Highway1966-EM-Constructed.ttf`
 
 The scans (`work/p1961/`, `work/lc1966/p3?.jpg`) are needed only for refitting and checking.

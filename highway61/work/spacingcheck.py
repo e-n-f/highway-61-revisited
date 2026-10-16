@@ -5,9 +5,9 @@ Capitals and figures: Table I (letter) / II (figure) give a code from the preced
 following one; Table VI gives the space for each code, the distance between the preceding character's extreme right
 edge and the following one's extreme left edge.  The codes are the same in every series and both editions; the
 spaces are the series stroke times 1.5, 1.2, 0.8, 0.4 (B C D E F, both editions), and for E(M) the Series E spaces
-(1983: 1.3, 1.05, 0.7, 0.35 of its own stroke, height/5).  Series A has no table; it is given Series B's rule.
+(1983: 1.3, 1.05, 0.7, 0.35 of its own stroke, height/5).  Series A has no table; it gets the same factors of its own stroke.
 
-Lower case (E(M) only): the 1983 table, in millimetres at a 375 mm loop height (= x-height), by preceding character
+Lower case: the 1983 table (E(M) only; the other series are given it scaled by lower-case stroke), in millimetres at a 375 mm loop height (= x-height), by preceding character
 class (capitals and lower case) and following lower-case class.  The 1966 table agrees with it (inches)."""
 import os, sys, string, numpy as np
 from fontTools.ttLib import TTFont
@@ -38,26 +38,51 @@ LC375=[[121,133,111,76,95,80,95,124],[143,181,133,95,130,111,111,146],[133,165,1
        [114,159,108,70,102,102,111,121],[98,143,92,57,89,89,95,102],[102,143,95,60,92,92,98,108],
        [108,146,98,64,95,95,102,111]]
 NAME={str(i):n for i,n in enumerate(['zero','one','two','three','four','five','six','seven','eight','nine'])}
+def kerning(f):
+    """{(left glyph, right glyph): x advance adjustment} from the GPOS pair lookups"""
+    out={}
+    if 'GPOS' not in f: return out
+    for lk in f['GPOS'].table.LookupList.Lookup:
+        for st in lk.SubTable:
+            if lk.LookupType==9: st=st.ExtSubTable
+            if getattr(st,'LookupType',lk.LookupType)!=2: continue
+            if st.Format==1:
+                for g,ps in zip(st.Coverage.glyphs,st.PairSet):
+                    for r in ps.PairValueRecord: out.setdefault((g,r.SecondGlyph),getattr(r.Value1,'XAdvance',0) or 0)
+            else:
+                c1=st.ClassDef1.classDefs; c2=st.ClassDef2.classDefs
+                for g in st.Coverage.glyphs:
+                    rec=st.Class1Record[c1.get(g,0)]
+                    for h,k in c2.items():
+                        v=getattr(rec.Class2Record[k].Value1,'XAdvance',0) or 0
+                        if v: out.setdefault((g,h),v)
+    return out
 def bearings(fn):
+    """({char: (lsb, rsb)}, {(char, char): kern})"""
     f=TTFont(fn); gs=f.getGlyphSet(); hm=f['hmtx']; cm=f.getBestCmap(); out={}
     for ch in string.ascii_letters+string.digits:
         n=cm[ord(ch)]; p=BoundsPen(gs); gs[n].draw(p); b=p.bounds
         out[ch]=(b[0],hm[n][0]-b[2])
-    return out
+    kg=kerning(f); chars=string.ascii_letters+string.digits
+    kern={(a,b):kg.get((cm[ord(a)],cm[ord(b)]),0) for a in chars for b in chars}
+    return out,kern
 def cap_pairs(S):
     """(preceding, following, standard gap, font gap) for every capital pair and figure pair, font units"""
-    sb=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); st=STROKE[S]; out=[]
+    sb,kn=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); st=STROKE[S]; out=[]
     for a,codes in CODES.items():
-        for b,g in GROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]))
+        for b,g in GROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]+kn[(a,b)]))
     for a,codes in NCODES.items():
-        for b,g in NGROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]))
+        for b,g in NGROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]+kn[(a,b)]))
     return out
 def lc_pairs(S='EM'):
-    sb=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); out=[]
+    """the same for the lower-case table; other series than E(M) scaled by their lower-case stroke over E(M)'s"""
+    import lccondense
+    sc=1.0 if S=='EM' else lccondense.stroke(S)/lccondense.V_EM
+    sb,kn=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); out=[]
     for r,row in zip(LCROWS,LC375):
         for cols,v in zip(LCCOLS,row):
             for a in r:
-                for b in cols: out.append((a,b,v*XH/375,sb[a][1]+sb[b][0]))
+                for b in cols: out.append((a,b,v*XH/375*sc,sb[a][1]+sb[b][0]+kn[(a,b)]))
     return out
 def report(pairs,label):
     d=np.array([f-s for _,_,s,f in pairs]); print('%-10s pairs %4d  font-standard: mean %+6.1f  mean|.| %5.1f  max|.| %5.1f'
@@ -65,5 +90,4 @@ def report(pairs,label):
     return d
 if __name__=='__main__':
     for S in (sys.argv[1:] or ['A','B','C','D','E','EM','F']):
-        report(cap_pairs(S),S+' caps')
-    report(lc_pairs('EM'),'EM lc')
+        report(cap_pairs(S),S+' caps'); report(lc_pairs(S),S+' lc')

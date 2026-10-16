@@ -369,10 +369,22 @@ ends keep their angles.
   outline parted its non-axis joins (strokeop moves an arc by changing its semi-axes, exact only at axis points), so
   the construction re-solves its tangencies instead.
 
+### Spacing by the standard tables (2026-10-16)
+- `spacingcheck.py` transcribes the 1966/1983 spacing tables (Table I letter codes, Table II figure codes, Table VI
+  factors 1.5/1.2/0.8/0.4 of the series stroke, E(M) at Series E's spaces; the 1983 lower-case table in mm at 375 mm
+  loop height) and measures the fonts against them, including GPOS kerning.  Before: capitals off by 10-27 units on
+  average (max ~96), E(M) lower case by 30 (max 105); side bearings alone could reach only ~7-11 mean.
+- `spacing.py` solves per series: right side bearing per preceding character, one left side bearing per following
+  class, least squares with a weak (0.05) pull to the old bearings; remainders become class kerning
+  (`pos <glyph> @class <value>`, ~2000 pairs, within about +-48 units), added by feaLib in `build1961.setup`.
+  Lower case for series other than E(M): the table scaled by `lccondense.stroke(S)/V_EM` (the user's choice).
+- Result: all 776 capital/figure and 1352 lower-case table pairs within 1 unit in every series; outlines unchanged.
+  Uncovered pairs (lc before capital, letter/figure, punctuation, space) rely on side bearings only.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
-1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
-   they give spacing.
+1. (done) Spacing from the 1966/1983 tables.  Possible follow-up: punctuation and figure/letter pairs, which the
+   tables do not cover.
 2. (done) Series A.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.
