@@ -12,7 +12,7 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.pens.cu2quPen import Cu2QuPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.reverseContourPen import ReverseContourPen
-import vgeom, outline
+import vgeom, outline, lcoutline
 
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
@@ -30,17 +30,23 @@ hmtx = BASE['hmtx']
 
 class Shifted:
     """draws a construction shifted so it keeps the 1966 glyph's side bearings"""
-    def __init__(s, geom, name):
+    def __init__(s, geom, name, prims=None):
+        s.prims = prims
         x0, y0, x1, y1 = geom.bounds
         bp = BoundsPen(gs); gs[name].draw(bp)
         lsb = bp.bounds[0]; rsb = hmtx[name][0] - bp.bounds[2]
         s.geom, s.dx = geom, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
-    def draw(s, pen): outline.draw(s.geom, pen, dx=s.dx)
+    def draw(s, pen):
+        if s.prims is None: outline.draw(s.geom, pen, dx=s.dx)
+        else: lcoutline.draw(s.geom, pen, s.prims, dx=s.dx)
 
 
 new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
+if S == 'E':                                     # lower case constructed so far (lcE: quarter-ellipses and lines)
+    import lcE
+    new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 width = {n: (new[n].width if n in new else hmtx[n][0]) for n in order}
 src = lambda n: new[n] if n in new else gs[n]
 
