@@ -118,7 +118,7 @@ with the series, as the capitals' table strokes do:
 | B | 86.25 | 83.0 | 0.475 | 0.55 |
 | C | 97.03 | 93.8 | 0.65 | 0.82 |
 | D | 107.81 | 104.6 | 0.825 | 0.919 |
-| E | 118.59 | 115.4 | 1 | 1.035 |
+| E | 118.59 | 115.4 | 1 | 1 |
 | E(M) | 138 (one-fifth of 690) | 134.8 | — | 1 (as constructed) |
 | F | 129.38 | 126.1 | 1.175 | 1.124 |
 
@@ -129,7 +129,9 @@ with the series, as the capitals' table strokes do:
   Letters and figures follow the spacing tables like the other series (below).
 - **Width factors.** The capitals' factors are measured from the 1961 capitals. The lower-case factors
   (`lccondense.F_LC`) are solved by `work/lcwidth.py` so that each lower-case alphabet (the sum of the a–z
-  advances, in cap heights) is as wide as the FHWA 2000 font's. This opens up Series B noticeably.
+  advances, in cap heights) is as wide as the FHWA 2000 font's. This opens up Series B noticeably. Series E is
+  the exception: its factor is 1, so that its lower case has E(M)'s forms exactly (as its capitals have), and its
+  letterspacing makes up the alphabet width instead.
 - **Terminal cuts and slanted stem ends keep their angles.** Each letter is also built without its cuts
   (`lcE.build(c, nocut=True)`), with a short stub beyond each cut. The whole letter is condensed, and each cut is then
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the
@@ -143,7 +145,7 @@ with the series, as the capitals' table strokes do:
   factors of its own stroke. For the lower case, the 1983 table gives the space from the preceding character
   (capital or lower case, in 22 classes) and the following lower-case class (a c d e g o q | b h i k l m n p r u |
   f w | j | s t | v y | x | z). It is for E(M), whose lower case follows it as it stands. The other series get it
-  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.45–0.81) so
+  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.51–0.81) so
   that each lower-case alphabet (the sum of the a–z advances) is as wide as the FHWA 2000 font's, as the
   lower-case widths are; set in text, a line of lower case runs the same length as in the official font, so these
   can stand in for it. Series A, with no FHWA font, takes Series B's factor.

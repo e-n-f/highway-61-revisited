@@ -381,8 +381,10 @@ ends keep their angles.
 - Result: all 776 capital/figure and 1352 lower-case table pairs within 1 unit in every series; outlines unchanged.
 - Lower case re-tightened (user: the fonts must be drop-in replacements for the FHWA ones): `spacing.LC_TIGHT`
   multiplies the stroke-scaled table so the a-z advance sum equals FHWA 2000's (`lcspace.py`, imports build1961
-  without writing): B 0.608, C 0.635, D 0.736, E 0.447, F 0.814; A uses B's; E(M) is the table unscaled (canon;
+  without writing): B 0.608, C 0.635, D 0.736, E 0.508, F 0.814; A uses B's; E(M) is the table unscaled (canon;
   its alphabet 23.25 cap heights against FHWA ModE's 23.95).  Totals now within 0.03 cap heights, kerned or not.
+- Series E lower-case width factor `F_LC['E']` 1.035 -> 1.0 (user): its core now equals E(M)'s, as the capitals'
+  does; the FHWA alphabet width is made up by spacing (LC_TIGHT E 0.447 -> 0.508).
   Uncovered pairs (lc before capital, letter/figure, punctuation, space) rely on side bearings only.
 
 ### Next steps
