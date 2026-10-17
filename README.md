@@ -229,8 +229,9 @@ The 2000 FHWA *Standard Highway Signs* alphabets publication embeds its fonts (S
 python3 fhwa2otf.py Alphabets.ps   # extracts highway61/fhwa2000/*.pfa verbatim and converts them to .otf
 python3 fhwaspecimen.py            # comparison-1966-vs-2000.png (top level): two-column specimen at equal cap height
 python3 fhwacompare.py             # highway61/outputs/compare-fhwa2000.png: per-glyph overlays
+python3 linespecimen.py            # specimen-lines.png (top level) and highway61/outputs/line/*.png: one line per font
 ```
 
 The repository does not include these fonts (`highway61/fhwa2000/` is git-ignored). They are part of the official
-publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`,
+publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`, `linespecimen.py`,
 `lcwidth.py` or `lcspace.py`, which need them.
