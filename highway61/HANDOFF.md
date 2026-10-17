@@ -369,10 +369,50 @@ ends keep their angles.
   outline parted its non-axis joins (strokeop moves an arc by changing its semi-axes, exact only at axis points), so
   the construction re-solves its tangencies instead.
 
+### Spacing by the standard tables (2026-10-16)
+- `spacingcheck.py` transcribes the 1966/1983 spacing tables (Table I letter codes, Table II figure codes, Table VI
+  factors 1.5/1.2/0.8/0.4 of the series stroke, E(M) at Series E's spaces; the 1983 lower-case table in mm at 375 mm
+  loop height) and measures the fonts against them, including GPOS kerning.  Before: capitals off by 10-27 units on
+  average (max ~96), E(M) lower case by 30 (max 105); side bearings alone could reach only ~7-11 mean.
+- `spacing.py` solves per series: right side bearing per preceding character, one left side bearing per following
+  class, least squares with a weak (0.05) pull to the old bearings; remainders become class kerning
+  (`pos <glyph> @class <value>`, ~2000 pairs, within about +-48 units), added by feaLib in `build1961.setup`.
+  Lower case for series other than E(M): the table scaled by `lccondense.stroke(S)/V_EM` (the user's choice).
+- Result: all 776 capital/figure and 1352 lower-case table pairs within 1 unit in every series; outlines unchanged.
+- Lower case re-tightened (user: the fonts must be drop-in replacements for the FHWA ones): `spacing.LC_TIGHT`
+  multiplies the stroke-scaled table so the a-z advance sum equals FHWA 2000's (`lcspace.py`, imports build1961
+  without writing): B 0.608, C 0.635, D 0.736, E 0.508, F 0.814; A uses B's; E(M) is the table unscaled (canon;
+  its alphabet 23.25 cap heights against FHWA ModE's 23.95).  Totals now within 0.03 cap heights, kerned or not.
+- Series E lower-case width factor `F_LC['E']` 1.035 -> 1.0 (user): its core now equals E(M)'s, as the capitals'
+  does; the FHWA alphabet width is made up by spacing (LC_TIGHT E 0.447 -> 0.508).
+  Uncovered pairs (lc before capital, letter/figure, punctuation, space) rely on side bearings only.
+
+### Series A 8 waist, condensed s spine (2026-10-16)
+- Series A 8 (`dimA6.fig8`): with the lower bowl's top arc W the waist between the counters came out 36 units, not
+  the dimensioned A (64.7).  That arc is refitted (W 107.8 -> 117.8, still tangent to the side arcs S) so the lower
+  counter's top is A below the upper's bottom; the notch moves from 375.1 to 362.9 (table U: 366.6).
+- Condensed s spine (`lccondense.S_SPINE`): its tangent points s1/s2 moved towards the lobes' extremes by 9 (A) and
+  12 (B) units; the narrowest width (twice the erosion that splits the s) goes from 0.77/0.76 to 0.89/0.87 of the
+  stroke (E(M) 0.81, C-F 0.82-0.83).
+
+### w weight (2026-10-16)
+- `build1961.W_LIGHT` 0.15 -> 0.08 (user: the w had been lightened too much; give some back, not all).  Lower-case
+  alphabets stay within 0.03 cap heights of FHWA (LC_TIGHT unchanged).
+
+### e bar and a bowl top from the Palo Alto signs (2026-10-16)
+- Street View of two early-1960s signs on the Oregon Expressway, Palo Alto (Bayshore Fwy 2022, Business District
+  2018): lower-case widths match our Series C letter for letter (s narrower, r e a little wider).  Measured from
+  stroke centres (bloom-free): e bar centre 0.492/0.496 of the top-bottom stroke-centre span (ours 0.471), a bowl-top
+  centre 0.399 (ours 0.419); the e bar and a bowl top as thick as the top/bottom strokes (ours ~0.85).  Spacing on
+  the signs is about the stroke-scaled 1983 table (looser than the FHWA-matched spacing); left alone, as is the s.
+- `lcE.condensed_ae` (via `lcE.COND`, set by `lccondense.series` to 1 - F_LC): bar/bowl top towards the top stroke's
+  weight (w = min(1, c/C_REF), C_REF = 0.18 = Series C), grown into the e's lower opening / the a's gap, plus moves
+  E_DROP 0.0256 / A_RISE 0.012 squares x c/C_REF.  New C: e bar 0.493, a bowl top 0.401.  E, E(M), F unchanged.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
-1. Spacing of the 1961 capitals/figures currently reuses the 1966 E side bearings; check it against the 1961 sheets if
-   they give spacing.
+1. (done) Spacing from the 1966/1983 tables.  Possible follow-up: punctuation and figure/letter pairs, which the
+   tables do not cover.
 2. (done) Series A.
 3. Consider refactoring the per-page code into a shared library of constructions parameterised by series.

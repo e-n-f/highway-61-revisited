@@ -340,7 +340,26 @@ def dims():
         out[ch]={k:(round(v*2)/2 if k.endswith('th') else round(v*1000)/1000 if k in ('s','sb') else round(v*32)/32) for k,v in r.items()}
     for ch in 'bdpq':
         lighten(out[ch],ch in 'dq')
+    if COND>0: condensed_ae(out,COND)
     return out
+COND=0.0       # condensation (1 - lower-case width factor) of the series being built; lccondense sets it
+# The Palo Alto signs (Oregon Expressway, early 1960s, Series C lower case at our C's widths) have the e's bar and the
+# a's bowl top as heavy as the top and bottom strokes, grown into the e's lower opening and the a's gap below the
+# arch, with the bar and bowl top a little further down and up again (measured from stroke centres, which photographic
+# bloom does not move).  Applied in proportion to the condensation, full at Series C's, the weight at most the stroke.
+C_REF=1-0.82                 # Series C's condensation (lccondense.F_LC['C'])
+E_DROP=0.0256                # extra downward move of the e's bar at C_REF (squares; from 0.494 of the centre span)
+A_RISE=0.012                 # extra upward move of the a's bowl top at C_REF (squares; from 0.399)
+def condensed_ae(d,c):
+    """the e's bar and the a's bowl top for condensation c (squares, E(M) construction)"""
+    s=c/C_REF; w=min(1.0,s)
+    e=d['e']; top=e['OT']-(e['uy']+e['ub'])                   # top stroke at the centre
+    t=e['yt']-e['yb']; t2=t+w*(top-t)                          # bar: towards the top stroke's weight
+    e['yt']-=s*E_DROP; e['yb']=e['yt']-t2; e['Oyr']=e['yb']   # keeps the eye's bottom (less the move); right side tied
+    a=d['a']; top=a['aT']-a['uT']
+    cb0=a['cy']-a['cb']; ct=a['cy']+a['cb']; t=a['BT']-ct; t2=t+w*(top-t)
+    ct+=s*A_RISE; a['BT']=ct+t2                                # bowl top over the counter (raised by the move)
+    a['cy'],a['cb']=(ct+cb0)/2,(ct-cb0)/2
 BOWL_T=(1.53125,1.5)   # side and top/bottom thickness of the b d p q bowls (squares), as the o's; the fitted counters
                        # left them 0.03-0.13 square heavier, which read as heavy next to o and g
 def lighten(d,stem_right):

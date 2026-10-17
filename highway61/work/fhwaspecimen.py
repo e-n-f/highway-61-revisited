@@ -3,7 +3,7 @@ python3 fhwaspecimen.py -> ../../comparison-1966-vs-2000.png
 
 Series B C D on the left, E E(M) F on the right (E(M) against Series E Modified 2000).  Each series: sign copy, the
 complete lower case, capitals, and figures with punctuation, five lines in each font, set with the fonts' own
-advances (no tracking or kerning) at equal cap height.  The FHWA subsets have no space glyph, so they get the
+advances and kerning (no tracking) at equal cap height.  The FHWA subsets have no space glyph, so they get the
 Highway 61 Revisited space of the same series (in cap heights); nor do they have curly quotes, so their line ends
 with a straight double quote."""
 import os

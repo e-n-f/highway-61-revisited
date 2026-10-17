@@ -88,7 +88,7 @@ if S in 'ABCDEF':                                # condensed / expanded lower ca
     import lccondense
     for c, C in lccondense.series(S).items():
         new[c] = SegShifted(C, c)
-W_LIGHT = 0.15                                   # the w's strokes thinner by this fraction of the series stroke
+W_LIGHT = 0.08                                   # the w's strokes thinner by this fraction of the series stroke
 def _lighter_w(C, T):
     """offset inward by W_LIGHT*T/2, then baseline and x-height restored (four strokes in one letter read heavy)"""
     X = 517.5; d = W_LIGHT * T / 2
@@ -112,6 +112,19 @@ def _glyph_poly(n):
 for n, C in punct.make(_glyph_poly).items():
     new[n] = SegShifted(C, n)
 width = {n: (new[n].width if n in new else int(round(hmtx[n][0] * (SPACE_SCALE if n == 'space' else 1)))) for n in order}
+
+# spacing by the standard tables (spacing.py): side bearings, and class kerning for the exact pair spaces
+import spacing, string as _string
+_gn = lambda ch: spacing.NAME.get(ch, ch)
+_cur, _box = {}, {}
+for ch in _string.ascii_letters + _string.digits:
+    _bp = BoundsPen(None); new[_gn(ch)].draw(_bp); x0, _, x1, _ = _bp.bounds
+    _box[ch] = (x0, x1); _cur[ch] = (x0, width[_gn(ch)] - x1)
+_sb, KERN = spacing.solve(S, _cur)
+for ch, (l, r) in _sb.items():
+    n = _gn(ch); x0, x1 = _box[ch]
+    new[n].dx += l - x0; width[n] = int(round(l + (x1 - x0) + r))
+FEA = spacing.fea(KERN, _gn)
 src = lambda n: new[n] if n in new else gs[n]
 
 
@@ -157,8 +170,11 @@ def setup(fb, outlines_kind):
                        'fullName': FAMILY + ' Regular', 'psName': PS + '-Regular', 'version': 'Version 1.000',
                        'description': DESC})
     fb.setupPost(keepGlyphNames=True)
+    from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
+    addOpenTypeFeaturesFromString(fb.font, FEA)
 
 
-fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(DIST, PS + '.otf'))
-fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(DIST, PS + '.ttf'))
-print('wrote', PS + '.otf', PS + '.ttf')
+if __name__ == '__main__':                        # lcspace.py imports this for the spacing inputs only
+    fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(DIST, PS + '.otf'))
+    fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(DIST, PS + '.ttf'))
+    print('wrote', PS + '.otf', PS + '.ttf')

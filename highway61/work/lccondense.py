@@ -8,10 +8,12 @@ SQ=690/8; X=6*SQ
 import importlib
 A={S:importlib.import_module('dim%s1'%S).A for S in 'ABCDEF'}     # the 1961 table strokes
 F={'A':0.450,'B':0.475,'C':0.65,'D':0.825,'E':1.0,'F':1.175}
-F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.035,'F':1.124}
+F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.0,'F':1.124}
                                        # lower-case width factors: the whole a-z as wide as the FHWA 2000 font's,
                                        # in cap heights (lcwidth.py); the capitals keep the 1961 factors F
                                        # Series A (no FHWA font): B's ratio F_LC/F, 0.55/0.475, times A's 0.450
+                                       # Series E: 1, E(M)'s forms exactly (as the capitals); its spacing
+                                       # (spacing.LC_TIGHT) makes up the alphabet width instead
 V_EM=(1+9/16)*SQ                       # E(M) lower-case stem, the source of the constructions
 D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
@@ -62,7 +64,10 @@ def _tidy(geom):
         return ps[0] if len(ps)==1 else MultiPolygon(ps)
     g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
     return keep(g)
-def _s_direct(f,gx,ey,k):
+S_SPINE={'A':-9.0,'B':-12.0}   # the s spine's tangent points moved towards the lobes' extremes (units): the most
+                                # condensed spines come out steeper and thinner (narrowest 0.77, 0.76 of the stroke
+                                # against 0.81-0.83 elsewhere); this makes them 0.89, 0.87
+def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
     condense2; the spine's tangent points scale; each terminal line keeps its angle and passes through the mapped
@@ -75,7 +80,7 @@ def _s_direct(f,gx,ey,k):
     u1,u2,um,l1,l2,lm=lcE.s_ellipses(p)
     q=dict(p); q['ell']=(ink(u1),ink(u2),hole(um),ink(l1),ink(l2),hole(lm))
     q['C1x'],q['C1a']=p['C1x']*f,p['C1a']*f-gx; q['C2x'],q['C2a']=p['C2x']*f,p['C2a']*f-gx
-    q['s1'],q['s2']=p['s1']*f,p['s2']*f
+    q['s1'],q['s2']=p['s1']*f-S_SPINE.get(S,0.0),p['s2']*f+S_SPINE.get(S,0.0)
     for p0,p1,n in cuts('s'):
         m=(p0+p1)/2; pre='ut' if m[1]>X/2 else 'lt'
         mm=np.array([m[0]*f,m[1]*k-ey])+strokeop._support(n,(gx,0.0))+strokeop._support(n,(0.0,-ey))
@@ -83,7 +88,12 @@ def _s_direct(f,gx,ey,k):
     lcgeom.REG.clear(); g=lcE.clean(lcE.letter_s_ell(q)); prims=list(lcgeom.REG)
     return [[tuple(sg) for sg in segs] for segs in lcoutline.contours(g,prims)]
 def series(S,f=None,only=None):
-    f=F_LC[S] if f is None else f; T=stroke(S)
+    f=F_LC[S] if f is None else f
+    lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
+    try: return _series(S,f,only)
+    finally: lcE.COND=0.0
+def _series(S,f,only):
+    T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
     t=ey                                        # stub length scale
     k=(X+2*ey)/X
@@ -97,7 +107,7 @@ def series(S,f=None,only=None):
     for c,(g,prims) in lcE.series().items():
         if only and c not in only: continue
         if c=='s':                                      # built from its mapped construction
-            out[c]=_s_direct(f,gx,ey,k); continue
+            out[c]=_s_direct(f,gx,ey,k,S); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
             out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)
