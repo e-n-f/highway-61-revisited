@@ -9,7 +9,7 @@ with the addition of a pleasing, consistent generalization of the
 <img width="6840" height="1750" alt="Image" src="https://github.com/user-attachments/assets/4ec4d117-c840-488d-8d71-8139203eb884" />
 
 It is a protest against the ugly and inconsistent lower case and punctuation
-of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
+of the narrow widths of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
 which since 2009 have been required on American street name signs.
 
 <img width="6683" height="1500" alt="Image" src="https://github.com/user-attachments/assets/efa7c0a9-7d47-4ec9-b6d8-5d6e9b284c9b" />
