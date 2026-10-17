@@ -2,7 +2,7 @@
 
 **Highway 61 Revisited**, a family of fonts, is a faithful revival of the
 [1961 Standard Alphabets for Highway Signs](https://www.trafficsign.us/oldmutcd/oldstds/stdalphabets1961.pdf), including the long-forgotten Series A,
-and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archive.org/details/standard-alphabets-for-highway-signs-1966/page/n29/mode/2up),
+and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archive.org/details/standard-alphabets-for-highway-signs-1966/page/n29/mode/2up), including their specified spacing and kerning,
 with the addition of a pleasing, consistent generalization of the
 1966 lower case to the widths and weights of the rest of the series.
 
