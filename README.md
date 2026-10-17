@@ -1,9 +1,24 @@
-# standard-alphabets
+# Highway 61 Revisited
 
-Standard Alphabets for Highway Signs: **Highway 61 Revisited**, a family of digital fonts reconstructed from the
-U.S. Bureau of Public Roads' *Standard Alphabets for Highway Signs*. The capitals and figures come from the 1961
-dimensioned drawings, and the lower case from the 1966 grid sheets. Each is rebuilt as exact geometry rather than
-traced. The goal is to improve on the official digital fonts, not to copy them.
+The **Highway 61 Revisited** family of fonts is a faithful revival of the
+[1961 Standard Alphabets for Highway Signs](https://www.trafficsign.us/oldmutcd/oldstds/stdalphabets1961.pdf), including the long-forgotten Series A,
+and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archive.org/details/standard-alphabets-for-highway-signs-1966/page/n29/mode/2up),
+with the addition of a pleasing, consistent generalization of the
+1966 lower case to the widths and weights of the rest of the series. The "/" character comes from the [1958 Manual for Signing and Pavement Marking of the National System of Interstate and Defense Highways](https://mutcd.kittelson.com/wp-content/uploads/2022/11/1958InterstateSignsMarkings-1.pdf).
+
+<img width="6987" height="1750" alt="Image" src="https://github.com/user-attachments/assets/b08d4dba-1283-4cf2-a15d-7a7e753b94ff" />
+
+It is a protest against the ugly and inconsistent lower case and punctuation
+of the narrow widths of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
+which since 2009 have been required on American street name signs.
+
+<img width="6789" height="1500" alt="Image" src="https://github.com/user-attachments/assets/d14a2244-b723-4200-8226-2b9df44d0b3e" />
+
+The 1961 and 1966 letterforms are spaced and kerned as specified in
+the original documents; the other lower cases have tighter spacing
+like those from 2000.
+
+----------
 
 | Font | Files |
 |---|---|
