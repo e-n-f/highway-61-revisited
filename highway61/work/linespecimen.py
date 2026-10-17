@@ -1,7 +1,7 @@
 """One-line specimen of each font: python3 linespecimen.py -> ../../specimen-lines-h61.png (the Highway 61 Revisited
 fonts) and ../../specimen-lines-fhwa.png (the FHWA 2000 fonts), a line per font.
 
-The text is the capitals, the lower case, the figures and , . " - !, set at equal cap height with each font's own
+The text is the capitals, the lower case, the figures and , . " - ! /, set at equal cap height with each font's own
 advances and kerning.  (No apostrophe: the FHWA fonts have none.)  The FHWA fonts' space (added by fhwa2otf.py) is
 replaced by the Highway 61 Revisited space of the same series, in cap heights, as in fhwaspecimen.py."""
 import os
@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from fhwaspecimen import info
 W=os.path.dirname(os.path.abspath(__file__)); DIST=os.path.join(W,'..','..')
 FH=os.path.join(W,'..','fhwa2000')
-TEXT='ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 ,."-!'
+TEXT='ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 ,."-!/'
 SER=[('A',None),('B','B'),('C','C'),('D','D'),('E','E'),('EM','ModE'),('F','F')]
 CAP=100; PAD=30
 def line(fn,text,space,label):
