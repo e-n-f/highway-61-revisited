@@ -101,6 +101,8 @@ else:
     new['w'] = SegShifted(_lighter_w(strokeop.from_lc(g, prims), (1 + 9 / 16) * 690 / 8), 'w')
 import punct
 from shapely.geometry import Polygon as _Poly
+def spacing_stroke(S):
+    import spacingcheck; return spacingcheck.STROKE[S]
 def _glyph_poly(n):
     o = new[n]
     if isinstance(o, SegShifted):
@@ -112,6 +114,23 @@ def _glyph_poly(n):
 for n, C in punct.make(_glyph_poly).items():
     new[n] = SegShifted(C, n)
 width = {n: (new[n].width if n in new else int(round(hmtx[n][0] * (SPACE_SCALE if n == 'space' else 1)))) for n in order}
+
+
+class Points:
+    """draws one closed polygon (corner points, anticlockwise)"""
+    def __init__(s, pts): s.p = [(round(x, 3), round(y, 3)) for x, y in pts]
+
+    def draw(s, pen):
+        pen.moveTo(s.p[0])
+        for q in s.p[1:]: pen.lineTo(q)
+        pen.closePath()
+
+
+# the slash (not in the base fonts): the 1958 Interstate manual's, as thick as the capitals' stroke, spaced code 1
+import lccondense
+_T = 690 / 5 if S == 'EM' else lccondense.A[S]
+_pts, width['slash'] = punct.slash(_T, lccondense.F['E' if S == 'EM' else S], 1.5 * spacing_stroke(S))
+new['slash'] = Points(_pts); order = order + ['slash']
 
 # spacing by the standard tables (spacing.py): side bearings, and class kerning for the exact pair spaces
 import spacing, string as _string
@@ -142,7 +161,7 @@ if S == 'EM':
 
 def setup(fb, outlines_kind):
     fb.setupGlyphOrder(order)
-    fb.setupCharacterMap(BASE.getBestCmap())
+    fb.setupCharacterMap({**BASE.getBestCmap(), ord('/'): 'slash'})
     if outlines_kind == 'cff':
         cs = {}
         for n in order:

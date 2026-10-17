@@ -14,7 +14,7 @@ W=os.path.dirname(os.path.abspath(__file__)); OUT=os.path.join(W,'..','outputs')
 CAP=64; LH=int(CAP*1.7); LAB=26
 COLS=[[('B','B'),('C','C'),('D','D')],[('E','E'),('EM','ModE'),('F','F')]]
 LINES=['Bayshore Fwy  Business District  280','Page Mill Rd  Oregon Expwy  Exit 2',
-       'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ','0123456789  .,-!{q}']
+       'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ','0123456789  .,-!/{q}']
 def info(fn):
     f=TTFont(fn); g=f.getGlyphSet(); p=BoundsPen(g); g['H'].draw(p); upm=f['head'].unitsPerEm
     sp=f['hmtx']['space'][0] if 'space' in f.getGlyphOrder() else None

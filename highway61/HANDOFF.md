@@ -409,6 +409,15 @@ ends keep their angles.
   weight (w = min(1, c/C_REF), C_REF = 0.18 = Series C), grown into the e's lower opening / the a's gap, plus moves
   E_DROP 0.0256 / A_RISE 0.012 squares x c/C_REF.  New C: e bar 0.493, a bowl top 0.401.  E, E(M), F unchanged.
 
+### Slash (2026-10-17)
+- `punct.slash` (added in `build1961.py`; the base fonts have none): from the "1/2" in figures 3 and 5 of the 1958
+  Manual for Signing and Pavement Marking of the National System of Interstate and Defense Highways.  Measured: flat
+  ends at -0.21/-0.24 and 1.27/1.29 cap heights, straight sides (0.4 px scatter) 29.6/30.5 degrees from vertical,
+  1.06/1.14 of the I's stem across (print spread), nearest gaps to the raised 1 / lowered 2 of 1.1-1.8 strokes.
+  Built: -0.225..1.275 cap, 30 degrees in E and E(M) with the run scaled by the capitals' width factor elsewhere,
+  the capitals' stroke thick (E(M) 138), side bearings giving 1.5 strokes (code 1) to a straight neighbour, nearest
+  at the baseline on the left and the cap line on the right.  Not in the spacing tables, so not kerned.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
