@@ -11,7 +11,7 @@ traced. The goal is to improve on the official digital fonts, not to copy them.
 | Highway 61 Revisited E(M) | `Highway61Revisited-EM.otf` / `.ttf` |
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
-quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” -` and the space.
+quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
 
 Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 units), x-height 517.5, ascender 690,
 descenders about −200 to −260.

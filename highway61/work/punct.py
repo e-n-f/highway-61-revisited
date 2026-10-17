@@ -6,6 +6,7 @@
   exclam       the i turned upside down, its dot on the baseline
   quotedblright / quotedbl, quotedblleft   two of those, a stroke apart
   hyphen       the H's crossbar between the stems, at the crossbar's height
+  slash        (slash(), not from a letter) as drawn in the fractions of the 1958 Interstate signing manual
 make(glyph_polygon) -> {glyph name: strokeop segment contours}; glyph_polygon(name) gives a shapely geometry."""
 import numpy as np
 from shapely.geometry import Polygon, box, LineString
@@ -54,3 +55,19 @@ def make(poly):
     out['quotedblleft']=_segs(ql|affinity.translate(ql,gap,0))
     out['hyphen']=_segs(box(xl,yb,xr,yt))
     return out
+def slash(T,f,gap):
+    """the slash of the 1958 Manual for Signing and Pavement Marking of the National System of Interstate and Defense
+    Highways (figures 3 and 5, "1/2"; there in Series E(M) and E): a parallelogram with flat ends, from 0.225 cap
+    heights below the baseline to 1.275 above (1.5 cap heights, centred on the capitals; measured -0.21..1.27 and
+    -0.24..1.29), its sides straight and 30 degrees from vertical (measured 29.6 and 30.5), as thick as the capitals'
+    stroke T across them (measured 1.06 and 1.14 of the I's stem, with the print's spread).  In other series its
+    horizontal run scales by the capitals' width factor f, as their other diagonals do.  Side bearings: gap (the
+    drawings' nearest gaps to the figures are 1.1-1.8 strokes) between it and a straight-sided neighbour, nearest at
+    the baseline on the left and at the cap line on the right.
+    Returns (corner points, advance width)."""
+    yb,yt=-0.225*CAP,1.275*CAP; H=yt-yb
+    run=np.tan(np.radians(30))*H*f; w=T*np.hypot(run,H)/H          # horizontal width for thickness T across
+    x0=gap-run*(0-yb)/H                                            # left edge at the baseline is gap from the origin
+    pts=[(x0,yb),(x0+w,yb),(x0+run+w,yt),(x0+run,yt)]
+    adv=x0+w+run*(CAP-yb)/H+gap                                    # right edge at the cap line is gap from the advance
+    return pts,int(round(adv))
