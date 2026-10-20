@@ -1,5 +1,5 @@
-"""One-line specimen of each font: python3 linespecimen.py -> ../../specimen-lines-h61.png (the Highway 61 Revisited
-fonts) and ../../specimen-lines-fhwa.png (the FHWA 2000 fonts), a line per font.
+"""One-line specimen of each font: python3 linespecimen.py -> ../../specimen/specimen-lines-h61.png (the Highway 61 Revisited
+fonts) and ../../specimen/specimen-lines-fhwa.png (the FHWA 2000 fonts), a line per font.
 
 The text is the capitals, the lower case, the figures and , . " - ! /, set at equal cap height with each font's own
 advances and kerning.  (No apostrophe: the FHWA fonts have none.)  The FHWA fonts' space (added by fhwa2otf.py) is
@@ -26,11 +26,11 @@ def line(fn,text,space,label):
 def sheet(ims,fn):
     out=Image.new('L',(max(i.width for i in ims),sum(i.height for i in ims)),255); y=0
     for i in ims: out.paste(i,(0,y)); y+=i.height
-    out.save(os.path.join(DIST,fn))
+    out.save(os.path.join(DIST,'specimen',fn))
 def main():
     ours,fhwa=[],[]
     for S,F in SER:
-        fn=os.path.join(DIST,'Highway61Revisited-%s.otf'%S); sp=info(fn)[1]
+        fn=os.path.join(DIST,'otf','Highway61Revisited-%s.otf'%S); sp=info(fn)[1]
         ours.append(line(fn,TEXT,sp,'Highway 61 Revisited '+('E(M)' if S=='EM' else S)))
         fh=os.path.join(FH,'Series%s2000-Normal.otf'%F) if F else None
         if fh and os.path.exists(fh):

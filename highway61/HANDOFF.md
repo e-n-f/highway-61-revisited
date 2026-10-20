@@ -418,6 +418,10 @@ ends keep their angles.
   the capitals' stroke thick (E(M) 138), side bearings giving 1.5 strokes (code 1) to a straight neighbour, nearest
   at the baseline on the left and the cap line on the right.  Not in the spacing tables, so not kerned.
 
+### Layout (2026-10-20)
+- The fonts moved from the top level to `otf/` and `ttf/`, the headline specimens to `specimen/`; the scripts write
+  there.  (Earlier entries here and the transcripts still say "top level".)
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

@@ -194,6 +194,6 @@ def setup(fb, outlines_kind):
 
 
 if __name__ == '__main__':                        # lcspace.py imports this for the spacing inputs only
-    fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(DIST, PS + '.otf'))
-    fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(DIST, PS + '.ttf'))
+    fb = FontBuilder(1000, isTTF=False); setup(fb, 'cff'); fb.save(os.path.join(DIST, 'otf', PS + '.otf'))
+    fb = FontBuilder(1000, isTTF=True); setup(fb, 'glyf'); fb.save(os.path.join(DIST, 'ttf', PS + '.ttf'))
     print('wrote', PS + '.otf', PS + '.ttf')

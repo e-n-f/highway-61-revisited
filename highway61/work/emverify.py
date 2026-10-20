@@ -5,7 +5,7 @@ from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import RecordingPen
 from scipy.spatial import cKDTree
 D=pickle.load(open('caps_EM.pkl','rb'))
-F=TTFont('../../Highway61Revisited-EM.otf'); gs=F.getGlyphSet(); cm=F.getBestCmap()
+F=TTFont('../../otf/Highway61Revisited-EM.otf'); gs=F.getGlyphSet(); cm=F.getBestCmap()
 def rings(name):
     rp=RecordingPen(); gs[name].draw(rp); out=[]; cur=[]
     for op,a in rp.value:

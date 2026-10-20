@@ -68,7 +68,7 @@ def bearings(fn):
     return out,kern
 def cap_pairs(S):
     """(preceding, following, standard gap, font gap) for every capital pair and figure pair, font units"""
-    sb,kn=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); st=STROKE[S]; out=[]
+    sb,kn=bearings(os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)); st=STROKE[S]; out=[]
     for a,codes in CODES.items():
         for b,g in GROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]+kn[(a,b)]))
     for a,codes in NCODES.items():
@@ -78,7 +78,7 @@ def lc_pairs(S='EM'):
     """the same for the lower-case table; other series than E(M) scaled by spacing.lc_scale"""
     import spacing
     sc=spacing.lc_scale(S)
-    sb,kn=bearings(os.path.join(ROOT,'Highway61Revisited-%s.otf'%S)); out=[]
+    sb,kn=bearings(os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)); out=[]
     for r,row in zip(LCROWS,LC375):
         for cols,v in zip(LCCOLS,row):
             for a in r:
