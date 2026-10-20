@@ -1,5 +1,5 @@
 """Two-column specimen, Highway 61 Revisited against the FHWA 2000 Standard Highway Signs fonts:
-python3 fhwaspecimen.py -> ../../comparison-1966-vs-2000.png
+python3 fhwaspecimen.py -> ../../specimen/comparison-1966-vs-2000.png
 
 Series B C D on the left, E E(M) F on the right (E(M) against Series E Modified 2000).  Each series: sign copy, the
 complete lower case, capitals, and figures with punctuation, five lines in each font, set with the fonts' own
@@ -34,7 +34,7 @@ def main():
     sets={}
     for col in COLS:
         for o,t in col:
-            ours=os.path.join(DIST,f'Highway61Revisited-{o}.otf')
+            ours=os.path.join(DIST,'otf',f'Highway61Revisited-{o}.otf')
             so=Setter(ours); st=Setter(os.path.join(FH,f'Series{t}2000-Normal.otf'),info(ours)[1])
             sets[o]=(so,st)
     tmp=ImageDraw.Draw(Image.new('RGB',(10,10)))
@@ -62,6 +62,6 @@ def main():
             d.line((x0,y-int(LAB*0.4),x0+colw[ci]-40,y-int(LAB*0.4)),fill=(190,190,190),width=2)
         if ci==0: d.line((x0+colw[0]-10,int(LAB*2.4),x0+colw[0]-10,H-10),fill=(190,190,190),width=2)
         x0+=colw[ci]+20
-    im.save(os.path.join(DIST,'comparison-1966-vs-2000.png'))
+    im.save(os.path.join(DIST,'specimen','comparison-1966-vs-2000.png'))
     print(im.size)
 if __name__=='__main__': main()

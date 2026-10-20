@@ -32,7 +32,7 @@ def main():
     rows=[]
     lab=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',30)
     for ours,theirs in PAIRS:
-        fo=font(os.path.join(DIST,f'Highway61Revisited-{ours}.otf'))
+        fo=font(os.path.join(DIST,'otf',f'Highway61Revisited-{ours}.otf'))
         ft=font(os.path.join(FH,f'Series{theirs}2000-Normal.otf'))
         cell=(int(CAP*1.25),int(CAP*1.9)); per=26
         groups=[g for g in CHARS.split(' ')]

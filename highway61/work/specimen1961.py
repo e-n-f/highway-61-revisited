@@ -2,7 +2,7 @@
 import sys
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
-F61 = '../../Highway61Revisited-%s.otf' % S; F66 = '../outputs/HighwayEven1966-%s.ttf' % S
+F61 = '../../otf/Highway61Revisited-%s.otf' % S; F66 = '../outputs/HighwayEven1966-%s.ttf' % S
 sz = 150
 f61 = ImageFont.truetype(F61, sz); f66 = ImageFont.truetype(F66, sz); small = ImageFont.truetype(F61, 64)
 lines = ['ABCDEFGHI', 'JKLMNOPQR', 'STUVWXYZ', '1234567890']

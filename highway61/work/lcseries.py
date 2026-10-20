@@ -1,4 +1,4 @@
-"""Specimen of all seven series: python3 lcseries.py -> ../../specimen-lc-series.png
+"""Specimen of all seven series: python3 lcseries.py -> ../../specimen/specimen-lc-series.png
 (the lower case, a line of sign copy and a line with punctuation and a fraction, in each Highway 61 Revisited font)"""
 import os
 from PIL import Image, ImageDraw, ImageFont
@@ -9,10 +9,10 @@ def main():
     im=Image.new('RGB',(2700,len(SER)*H+40),'white'); d=ImageDraw.Draw(im)
     lab=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',36)
     for i,S in enumerate(SER):
-        f=ImageFont.truetype(os.path.join(DIST,'Highway61Revisited-%s.otf'%S),140); y=i*H
+        f=ImageFont.truetype(os.path.join(DIST,'otf','Highway61Revisited-%s.otf'%S),140); y=i*H
         d.text((20,y+50),'Highway 61 Revisited '+('E(M)' if S=='EM' else S),font=lab,fill=(120,120,120),anchor='ls')
         d.text((20,y+200),'abcdefghijklmnopqrstuvwxyz',font=f,fill='black',anchor='ls')
         d.text((20,y+340),'Exit 42 Mendocino Highway',font=f,fill='black',anchor='ls')
         d.text((20,y+480),'It’s “Hi-Fi!” said Jo. 1-2-3 1/2',font=f,fill='black',anchor='ls')
-    im.save(os.path.join(DIST,'specimen-lc-series.png'))
+    im.save(os.path.join(DIST,'specimen','specimen-lc-series.png'))
 if __name__=='__main__': main()
