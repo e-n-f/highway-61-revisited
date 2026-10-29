@@ -205,7 +205,9 @@ for S in A B C D E EM F; do python3 strokecheck.py $S; done   # every glyph must
 python3 spacingcheck.py                                        # every table pair within a unit of the standard
 ```
 
-`build1961.py <S>` writes `otf/Highway61Revisited-<S>.otf` and `ttf/Highway61Revisited-<S>.ttf`. Rebuilding from a fresh clone reproduces the
+`build1961.py <S>` writes `otf/Highway61Revisited-<S>.otf` and `ttf/Highway61Revisited-<S>.ttf`. The fonts' version (the `head`
+revision and the name table's version string) is `VERSION` near the top of `build1961.py`: raise it for each
+release, or Font Book and other font managers will treat the new fonts as duplicates of installed ones. Rebuilding from a fresh clone reproduces the
 committed fonts exactly, apart from the timestamp in the `head` table.
 
 The build reads these inputs, all in the repository:

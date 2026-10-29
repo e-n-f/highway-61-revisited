@@ -30,6 +30,7 @@ SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited %s' % ('E(M)' if S == 'EM' else S)
+VERSION = '1.001'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited-%s' % S
 
 geoms = vgeom.series('E' if S == 'EM' else S)
@@ -167,7 +168,7 @@ def setup(fb, outlines_kind):
         for n in order:
             pen = T2CharStringPen(width[n], None, roundTolerance=0)
             src(n).draw(ReverseContourPen(pen)); cs[n] = pen.getCharString()   # CFF winds outer contours anticlockwise
-        fb.setupCFF(PS + '-Regular', {'FullName': FAMILY + ' Regular', 'FamilyName': FAMILY}, cs, {})
+        fb.setupCFF(PS + '-Regular', {'FullName': FAMILY + ' Regular', 'FamilyName': FAMILY, 'version': VERSION}, cs, {})
     else:
         glyphs = {}
         for n in order:
@@ -185,9 +186,10 @@ def setup(fb, outlines_kind):
     fb.setupOS2(sTypoAscender=os2.sTypoAscender, sTypoDescender=os2.sTypoDescender, sTypoLineGap=os2.sTypoLineGap,
                 usWinAscent=os2.usWinAscent, usWinDescent=os2.usWinDescent, sxHeight=os2.sxHeight,
                 sCapHeight=os2.sCapHeight, achVendID='NONE', fsType=0)
-    fb.setupNameTable({'familyName': FAMILY, 'styleName': 'Regular', 'uniqueFontIdentifier': PS + '-Regular-1.000',
-                       'fullName': FAMILY + ' Regular', 'psName': PS + '-Regular', 'version': 'Version 1.000',
+    fb.setupNameTable({'familyName': FAMILY, 'styleName': 'Regular', 'uniqueFontIdentifier': PS + '-Regular-' + VERSION,
+                       'fullName': FAMILY + ' Regular', 'psName': PS + '-Regular', 'version': 'Version ' + VERSION,
                        'description': DESC})
+    fb.font['head'].fontRevision = float(VERSION)
     fb.setupPost(keepGlyphNames=True)
     from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
     addOpenTypeFeaturesFromString(fb.font, FEA)
