@@ -430,6 +430,15 @@ ends keep their angles.
   the others give 0.83).  E(M) lower case is now 3.3 units tighter on average (alphabet 23.27 -> 23.15 cap heights).
   LC_TIGHT re-solved (B 0.619, C 0.642, D 0.745, E 0.513, F 0.827) so B-F keep the FHWA alphabet widths.
 
+### Squarer rounds in the narrow lower case (trial, 2026-10-29)
+- User: in Series A the lower-case o/c curve all the way down while the capital O/C have long straight sides.
+  Capital O best-fit |x/a|^2 + |y/b|^n = 1: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00; lower-case o 2.00 in all.
+- `strokeop.squarer` (on with `lccondense.SQUARE`): every elliptic arc of the condensed lower case becomes that
+  curve about its own centre, n = 2 n_O(S)/n_O(E) (A 3.62, B 3.33, C 2.54, D 2.25; E, E(M), F unchanged), as cubics
+  ('B' segments).  Axis points and their tangents stay, so widths, heights and spacing hold.  Arc ends elsewhere are
+  re-ended on the neighbouring line (cut angles and the e's bar kept), across construction slivers (<12 units, which
+  are collapsed), or at the crossing of two squared arcs; dots stay round.  Ink grows up to ~10% in A's o c e s.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

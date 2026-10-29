@@ -90,8 +90,18 @@ def _s_direct(f,gx,ey,k,S=None):
 def series(S,f=None,only=None):
     f=F_LC[S] if f is None else f
     lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
-    try: return _series(S,f,only)
+    try: out=_series(S,f,only)
     finally: lcE.COND=0.0
+    n=squareness(S)
+    return {c:(strokeop.squarer(C,n) if n>2 else C) for c,C in out.items()} if SQUARE else out
+# The narrow capitals' O is a four-centre oval with long, nearly straight sides; the condensed lower case's arcs are
+# ellipses, which stay curved all the way down.  With SQUARE on, each arc in the condensed lower case becomes
+# |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
+# exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
+SQUARE=True
+N_O={'A':4.35,'B':4.00,'C':3.05,'D':2.70,'E':2.40,'F':2.00}
+def squareness(S):
+    return 2.0 if S=='EM' else max(2.0,2*N_O[S]/N_O['E'])
 def _series(S,f,only):
     T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion

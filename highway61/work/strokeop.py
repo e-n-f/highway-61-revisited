@@ -195,6 +195,7 @@ def draw(contours,pen,dx=0.0,dy=0.0):
         for k,s in enumerate(segs):
             if s[0]=='L':
                 if k<len(segs)-1: pen.lineTo(T(s[2]))
+            elif s[0]=='B': pen.curveTo(T(s[3]),T(s[4]),T(s[2]))
             else:
                 for bz in lcoutline.beziers(s): pen.curveTo(T(bz[1]),T(bz[2]),T(bz[3]))
         pen.closePath()
@@ -205,6 +206,9 @@ def to_polygons(contours,n=16,step=None):
         pts=[]
         for s in segs:
             if s[0]=='L': pts.append(s[1])
+            elif s[0]=='B':
+                for t in np.linspace(0,1,n,endpoint=False):
+                    m_=1-t; pts.append(m_**3*s[1]+3*m_*m_*t*s[3]+3*m_*t*t*s[4]+t**3*s[2])
             else:
                 m=n if step is None else max(2,int(np.ceil(abs(s[5])/step)))
                 for t in np.linspace(0,1,m,endpoint=False): pts.append(_ept(s[3],s[4]+s[5]*t))
@@ -321,4 +325,96 @@ def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
         r=a*dot_scale if dot_scale else a+(gx-ey)/2
         yc=cy+a-r
         p=np.array([cx*f+r,yc]); out.append([('E',p,p,(cx*f,yc,r,r),0.0,2*np.pi*sg)])
+    return out
+# ---------------------------------------------------------------------------------------------------- squarer arcs
+def _sq_pt(e,t,n):
+    """the point of parameter t on ellipse e = (cx, cy, a, b) moved to the curve |x/a|^2 + |y/b|^n = 1: x kept,
+    y = cy + b sign(sin t) |sin t|^(2/n)"""
+    cx,cy,a,b=e; s=np.sin(t)
+    return np.array([cx+a*np.cos(t),cy+b*np.sign(s)*abs(s)**(2.0/n)])
+def _fit_cubic(P,p0,p3,t0,t3):
+    """cubic from p0 to p3 with unit end tangents t0, t3 (handles p0 + al t0, p3 - be t3) fitted to the points P
+    (chord-length parameters); returns the four control points and the largest distance from P"""
+    d=np.r_[0,np.cumsum(np.linalg.norm(np.diff(P,axis=0),axis=1))]; u=d/d[-1]
+    B0=(1-u)**3; B1=3*u*(1-u)**2; B2=3*u*u*(1-u); B3=u**3
+    R=P-np.outer(B0+B1,p0)-np.outer(B2+B3,p3)
+    A=np.stack([np.outer(B1,t0).ravel(),np.outer(B2,-t3).ravel()],1)
+    al,be=np.linalg.lstsq(A,R.ravel(),rcond=None)[0]
+    L=np.linalg.norm(p3-p0); al=al if al>1e-3*L else L/3; be=be if be>1e-3*L else L/3
+    c=[p0,p0+al*t0,p3-be*t3,p3]
+    Q=np.outer(B0,c[0])+np.outer(B1,c[1])+np.outer(B2,c[2])+np.outer(B3,c[3])
+    return c,np.linalg.norm(Q-P,axis=1).max()
+def _sq_beziers(e,ta,tb,n,pa,pb,tol=0.25,depth=0):
+    """cubics for the squared arc from parameter ta to tb, ending exactly at pa and pb"""
+    ts=np.linspace(ta,tb,41); P=np.array([_sq_pt(e,t,n) for t in ts]); P[0],P[-1]=pa,pb
+    def tan(t,dirn):
+        h=1e-5*dirn; q=_sq_pt(e,t+h,n)-_sq_pt(e,t,n); return q/np.linalg.norm(q)
+    sg=np.sign(tb-ta)
+    c,err=_fit_cubic(P,pa,pb,tan(ta,sg),-tan(tb,-sg))
+    if err<=tol or depth>6: return [c]
+    tm=(ta+tb)/2; pm=_sq_pt(e,tm,n)
+    return _sq_beziers(e,ta,tm,n,pa,pm,tol,depth+1)+_sq_beziers(e,tm,tb,n,pm,pb,tol,depth+1)
+def _axis(t): return min(abs(np.sin(t)),1-abs(np.sin(t)))<1e-9
+def _sq_line(e,t,n,q,d,win=0.5):
+    """the parameter within win radians of the arc's end t where its squared curve crosses the line through q
+    along d, the crossing nearest t; t itself if there is none"""
+    from scipy.optimize import brentq
+    def f(u): w=_sq_pt(e,u,n)-q; return float(d[0]*w[1]-d[1]*w[0])
+    us=np.linspace(t-win,t+win,401); vs=[f(u) for u in us]; best=None
+    for i in range(400):
+        if vs[i]==0: r=us[i]
+        elif vs[i]*vs[i+1]<0: r=brentq(f,us[i],us[i+1],xtol=1e-12)
+        else: continue
+        if best is None or abs(r-t)<abs(best-t): best=r
+    return t if best is None else best
+def _sq_arcs(e1,t1,e2,t2,n):
+    from scipy.optimize import fsolve
+    r=fsolve(lambda v: _sq_pt(e1,v[0],n)-_sq_pt(e2,v[1],n),[t1,t2],xtol=1e-12)
+    return (r[0],r[1]) if np.linalg.norm(_sq_pt(e1,r[0],n)-_sq_pt(e2,r[1],n))<1e-6 else (t1,t2)
+def squarer(contours,n,keep_circles=True):
+    """every elliptic arc to the curve |x/a|^2 + |y/b|^n = 1 about its own centre (n > 2: straighter sides, blunter
+    tops and bottoms, as the condensed capital O; the axis points stay, with their tangents); arcs become cubic
+    segments ('B', p0, p3, p1, p2).  Circles (a = b, the dots) are left round.  An arc that ended elsewhere than at
+    an axis point is re-ended where its squared curve meets the neighbouring line (whose direction is kept, so cuts
+    keep their angles and the e's bar its height) or the neighbouring squared arc."""
+    out=[]
+    for segs in contours:
+        m=len(segs)
+        def is_sq(s): return s[0]=='E' and not (keep_circles and abs(s[3][2]-s[3][3])<1e-6)
+        T=[[s[4],s[4]+s[5]] if is_sq(s) else None for s in segs]       # arc end parameters, updated below
+        V=[None]*m; collapse={}
+        for k in range(m):                                   # vertex k: end of segment k-1 = start of segment k
+            i,j=(k-1)%m,k; a,b=segs[i],segs[j]
+            if is_sq(a) and is_sq(b):
+                if not (_axis(T[i][1]) and _axis(T[j][0])): T[i][1],T[j][0]=_sq_arcs(a[3],T[i][1],b[3],T[j][0],n)
+                V[k]=_sq_pt(b[3],T[j][0],n)
+            elif is_sq(a) or is_sq(b):
+                arc,ia,end,ln=(a,i,1,b) if is_sq(a) else (b,j,0,a)
+                t=T[ia][end]
+                beyond=segs[(j+1)%m] if is_sq(a) else segs[(i-1)%m]              # the segment past the line
+                sliver=np.linalg.norm(np.array(ln[2],float)-np.array(ln[1],float))<12
+                if sliver and is_sq(beyond): pass                    # a sliver between two arcs: it bridges their ends
+                elif not _axis(t):
+                    q=np.array(ln[1],float); d=np.array(ln[2],float)-q
+                    if np.linalg.norm(d)<12 and beyond[0]=='L':                 # a sliver (a cut's join): use the cut
+                        q=np.array(beyond[1],float); d=np.array(beyond[2],float)-q
+                        collapse[(k+1)%m if is_sq(a) else (k-1)%m]=k              # and shrink the sliver to nothing
+                    T[ia][end]=_sq_line(arc[3],t,n,q,d)
+                V[k]=_sq_pt(arc[3],T[ia][end],n)
+            else: V[k]=np.array(b[1],float)
+        for v,k in collapse.items(): V[v]=V[k]
+        cs=[]
+        for k,s in enumerate(segs):
+            p0,p1=V[k],V[(k+1)%m]
+            if not is_sq(s):
+                if s[0]=='L' and np.linalg.norm(p1-p0)<1e-9: continue
+                cs.append(('L',p0,p1) if s[0]=='L' else (s[0],p0,p1)+tuple(s[3:])); continue
+            e=s[3]; t0,t1=T[k]
+            cuts=sorted(t for jj in range(-8,9) for t in [jj*np.pi/2] if min(t0,t1)+1e-9<t<max(t0,t1)-1e-9)
+            if t1<t0: cuts=cuts[::-1]
+            ts=[t0]+cuts+[t1]; pts=[p0]+[_sq_pt(e,t,n) for t in cuts]+[p1]
+            for ii in range(len(ts)-1):
+                for c in _sq_beziers(e,ts[ii],ts[ii+1],n,pts[ii],pts[ii+1]):
+                    cs.append(('B',c[0],c[3],c[1],c[2]))
+        out.append(cs)
     return out
