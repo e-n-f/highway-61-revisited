@@ -422,6 +422,14 @@ ends keep their angles.
 - The fonts moved from the top level to `otf/` and `ttf/`, the headline specimens to `specimen/`; the scripts write
   there.  (Earlier entries here and the transcripts still say "top level".)
 
+### 1966 lower-case spacing table (2026-10-29)
+- The user found a scan of the 1966 lower-case spacing table (p. 36): inches for 10, 12, 15, 18 in loop heights.
+  Its 15-inch column is exactly the 1983 table in mm (all 176 cells), which the 1983 edition labels 375 mm (15 in is
+  381 mm), so the 1983-based spaces were 1.6% too large.  `spacingcheck.T1966` holds the table; `LCRATIO` is each
+  cell's least-squares space/loop-height over the four sizes (rms residual 0.03 in; the r->j 10-inch 0.67 is left out,
+  the others give 0.83).  E(M) lower case is now 3.3 units tighter on average (alphabet 23.27 -> 23.15 cap heights).
+  LC_TIGHT re-solved (B 0.619, C 0.642, D 0.745, E 0.513, F 0.827) so B-F keep the FHWA alphabet widths.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

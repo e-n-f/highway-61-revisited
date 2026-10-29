@@ -7,7 +7,7 @@ side bearing; least squares chooses them (pulled weakly towards the current ones
 left and right), and the remainder for each (preceding character, following class) becomes a kerning value.
 
 Capitals and figures: Table I/II codes, space = factor x series stroke (E(M): Series E's spaces).  Lower case: the
-1983 E(M) table (capitals and lower case preceding), scaled for the other series by their lower-case stroke over
+1966 E(M) table (capitals and lower case preceding), scaled for the other series by their lower-case stroke over
 E(M)'s and tightened to the FHWA 2000 alphabet widths (LC_TIGHT).  Pairs the tables do not cover (lower case before a capital, letters and figures, punctuation) are left to
 the side bearings."""
 import numpy as np
@@ -20,7 +20,7 @@ def classes():
 # Lower-case spaces relative to the E(M) table scaled by lower-case stroke, solved by lcspace.py so that each
 # series' a-z advances add up to the FHWA 2000 font's (as the lower-case widths are, lcwidth.py).  E(M) is the
 # table itself; Series A (no FHWA font) takes Series B's factor.
-LC_TIGHT={'B':0.608,'C':0.635,'D':0.736,'E':0.508,'F':0.814}
+LC_TIGHT={'B':0.619,'C':0.642,'D':0.745,'E':0.513,'F':0.827}
 def lc_scale(S):
     """lower-case table scale for series S: E(M) 1, others their lower-case stroke over E(M)'s times LC_TIGHT"""
     import lccondense
@@ -34,9 +34,9 @@ def targets(S,lc=None):
     for a,codes in sc.NCODES.items():
         for g,cls in enumerate(num_f): out[(a,cls)]=sc.FACTOR[codes[g]]*st
     r=lc_scale(S) if lc is None else lc
-    for row,vals in zip(sc.LCROWS,sc.LC375):
+    for row,vals in zip(sc.LCROWS,sc.LCRATIO):
         for cls,v in zip(lc_f,vals):
-            for a in row: out[(a,cls)]=v*sc.XH/375*r
+            for a in row: out[(a,cls)]=v*sc.XH*r
     return out
 def solve(S,cur,lc=None):
     """cur: {char: (lsb, rsb)} now.  Returns ({char: (lsb, rsb)}, {(char, class): kern})"""

@@ -1,4 +1,4 @@
-"""The standard spacing tables (1966 Standard Alphabets pp. 24-28 and 34; 1983 pp. 29-33 and 41) against the fonts:
+"""The standard spacing tables (1966 Standard Alphabets pp. 24-28, 34 and 36; 1983 pp. 29-33 and 41) against the fonts:
 python3 spacingcheck.py [series...]
 
 Capitals and figures: Table I (letter) / II (figure) give a code from the preceding character and the group of the
@@ -7,8 +7,10 @@ edge and the following one's extreme left edge.  The codes are the same in every
 spaces are the series stroke times 1.5, 1.2, 0.8, 0.4 (B C D E F, both editions), and for E(M) the Series E spaces
 (1983: 1.3, 1.05, 0.7, 0.35 of its own stroke, height/5).  Series A has no table; it gets the same factors of its own stroke.
 
-Lower case: the 1983 table (E(M) only; the other series are given it scaled by lower-case stroke), in millimetres at a 375 mm loop height (= x-height), by preceding character
-class (capitals and lower case) and following lower-case class.  The 1966 table agrees with it (inches)."""
+Lower case: the 1966 table (p. 36; E(M) only; the other series are given it scaled by spacing.lc_scale), in inches
+for loop heights (= x-height) of 10, 12, 15 and 18 in, by preceding character class (capitals and lower case) and
+following lower-case class.  The 1983 table is its 15-inch column in millimetres, but labelled as for a 375 mm loop
+height, which made its spaces 1.6% too large for their height."""
 import os, sys, string, numpy as np
 from fontTools.ttLib import TTFont
 from fontTools.pens.boundsPen import BoundsPen
@@ -25,18 +27,50 @@ NCODES={'1':(1,1,2),'2':(1,2,2),'3':(1,2,2),'4':(2,2,4),'5':(1,2,2),'6':(1,2,2),
 NGROUP={c:0 for c in '15'}; NGROUP.update({c:1 for c in '236890'}); NGROUP.update({c:2 for c in '47'})
 FACTOR={1:1.5,2:1.2,3:0.8,4:0.4}
 STROKE={'A':64.69,'B':86.25,'C':97.03,'D':107.81,'E':118.59,'F':129.38,'EM':118.59}   # EM: Series E's spaces
-# 1983 lower-case table at 375 mm loop height; columns: acdegoq, bhiklmnpru, fw, j, st, vy, x, z
+# 1966 lower-case table (p. 36): inches, for loop heights of 10, 12, 15 and 18 in, by preceding character (capitals
+# and lower case) and following lower-case class: acdegoq, bhiklmnpru, fw, j, st, vy, x, z (four sizes each).  The
+# 1983 table is its 15-inch column in millimetres, labelled as for a 375 mm loop height (15 in is 381 mm).
 LCROWS=['AWX','B','CEG','DOQR','F','HIMN','JU','KL','P','S','T','V','Y','Z','adghijlmnqu','bfkops','ce','r','tz','vy',
         'w','x']
 LCCOLS=['acdegoq','bhiklmnpru','fw','j','st','vy','x','z']
-LC375=[[121,133,111,76,95,80,95,124],[143,181,133,95,130,111,111,146],[133,165,124,89,121,121,127,140],
-       [130,171,127,82,121,121,127,133],[64,127,80,64,70,70,76,95],[175,206,165,133,162,162,171,178],
-       [171,181,162,130,152,152,159,175],[102,152,95,60,92,92,98,111],[124,143,114,64,102,102,111,121],
-       [121,162,111,80,108,108,114,124],[95,152,89,70,95,95,102,111],[89,143,95,76,108,108,114,124],
-       [64,127,80,57,60,60,70,102],[159,190,156,111,152,152,159,165],[156,194,146,111,143,143,152,159],
-       [111,156,102,67,98,98,108,114],[121,159,111,76,108,108,114,124],[76,121,70,32,64,64,70,80],
-       [114,159,108,70,102,102,111,121],[98,143,92,57,89,89,95,102],[102,143,95,60,92,92,98,108],
-       [108,146,98,64,95,95,102,111]]
+LCSIZES=(10,12,15,18)
+T1966={
+'AWX':   '3.13 3.75 4.75 5.63 3.50 4.25 5.25 6.38 2.88 3.50 4.38 5.25 2.00 2.38 3.00 3.50 2.50 3.00 3.75 4.50 2.13 2.50 3.13 3.75 2.50 3.00 3.75 4.50 3.25 3.88 4.88 5.75',
+'B':     '3.75 4.50 5.63 6.75 4.75 5.75 7.13 8.63 3.50 4.25 5.25 6.38 2.50 3.00 3.75 4.50 3.50 4.13 5.13 6.13 2.88 3.50 4.38 5.25 2.88 3.50 4.38 5.25 3.88 4.63 5.75 6.88',
+'CEG':   '3.50 4.25 5.25 6.38 4.38 5.25 6.50 7.88 3.25 3.88 4.88 5.75 2.25 2.75 3.50 4.13 3.13 3.75 4.75 5.63 3.13 3.75 4.75 5.63 3.38 4.00 5.00 6.00 3.63 4.38 5.50 6.50',
+'DOQR':  '3.50 4.13 5.13 6.13 4.50 5.38 6.75 8.00 3.38 4.00 5.00 6.00 2.25 2.63 3.25 3.88 3.13 3.75 4.75 5.63 3.13 3.75 4.75 5.63 3.38 4.00 5.00 6.00 3.50 4.25 5.25 6.38',
+'F':     '1.63 2.00 2.50 3.00 3.38 4.00 5.00 6.00 2.13 2.50 3.13 3.75 1.63 2.00 2.50 3.00 1.88 2.25 2.75 3.38 1.88 2.25 2.75 3.38 2.00 2.38 3.00 3.50 2.50 3.00 3.75 4.50',
+'HIMN':  '4.63 5.50 6.88 8.25 5.38 6.50 8.13 9.75 4.38 5.25 6.50 7.88 3.50 4.25 5.25 6.38 4.25 5.13 6.38 7.63 4.25 5.13 6.38 7.63 4.50 5.38 6.75 8.00 4.75 5.63 7.00 8.38',
+'JU':    '4.50 5.38 6.75 8.00 4.75 5.75 7.13 8.63 4.25 5.13 6.38 7.63 3.50 4.13 5.13 6.13 4.00 4.75 6.00 7.13 4.00 4.75 6.00 7.13 4.13 5.00 6.25 7.50 4.63 5.50 6.88 8.25',
+'KL':    '2.75 3.25 4.00 4.88 4.00 4.75 6.00 7.13 2.50 3.00 3.75 4.50 1.63 1.88 2.38 2.75 2.38 2.88 3.63 4.25 2.38 2.88 3.63 4.25 2.63 3.13 3.88 4.63 2.88 3.50 4.38 5.25',
+'P':     '3.25 3.88 4.88 5.75 3.75 4.50 5.63 6.75 3.00 3.63 4.50 5.38 1.63 2.00 2.50 3.00 2.75 3.25 4.00 4.88 2.75 3.25 4.00 4.88 2.88 3.50 4.38 5.25 3.13 3.75 4.75 5.63',
+'S':     '3.13 3.75 4.75 5.63 4.25 5.13 6.38 7.63 2.88 3.50 4.38 5.25 2.13 2.50 3.13 3.75 2.88 3.38 4.25 5.00 2.88 3.38 4.25 5.00 3.00 3.63 4.50 5.38 3.25 3.88 4.88 5.75',
+'T':     '2.50 3.00 3.75 4.50 4.00 4.75 6.00 7.13 2.25 2.75 3.50 4.13 1.88 2.25 2.75 3.38 2.50 3.00 3.75 4.50 2.50 3.00 3.75 4.50 2.75 3.25 4.00 4.88 2.88 3.50 4.38 5.25',
+'V':     '2.25 2.75 3.50 4.13 3.75 4.50 5.63 6.75 2.50 3.00 3.75 4.50 2.00 2.38 3.00 3.50 2.88 3.38 4.25 5.00 2.88 3.38 4.25 5.00 3.00 3.63 4.50 5.38 3.25 3.88 4.88 5.75',
+'Y':     '1.63 2.00 2.50 3.00 3.38 4.00 5.00 6.00 2.13 2.50 3.13 3.75 1.50 1.75 2.25 2.63 1.63 1.88 2.38 2.88 1.63 1.88 2.38 2.88 1.88 2.25 2.75 3.38 2.75 3.25 4.00 4.88',
+'Z':     '4.13 5.00 6.25 7.50 5.00 6.00 7.50 9.00 4.00 4.88 6.13 7.25 2.88 3.50 4.38 5.25 4.00 4.75 6.00 7.13 4.00 4.75 6.00 7.13 4.13 5.00 6.25 7.50 4.38 5.25 6.50 7.88',
+'adghijlmnqu': '4.00 4.88 6.13 7.25 5.13 6.13 7.63 9.13 3.88 4.63 5.75 6.88 2.88 3.50 4.38 5.25 3.75 4.50 5.63 6.75 3.75 4.50 5.63 6.75 4.00 4.75 6.00 7.13 4.13 5.00 6.25 7.50',
+'bfkops':'2.88 3.50 4.38 5.25 4.00 4.88 6.13 7.25 2.75 3.25 4.00 4.88 1.75 2.13 2.63 3.13 2.63 3.13 3.88 4.63 2.63 3.13 3.88 4.63 2.88 3.38 4.25 5.00 3.00 3.63 4.50 5.38',
+'ce':    '3.13 3.75 4.75 5.63 4.13 5.00 6.25 7.50 2.88 3.50 4.38 5.25 2.00 2.38 3.00 3.50 2.88 3.38 4.25 5.00 2.88 3.38 4.25 5.00 3.00 3.63 4.50 5.38 3.25 3.88 4.88 5.75',
+'r':     '2.00 2.38 3.00 3.50 3.13 3.75 4.75 5.63 1.88 2.25 2.75 3.38 0.67 1.00 1.25 1.50 1.63 2.00 2.50 3.00 1.63 2.00 2.50 3.00 1.88 2.25 2.75 3.38 2.13 2.50 3.13 3.75',
+'tz':    '3.00 3.63 4.50 5.38 4.13 5.00 6.25 7.50 2.88 3.38 4.25 5.00 1.88 2.25 2.75 3.38 2.75 3.25 4.00 4.88 2.75 3.25 4.00 4.88 2.88 3.50 4.38 5.25 3.13 3.75 4.75 5.63',
+'vy':    '2.63 3.13 3.88 4.63 3.75 4.50 5.63 6.75 2.38 2.88 3.63 4.25 1.50 1.75 2.25 2.63 2.25 2.75 3.50 4.13 2.25 2.75 3.50 4.13 2.50 3.00 3.75 4.50 2.75 3.25 4.00 4.88',
+'w':     '2.75 3.25 4.00 4.88 3.75 4.50 5.63 6.75 2.50 3.00 3.75 4.50 1.63 1.88 2.38 2.75 2.38 2.88 3.63 4.25 2.38 2.88 3.63 4.25 2.63 3.13 3.88 4.63 2.88 3.38 4.25 5.00',
+'x':     '2.88 3.38 4.25 5.00 3.88 4.63 5.75 6.88 2.63 3.13 3.88 4.63 1.63 2.00 2.50 3.00 2.50 3.00 3.75 4.50 2.50 3.00 3.75 4.50 2.75 3.25 4.00 4.88 2.88 3.50 4.38 5.25'}
+def _lcratio():
+    """space / loop height for each (row, class): the least-squares fit over the four sizes (the printed values are
+    rounded to 1/8 in; rms residual 0.03 in).  The r -> j cell's 10-inch value (0.67) is left out: the others give
+    0.83."""
+    H=np.array(LCSIZES,float); out=[]
+    for r in LCROWS:
+        v=np.array([float(x) for x in T1966[r].split()]).reshape(8,4); row=[]
+        for c in range(8):
+            m=np.ones(4,bool)
+            if r=='r' and LCCOLS[c]=='j': m[0]=False
+            row.append(float(v[c][m]@H[m]/(H[m]@H[m])))
+        out.append(row)
+    return out
+LCRATIO=_lcratio()
 NAME={str(i):n for i,n in enumerate(['zero','one','two','three','four','five','six','seven','eight','nine'])}
 def kerning(f):
     """{(left glyph, right glyph): x advance adjustment} from the GPOS pair lookups"""
@@ -79,10 +113,10 @@ def lc_pairs(S='EM'):
     import spacing
     sc=spacing.lc_scale(S)
     sb,kn=bearings(os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)); out=[]
-    for r,row in zip(LCROWS,LC375):
+    for r,row in zip(LCROWS,LCRATIO):
         for cols,v in zip(LCCOLS,row):
             for a in r:
-                for b in cols: out.append((a,b,v*XH/375*sc,sb[a][1]+sb[b][0]+kn[(a,b)]))
+                for b in cols: out.append((a,b,v*XH*sc,sb[a][1]+sb[b][0]+kn[(a,b)]))
     return out
 def report(pairs,label):
     d=np.array([f-s for _,_,s,f in pairs]); print('%-10s pairs %4d  font-standard: mean %+6.1f  mean|.| %5.1f  max|.| %5.1f'
