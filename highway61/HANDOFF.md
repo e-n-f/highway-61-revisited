@@ -556,6 +556,21 @@ ends keep their angles.
   build, lcspace.py and spacingcheck.py all use it; i-j / i-i and n-j / n-n are now 0.96-0.97 in every series.
 - LC_TIGHT re-solved: B 0.570, C 0.584, D 0.688, E 0.470, F 0.768.  VERSION 1.009.
 
+### e's sides near the bar (2026-10-29)
+- User: Series B's e's sides look thicker than its top.  Measured perpendicular next to the bar, they were 1.06-1.14
+  of the stroke (A 1.16, C 1.10) against a top of 1.00.  Two causes in `_reconcile`:
+  - The soft 60-120 degree corner terms tied the eye's arc to the bar's top line.  The bar is heavier with
+    condensation (`lcE.condensed_ae`), and that carried into the eye's sides: probes asked for 3-5 units more
+    erosion, and the fit gave -1.6.  Dropped (only corners up to 60 degrees are tied).  The a's counter, which they
+    were added for, is held by the mitre rule.
+  - An arc's probe at its side point ran along the bar (no stroke found) and, as an axis probe, counted ten times.
+    Probes whose ray finds no stroke now count a tenth.
+- With those, the m's crotch tangled in the squarer.  `_sq_arcs` took a far crossing of two smoothly-joined arcs'
+  squared curves; with no crossing within 6 units of the joint they now meet at their closest approach.  Fillets
+  that would run backwards are skipped.
+- e sides next to the bar now: A 1.09/1.05, B 1.00/0.97, C 1.06/1.02, D 1.00/0.98 (+20/+40 units), tops 0.99-1.00.
+- LC_TIGHT: B 0.574, C 0.587, D 0.691, E 0.473, F 0.765.  VERSION 1.010.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

@@ -394,8 +394,11 @@ def _proportional(contours,f,k,V,T,ey,X,plain=()):
             ts+=[jj*np.pi/2 for jj in range(-8,9) if lo<jj*np.pi/2<hi]
             row=[]
             for t in ts:
-                p=_ept(e,t); u=_etan(e,t)*sgn; u=u/np.linalg.norm(u); row.append((t,amount(p,np.array([-u[1],u[0]]))))
-            data.append(row)
+                p=_ept(e,t); u=_etan(e,t)*sgn; u=u/np.linalg.norm(u); no=np.array([-u[1],u[0]])
+                w,_=ray(p,no)
+                stroke=is_align(p,no) or (w is not None and w<=1.6*V*sk(no))
+                row.append((t,amount(p,no),1.0 if stroke else 0.1))   # (a ray that finds no stroke, running along
+            data.append(row)                                          # the e's bar, says little: weak)
         out.append(_reconcile(c,data,(dV(np.array([1.0,0.0])),dV(np.array([0.0,1.0]))),dV))
     return out
 def _arc_coef(a,b,c2,s2):
@@ -412,7 +415,7 @@ def _reconcile(c,data,prior,dV):
     where they meet, the arc gives way.  An arc's probes at its axis points count ten times: there a semi-axis's
     amount is exactly the move (a flat ellipse, the f's hook's underside, was otherwise lifted to fit its slopes and
     thinned the hook to a quarter of the stroke); a line on an alignment line (a stem's foot, the x-height) is held there.  At
-    corners up to 60 degrees (and, less firmly, up to 120) the two sides must depart alike from the
+    corners up to 60 degrees the two sides must depart alike from the
     full-stroke amounts dV of their own normals: otherwise their moved carriers cross far from the corner (the
     shift grows as 1 / sin of the angle), leaving slivers where Series B's counters meet the stems and steps in the
     k, and the a's counter bulging past its stem.  Returns the amount functions of the outward normal (negative: erosion)"""
@@ -426,18 +429,20 @@ def _reconcile(c,data,prior,dV):
     A=[]; y=[]
     for i,rows in enumerate(data):
         wt=5.0 if c[i][0]=='L' else 1.0                 # a straight stroke keeps its weight; the arc beside it gives
-        for t,v in rows:
+        for row_ in rows:
+            t,v=row_[:2]; wp=row_[2] if len(row_)>2 else 1.0
             if t=='pin': A.append(1e5*coef(i,None)); y.append(1e5*v); continue      # on an alignment line: stays there
-            wa=10.0 if (c[i][0]=='E' and t is not None and _axis(t)) else 1.0   # at an axis point the semi-axis
-            A.append(wt*wa*coef(i,t)); y.append(wt*wa*v)                        # amount is the move exactly
+            wa=10.0 if (c[i][0]=='E' and t is not None and _axis(t) and wp==1.0) else 1.0   # at an axis point the
+            A.append(wt*wa*wp*coef(i,t)); y.append(wt*wa*wp*v)                 # semi-axis amount is the move exactly
         for j,pv in zip(col[i],prior if c[i][0]=='E' else prior[:0]):
             r=np.zeros(nv); r[j]=0.03; A.append(r); y.append(0.03*pv)
     def nrm(u): return np.array([-u[1],u[0]])
     for i in range(n):
         if n<2: break
         ua,ub=tangent(c[i-1],1),tangent(c[i],0)
-        if ua@ub<np.cos(np.radians(120.0)): continue          # (150 tangles the m's crotch in A and B)
-        wj=1e3 if ua@ub>=np.cos(np.radians(60.0)) else 30.0      # steeper corners: held less firmly
+        if ua@ub<np.cos(np.radians(60.0)): continue           # (blunter corners: the e's eye would take its bar's
+                                                              # extra weight into its sides)
+        wj=1e3
         A.append(wj*(coef(i-1,end(i-1,1))-coef(i,end(i,0)))); y.append(wj*(dV(nrm(ua))-dV(nrm(ub))))
     x=np.linalg.lstsq(np.array(A),np.array(y),rcond=None)[0]
     res=[]
@@ -734,7 +739,13 @@ def _sq_arcs(e1,t1,e2,t2,n,lo1=None,hi1=None,lo2=None,hi2=None):
         for j in hit:
             q=a0+sa[j]*da; dist=np.linalg.norm(q-goal)
             if best is None or dist<best[0]: best=(dist,u1[i]+sa[j]*(u1[i+1]-u1[i]),u2[j]+sb[j]*(u2[j+1]-u2[j]))
-    if best is None: return (t1,t2)
+    if best is None or best[0]>6.0:
+        # no crossing near the joint (two arcs that met smoothly can square apart, crossing again only further on:
+        # the m's arch, where that folded the outline back): they meet where they come closest, near their ends
+        from scipy.optimize import minimize
+        r=minimize(lambda v: np.sum((_sq_pt(e1,v[0],n)-_sq_pt(e2,v[1],n))**2),[t1,t2],
+                   bounds=[(t1-0.3,t1+0.3),(t2-0.3,t2+0.3)],method='L-BFGS-B')
+        return (r.x[0],r.x[1])
     r=fsolve(lambda v: _sq_pt(e1,v[0],n)-_sq_pt(e2,v[1],n),[best[1],best[2]],xtol=1e-12)
     if np.linalg.norm(_sq_pt(e1,r[0],n)-_sq_pt(e2,r[1],n))<1e-6: return (r[0],r[1])
     return (best[1],best[2])
@@ -884,6 +895,7 @@ def _squarer(contours,n,keep_circles=True):
             if ra is None or rb is None: continue
             pa,ta,da=ra; pb,tb,db=rb
             if da@db<np.cos(np.radians(30.0)): continue
+            if (pb-pa)@da<=0 or (pb-pa)@db<=0: continue          # the bridge would run backwards (the m's arch)
             if ta is not None: T[i][1]=ta
             if tb is not None: T[k][0]=tb
             L=np.linalg.norm(pb-pa)/3; FIL[k]=('B',pa,pb,pa+da*L,pb-db*L); END[k]=pa; V[k]=pb
