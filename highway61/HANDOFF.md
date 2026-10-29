@@ -504,6 +504,23 @@ ends keep their angles.
   (E(M) 0.88).  Ascenders now within about 6 units of E(M)'s (before: 8-17 low), with descenders about the same.
 - LC_TIGHT re-solved: B 0.556, C 0.575, D 0.677, E 0.455, F 0.763.  spacingcheck max |.| <= 1.0.  VERSION 1.004.
 
+### f's hook and the bowl notches (2026-10-29)
+- User, on 1.004: the f's top very narrow, especially in A; some notches where a bowl meets its stem lost (A d, B b
+  d p q), and B's could be a little more visible throughout.
+- f: its hook's underside is a flat ellipse, and the arc fit lifted it to match probes on its slopes (A's hook at a
+  quarter of the stroke).  An arc's probes at its axis points now count ten times.  With that, the narrow series'
+  hooks were still light, as in 1.002 (A 0.60 of the stroke near the end, against E(M)'s 0.79).
+  `lccondense.F_HOOK` (A 9.9, B 5.2, C 4.2, D 1.7 units; via `lcE.FHOOK` in `outer_bands`) thickens them to E(M)'s
+  proportion.
+- Notches lost: `trim_jogs` took the notch (a short upright line between a stem's foot and a bowl) for a cut's jog.
+  It now acts only within 1.5 strokes + 15 of a cut's ends.  The squarer's sliver rules now leave alone a short
+  upright line ending on the baseline or x-height.
+- Notch depth: `lccondense.NOTCH` = (0.10, 0.15) strokes at the baseline / x-height (E(M): b 0.10, d 0.09, p 0.19,
+  q 0.17).  `strokeop.deepen_notches` runs the stem's edge on to that depth and leaves along the tangent to the arc.
+  If the bowl runs over the stem there, it goes to where a line meets the arc most nearly along it.  Only Series B was
+  shallower: b, d 3.5-4.5 -> 8.5; p, q 4-5 -> 11.5 (raster depth 2 units from the stem).
+- LC_TIGHT: B 0.566, C 0.576, D 0.678, E 0.457, F 0.761.  VERSION 1.005.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

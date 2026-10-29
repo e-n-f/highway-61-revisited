@@ -341,7 +341,7 @@ def dims():
     for ch in 'bdpq':
         lighten(out[ch],ch in 'dq')
     if COND>0: condensed_ae(out,COND)
-    if COMP>0: outer_bands(out,COMP)
+    if COMP>0 or FHOOK: outer_bands(out,COMP)
     return out
 COMP=0.0       # extra vertical erosion (units) of the series being built in the ascender and descender bands; lccondense
 def outer_bands(d,delta):
@@ -350,7 +350,8 @@ def outer_bands(d,delta):
     letter, and its erosion (which, with the stretch, makes the x-height band's strokes the series weight) would
     leave them 2 delta too light"""
     t=2*delta/SQ
-    d['f']['ib']-=t; d['j']['ib']-=t; d['g']['tib']-=t
+    d['f']['ib']-=t+FHOOK/SQ; d['j']['ib']-=t; d['g']['tib']-=t
+FHOOK=0.0      # further thickening (units) of the f's hook, beyond outer_bands' (lccondense.F_HOOK sets it)
 COND=0.0       # condensation (1 - lower-case width factor) of the series being built; lccondense sets it
 # The Palo Alto signs (Oregon Expressway, early 1960s, Series C lower case at our C's widths) have the e's bar and the
 # a's bowl top as heavy as the top and bottom strokes, grown into the e's lower opening and the a's gap below the

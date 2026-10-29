@@ -409,7 +409,9 @@ def _reconcile(c,data,prior,dV):
     (otherwise the joint is placed between the two moved carriers, re-angling the lines and stepping the arcs: the
     notches in Series A's stems and arches).  prior: the full-stroke amounts (x, y), weakly held where the probes leave
     an arc's other semi-axis free (a short piece near its top or side).  A line's probe counts five times an arc's:
-    where they meet, the arc gives way; a line on an alignment line (a stem's foot, the x-height) is held there.  At
+    where they meet, the arc gives way.  An arc's probes at its axis points count ten times: there a semi-axis's
+    amount is exactly the move (a flat ellipse, the f's hook's underside, was otherwise lifted to fit its slopes and
+    thinned the hook to a quarter of the stroke); a line on an alignment line (a stem's foot, the x-height) is held there.  At
     corners up to 60 degrees (and, less firmly, up to 120) the two sides must depart alike from the
     full-stroke amounts dV of their own normals: otherwise their moved carriers cross far from the corner (the
     shift grows as 1 / sin of the angle), leaving slivers where Series B's counters meet the stems and steps in the
@@ -426,7 +428,8 @@ def _reconcile(c,data,prior,dV):
         wt=5.0 if c[i][0]=='L' else 1.0                 # a straight stroke keeps its weight; the arc beside it gives
         for t,v in rows:
             if t=='pin': A.append(1e5*coef(i,None)); y.append(1e5*v); continue      # on an alignment line: stays there
-            A.append(wt*coef(i,t)); y.append(wt*v)
+            wa=10.0 if (c[i][0]=='E' and t is not None and _axis(t)) else 1.0   # at an axis point the semi-axis
+            A.append(wt*wa*coef(i,t)); y.append(wt*wa*v)                        # amount is the move exactly
         for j,pv in zip(col[i],prior if c[i][0]=='E' else prior[:0]):
             r=np.zeros(nv); r[j]=0.03; A.append(r); y.append(0.03*pv)
     def nrm(u): return np.array([-u[1],u[0]])
@@ -470,12 +473,16 @@ def _jogs(c,short=10.0):
             c[i-1]=('L',a[1],q); c[j%n]=('L',q,b[2])
             c=[s for k,s in enumerate(c) if k not in run]; changed=True; break
     return c
-def trim_jogs(c,short=15.0,reach=30.0):
+def trim_jogs(c,short=15.0,reach=30.0,near=None):
     """short lines left between an arc and a long line (where a cut was remade and its ears removed: the t's tail,
     the a's terminal) taken out: the long line is extended to the arc's ellipse, if that is within reach; between
     two lines, the two meet"""
     c=list(c); changed=True
     ln_=lambda sg: np.hypot(*(np.array(sg[2],float)-np.array(sg[1],float)))
+    def by_cut(sg):                                     # only at the cuts (near: [(point, radius)]): elsewhere a
+        if near is None: return True                    # short line between a stem and a bowl is the notch where
+        m_=(np.array(sg[1],float)+np.array(sg[2],float))/2   # they meet, and stays
+        return any(np.hypot(*(m_-np.asarray(z)))<r_ for z,r_ in near)
     def meet(e,p,d,end):
         """the point of the line p + d s on ellipse e nearest `end`, or None"""
         cx,cy,a,b=e[:4]; q0=np.array([(p[0]-cx)/a,(p[1]-cy)/b]); q1=np.array([d[0]/a,d[1]/b])
@@ -492,6 +499,7 @@ def trim_jogs(c,short=15.0,reach=30.0):
                 run=[]; j=(i+dr)%n
                 while c[j][0]=='L' and ln_(c[j])<1.5*short and len(run)<4: run.append(j); j=(j+dr)%n
                 if len(run)<2 or sum(ln_(c[r]) for r in run)>=2*short or c[j][0]!='L' or ln_(c[j])<3*short: continue
+                if not all(by_cut(c[r]) for r in run): continue
                 A_,L_=c[i],c[j]; p=np.array(L_[1],float); d=np.array(L_[2],float)-p
                 end=np.array(A_[2] if dr==1 else A_[1],float); q=meet(A_[3],p,d,end)
                 if q is None or np.hypot(*(q-end))>reach: continue
@@ -511,7 +519,7 @@ def trim_jogs(c,short=15.0,reach=30.0):
         changed=False; n=len(c)
         for i in range(n):
             sg=c[i]
-            if sg[0]!='L' or np.hypot(*(np.array(sg[2])-np.array(sg[1])))>=short: continue
+            if sg[0]!='L' or np.hypot(*(np.array(sg[2])-np.array(sg[1])))>=short or not by_cut(sg): continue
             P_,N_=c[(i-1)%n],c[(i+1)%n]
             if P_[0]=='L' and N_[0]=='L':                   # line, jog, line: the two lines meet
                 p=np.array(P_[1],float); u=np.array(P_[2],float)-p; q_=np.array(N_[1],float); v=np.array(N_[2],float)-q_
@@ -555,6 +563,53 @@ def trim_jogs(c,short=15.0,reach=30.0):
                     if newline and np.hypot(*(np.array(L_[1],float)-q))<1.5*short: c[arc_i],c[line_i]=A_,L_; continue
                 del c[i]; changed=True; break
             if changed: break
+    return c
+def deepen_notches(c,X,low,high):
+    """the notches where a bowl or arch meets its stem (an upright line from the baseline or x-height to an arc)
+    made at least `low` deep at the baseline and `high` at the x-height: the stem's edge runs on to that depth and
+    leaves along the tangent to the arc (Series B's were 3.5-5 units, and its b's and d's had been lost)"""
+    c=list(c); n=len(c)
+    for i in range(n):
+        sg=c[i]
+        if sg[0]!='L': continue
+        p0,p1=np.array(sg[1],float),np.array(sg[2],float)
+        if abs(p1[0]-p0[0])>0.05*max(abs(p1[1]-p0[1]),1e-9): continue
+        for base,sgn,want in ((0.0,1,low),(X,-1,high)):
+            for end,(pa,pb) in ((1,(p0,p1)),(0,(p1,p0))):   # pa on the line, pb the joint with the arc
+                if abs(pa[1]-base)>0.5 or (pb[1]-base)*sgn<=0 or (pb[1]-base)*sgn>=want: continue
+                j=(i+1)%n if end==1 else (i-1)%n
+                Q=np.array([pa[0],base+sgn*want]); done=False
+                for step in range(3):                   # the tangent point may lie on one of the next arcs
+                    k=(j+(step if end==1 else -step))%n; A_=c[k]
+                    if A_[0]!='E': break
+                    cx,cy,a,b=A_[3][:4]; Ax,Bx=(Q[0]-cx)/a,(Q[1]-cy)/b; R=np.hypot(Ax,Bx)
+                    t0,sw=A_[4],A_[5]; lo,hi=min(t0,t0+sw),max(t0,t0+sw)
+                    if R>1:                             # the tangent from Q
+                        phi=np.arctan2(Bx,Ax); cands=[lo+((tt-lo)%(2*np.pi)) for tt in (phi+np.arccos(1/R),phi-np.arccos(1/R))]
+                    else:                               # Q inside the ellipse (the bowl runs over the stem above the
+                        ts=np.linspace(lo,hi,200)[1:-1]  # notch): where the line from Q meets it most nearly along it
+                        def ang(tt):
+                            v=_ept(A_[3][:4],tt)-Q; u=_etan(A_[3][:4],tt)
+                            return abs(v[0]*u[1]-v[1]*u[0])/max(np.linalg.norm(v)*np.linalg.norm(u),1e-12)
+                        best=min(ts,key=ang) if len(ts) else None
+                        cands=[best] if best is not None and ang(best)<np.sin(np.radians(12)) else []
+                    for tt in cands:
+                        if lo<tt<hi:
+                            T_=_ept(A_[3][:4],tt)
+                            if end==1:                  # line up the stem, then the tangent, then the arc from T_
+                                c[i]=('L',pa,Q); new=('L',Q,T_); c[k]=('E',T_,A_[2],A_[3],tt,t0+sw-tt)
+                                drop=[(j+m)%n for m in range(step)]
+                            else:                       # the arc to T_, the tangent, then down the stem
+                                c[i]=('L',Q,pa); new=('L',T_,Q); c[k]=('E',A_[1],T_,A_[3],t0,tt-t0)
+                                drop=[(j-m)%n for m in range(step)]
+                            out=[]
+                            for m,sg_ in enumerate(c):
+                                if m in drop: continue
+                                if end==1 and m==i: out+= [sg_,new]
+                                elif end==0 and m==i: out+=[new,sg_]
+                                else: out.append(sg_)
+                            return deepen_notches(out,X,low,high)
+                    if done: break
     return c
 def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,plain=()):
     """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),
@@ -713,7 +768,13 @@ def _squarer(contours,n,keep_circles=True):
         V=[None]*m; collapse={}; SNAP={}; done=set()
         # runs of short lines between two arcs (left where arcs of different ellipses met, or vmap split one): the
         # second arc ends at its squared curve's nearest point to the first's squared end, and the run collapses there
-        def short(sg): return sg[0]=='L' and np.linalg.norm(np.array(sg[2],float)-np.array(sg[1],float))<12
+        Xh=SQ_BANDS[0][1][1] if SQ_BANDS is not None else None
+        def notch(sg):
+            """a short upright line ending on the baseline or x-height: the notch where a bowl meets its stem, kept"""
+            if sg[0]!='L': return False
+            p0,p1=np.array(sg[1],float),np.array(sg[2],float)
+            return abs(p1[0]-p0[0])<0.05*max(abs(p1[1]-p0[1]),1e-9) and any(abs(y-r)<0.5 for y in (p0[1],p1[1]) for r in (0.0,Xh) if r is not None)
+        def short(sg): return sg[0]=='L' and np.linalg.norm(np.array(sg[2],float)-np.array(sg[1],float))<12 and not notch(sg)
         from scipy.optimize import minimize_scalar
         for i0 in range(m):
             if not is_sq(segs[i0]) or not short(segs[(i0+1)%m]): continue
@@ -760,7 +821,7 @@ def _squarer(contours,n,keep_circles=True):
                 arc,ia,end,ln=(a,i,1,b) if is_sq(a) else (b,j,0,a)
                 t=T[ia][end]
                 beyond=segs[(j+1)%m] if is_sq(a) else segs[(i-1)%m]              # the segment past the line
-                sliver=np.linalg.norm(np.array(ln[2],float)-np.array(ln[1],float))<12
+                sliver=np.linalg.norm(np.array(ln[2],float)-np.array(ln[1],float))<12 and not notch(ln)
                 blen=np.linalg.norm(np.array(beyond[2],float)-np.array(beyond[1],float))
                 if sliver and is_sq(beyond):                         # a sliver between two arcs (often one ellipse split
                     bi=(j+1)%m if is_sq(a) else (i-1)%m                # by vmap): both arc ends meet at the mean of their
@@ -777,7 +838,7 @@ def _squarer(contours,n,keep_circles=True):
                 elif sliver and blen<12: pass                          # a chain of slivers: it bridges
                 elif not _axis(t):
                     q=np.array(ln[1],float); d=np.array(ln[2],float)-q
-                    if np.linalg.norm(d)<12 and beyond[0]=='L':                 # a sliver (a cut's join): use the cut
+                    if np.linalg.norm(d)<12 and beyond[0]=='L' and not notch(ln):                 # a sliver (a cut's join): use the cut
                         q=np.array(beyond[1],float); d=np.array(beyond[2],float)-q
                         collapse[(k+1)%m if is_sq(a) else (k-1)%m]=k              # and shrink the sliver to nothing
                     T[ia][end]=_sq_line(arc[3],t,n,q,d)

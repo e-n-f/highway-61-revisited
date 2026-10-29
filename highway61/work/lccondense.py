@@ -97,17 +97,25 @@ def series(S,f=None,only=None):
     lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
     ey0=(V_EM-stroke(S))/2
     lcE.COMP=ey0/(1-V_EM/X)-ey0 if EXACT_H else 0.0  # (and its outer bands' strokes are compensated, lcE.outer_bands)
+    lcE.FHOOK=F_HOOK.get(S,0.0)
     try: out=_series(S,f,only)
-    finally: lcE.COND=0.0; lcE.COMP=0.0
+    finally: lcE.COND=0.0; lcE.COMP=0.0; lcE.FHOOK=0.0
     n=squareness(S)
     ey=(V_EM-stroke(S))/2; ey=ey/(1-V_EM/X) if EXACT_H else ey; k=(X+2*ey)/X
     bands=[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)]           # condense2's vertical map
+    T=stroke(S)
+    out={c:[strokeop.deepen_notches(cc,X,NOTCH[0]*T,NOTCH[1]*T) for cc in C] for c,C in out.items()}
     return {c:(strokeop.squarer(C,n,bands=bands,erosion=ey) if n>2 else C) for c,C in out.items()} if SQUARE else out
 # The narrow capitals' O is a four-centre oval with long, nearly straight sides; the condensed lower case's arcs are
 # ellipses, which stay curved all the way down.  With SQUARE on, each arc in the condensed lower case becomes
 # |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
 # exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
 SQUARE=True
+F_HOOK={'A':9.9,'B':5.2,'C':4.2,'D':1.7}   # the f's hook thickened by this much more (units, lcE.FHOOK): the narrowest series' hooks came out
+                    # light (A 0.6 of the stroke near its end, against E(M)'s 0.79); solved to E(M)'s proportion
+                    # (E 0.79 and F 0.81 already)
+NOTCH=(0.10,0.15)   # the least depth of the notches where a bowl or arch meets its stem, in strokes, at the baseline
+                    # and at the x-height (E(M): b 0.10, d 0.09, p 0.19, q 0.17): deepened where shallower (Series B)
 EXACT_H=True        # horizontal strokes at the series weight: see _series (False: the earlier erosion, which left the
                     # x-height band's horizontals 2 e t / X too heavy, +19 units in Series A); lcE.outer_bands makes up
                     # the strokes above the x-height and below the baseline
@@ -212,7 +220,8 @@ def _series(S,f,only):
             geom=ps[0] if len(ps)==1 else MultiPolygon(ps)
         if gx<0:                                     # the outline was eroded sideways (Series A): its re-cuts and
             geom=_tidy(geom)                         # junctions leave nicks and hooks a few units wide
-        out[c]=[[tuple(sg) for sg in strokeop.trim_jogs(segs)] for segs in lcoutline.contours(geom,prims2)]
+        near=[(P(q),1.5*T+15) for p0,p1,n in cs for q in (p0,p1)]          # (jogs are trimmed only at the cuts)
+        out[c]=[[tuple(sg) for sg in strokeop.trim_jogs(segs,near=near)] for segs in lcoutline.contours(geom,prims2)]
     return out
 if __name__=='__main__':
     for S in 'BCDF': print(S,'f',F[S],'stroke',round(stroke(S),2))
