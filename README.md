@@ -164,10 +164,13 @@ with the series, as the capitals' table strokes do:
   the following one (B D E F H I K L M N P R U | C G O Q S X Z | A J T V W Y, and 1 5 | 2 3 6 8 9 0 | 4 7); Table VI
   gives the space for each code, between the two characters' extreme edges, as the series stroke times 1.5, 1.2,
   0.8 or 0.4. E(M) uses Series E's spaces, as both editions do, and Series A, which has no table, uses the same
-  factors of its own stroke. For the lower case, the 1983 table gives the space from the preceding character
+  factors of its own stroke. For the lower case, the 1966 table (p. 36) gives the space from the preceding character
   (capital or lower case, in 22 classes) and the following lower-case class (a c d e g o q | b h i k l m n p r u |
-  f w | j | s t | v y | x | z). It is for E(M), whose lower case follows it as it stands. The other series get it
-  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.51–0.81) so
+  f w | j | s t | v y | x | z), in inches for loop heights of 10, 12, 15 and 18 inches; each space is taken as its
+  least-squares proportion of the loop height over the four sizes. (The 1983 table is the 15-inch column in
+  millimetres, but labelled for a 375 mm loop height rather than 381 mm, so its spaces are 1.6% too wide.) It is
+  for E(M), whose lower case follows it as it stands. The other series get it
+  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.51–0.83) so
   that each lower-case alphabet (the sum of the a–z advances) is as wide as the FHWA 2000 font's, as the
   lower-case widths are; set in text, a line of lower case runs the same length as in the official font, so these
   can stand in for it. Series A, with no FHWA font, takes Series B's factor.
