@@ -438,6 +438,8 @@ ends keep their angles.
   ('B' segments).  Axis points and their tangents stay, so widths, heights and spacing hold.  Arc ends elsewhere are
   re-ended on the neighbouring line (cut angles and the e's bar kept), across construction slivers (<12 units, which
   are collapsed), or at the crossing of two squared arcs; dots stay round.  Ink grows up to ~10% in A's o c e s.
+- Backed off in A and B (user: too severe there; C and D encouraging): `lccondense.N_BACK` A 2.90, B 2.75 (from
+  3.62, 3.33), so the steps from D keep shrinking (2.25, 2.54, 2.75, 2.90).
 
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user

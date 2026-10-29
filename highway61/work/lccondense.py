@@ -100,7 +100,10 @@ def series(S,f=None,only=None):
 # exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
 SQUARE=True
 N_O={'A':4.35,'B':4.00,'C':3.05,'D':2.70,'E':2.40,'F':2.00}
+N_BACK={'A':2.90,'B':2.75}   # in proportion to the O these would be A 3.62, B 3.33: too severe by eye (user), so
+                             # the steps keep shrinking instead (D 2.25, C 2.54 +0.29, B +0.21, A +0.15)
 def squareness(S):
+    if S in N_BACK: return N_BACK[S]
     return 2.0 if S=='EM' else max(2.0,2*N_O[S]/N_O['E'])
 def _series(S,f,only):
     T=stroke(S)
