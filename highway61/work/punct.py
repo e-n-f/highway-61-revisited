@@ -32,6 +32,16 @@ def _crossbar(gh):
     ys=sorted({round(q[1],4) for q in np.array(gh.exterior.coords) if yb-2<q[1]<yt+2})
     yb=min(ys,key=lambda v:abs(v-yb)); yt=min(ys,key=lambda v:abs(v-yt))
     return a.bounds[2],b.bounds[0],yb,yt
+def _strip(tail):
+    """the tail as the band between its two long edges, flat at its top and bottom: cut from the y at the baseline,
+    it carries a spur of the left arm's junction (and, with the lower case's own offsets, a slight bend), which on
+    the comma and quotation marks read as serifs"""
+    Q=np.array(tail.exterior.coords)[:-1]; x0,y0,x1,y1=tail.bounds; cx=(x0+x1)/2
+    E=[(Q[i],Q[(i+1)%len(Q)]) for i in range(len(Q))]
+    longest=lambda side: max([e for e in E if side*((e[0][0]+e[1][0])/2-cx)>0],key=lambda e: np.hypot(*(e[1]-e[0])))
+    def x_at(e,y): (a,b)=e; return a[0]+(b[0]-a[0])*(y-a[1])/(b[1]-a[1])
+    L,R=longest(-1),longest(1)
+    return Polygon([(x_at(L,y0),y0),(x_at(R,y0),y0),(x_at(R,y1),y1),(x_at(L,y1),y1)])
 def make(poly):
     out={}
     r=_dot(poly('i'))
@@ -40,6 +50,7 @@ def make(poly):
     gy=poly('y')
     tail=gy&box(-1000,-1000,3000,0.0)
     tail=max(getattr(tail,'geoms',[tail]),key=lambda p:p.area)
+    tail=_strip(tail)
     comma=affinity.translate(tail,0,2*r)                 # top level with the period's top
     out['comma']=_segs(comma)
     apo=affinity.translate(comma,0,CAP-comma.bounds[3]); out['quoteright']=_segs(apo); out['quotesingle']=out['quoteright']

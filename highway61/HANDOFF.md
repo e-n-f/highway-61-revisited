@@ -521,6 +521,12 @@ ends keep their angles.
   shallower: b, d 3.5-4.5 -> 8.5; p, q 4-5 -> 11.5 (raster depth 2 units from the stem).
 - LC_TIGHT: B 0.566, C 0.576, D 0.678, E 0.457, F 0.761.  VERSION 1.005.
 
+### Comma and quotation marks (2026-10-29)
+- User, on 1.005: the quotation marks have grown serifs.  The comma (and from it the apostrophe and quotes, punct.py)
+  is the y's tail cut at the baseline.  That cut takes a spur of the left arm's junction with it (in 1.002 too), and
+  in 1.005 it also carries a slight bend from the lower case's own offsets.  `punct._strip` now makes the tail the
+  band between its two long edges, flat at top and bottom.  VERSION 1.006.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
