@@ -319,7 +319,9 @@ def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
     finally: MITRE=None
     k=(X+2*ey)/X
     out=vmap(out,[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)])
-    out=[clean(offset_contour(clean(c),(0.0,-ey))) for c in out]
+    steps=max(1,int(np.ceil(abs(ey)/20.0)))      # in steps of at most 20 units: a feature that a single large offset
+    for _ in range(steps):                        # collapses (Series A's a with its stub) is re-joined as it goes
+        out=[clean(offset_contour(clean(c),(0.0,-ey/steps))) for c in out]
     for cx,cy,a,sg in dots:
         # dots scale with the stroke (dot_scale = series stroke / source stroke) and keep their top where it was
         r=a*dot_scale if dot_scale else a+(gx-ey)/2
@@ -379,6 +381,10 @@ def squarer(contours,n,keep_circles=True):
     keep their angles and the e's bar its height) or the neighbouring squared arc."""
     out=[]
     for segs in contours:
+        # arcs only a few units long (pieces left between neighbouring arcs of slightly different ellipses) become
+        # straight bridges: squaring them about their own centres could fold them back
+        segs=[('L',np.array(s[1],float),np.array(s[2],float)) if s[0]=='E' and len(segs)>1 and
+              np.linalg.norm(np.array(s[2],float)-np.array(s[1],float))<3.0 else s for s in segs]
         m=len(segs)
         def is_sq(s): return s[0]=='E' and not (keep_circles and abs(s[3][2]-s[3][3])<1e-6)
         T=[[s[4],s[4]+s[5]] if is_sq(s) else None for s in segs]       # arc end parameters, updated below
@@ -393,7 +399,8 @@ def squarer(contours,n,keep_circles=True):
                 t=T[ia][end]
                 beyond=segs[(j+1)%m] if is_sq(a) else segs[(i-1)%m]              # the segment past the line
                 sliver=np.linalg.norm(np.array(ln[2],float)-np.array(ln[1],float))<12
-                if sliver and is_sq(beyond): pass                    # a sliver between two arcs: it bridges their ends
+                blen=np.linalg.norm(np.array(beyond[2],float)-np.array(beyond[1],float))
+                if sliver and (is_sq(beyond) or blen<12): pass       # a sliver between arcs or more slivers: it bridges
                 elif not _axis(t):
                     q=np.array(ln[1],float); d=np.array(ln[2],float)-q
                     if np.linalg.norm(d)<12 and beyond[0]=='L':                 # a sliver (a cut's join): use the cut

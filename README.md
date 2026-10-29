@@ -147,6 +147,13 @@ with the series, as the capitals' table strokes do:
   advances, in cap heights) is as wide as the FHWA 2000 font's. This opens up Series B noticeably. Series E is
   the exception: its factor is 1, so that its lower case has E(M)'s forms exactly (as its capitals have), and its
   letterspacing makes up the alphabet width instead.
+- **Horizontal strokes keep the series weight.** A series' lower case is the E(M) construction scaled across, with
+  every stroke thinned to the series' weight and the x-height band then stretched back to the baseline and x-height.
+  The stretch also thickens the horizontal strokes, so the thinning is made deeper (by 1/(1 − stroke/x-height)) so
+  that they come out at the series weight too: before, they were 2·e·t/X too heavy (e the thinning, t the E(M)
+  stroke, X the x-height), up to 39% heavier than the stems in Series A (the z's bars against the Z's). The strokes
+  above the x-height and below the baseline, which are not stretched, are thickened in the construction to match
+  (`lcE.outer_bands`).
 - **Terminal cuts and slanted stem ends keep their angles.** Each letter is also built without its cuts
   (`lcE.build(c, nocut=True)`), with a short stub beyond each cut. The whole letter is condensed, and each cut is then
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the

@@ -441,6 +441,23 @@ ends keep their angles.
 - Backed off in A and B (user: too severe there; C and D encouraging): `lccondense.N_BACK` A 2.90, B 2.75 (from
   3.62, 3.33), so the steps from D keep shrinking (2.25, 2.54, 2.75, 2.90).
 
+### Exact horizontal weight in the condensed lower case (2026-10-29)
+- User: Series A's z bars heavier than the Z's.  Cause: lccondense eroded every edge by ey = (V - T)/2 and then
+  stretched the x-height band by (X + 2 ey)/X, which thickens horizontals in that band by 2 ey t / X (A: z bar 83.5
+  for a 61.5 stroke, 1.39 of the stem; o top 1.22; n arch 1.51; graded down to F).  Capitals unaffected.
+- Tried first: stretch only between per-letter horizontal stroke bands (piecewise vmap).  Exact, but every curve or
+  diagonal crossing a band edge got a visible corner (worse with the squarer), so dropped.
+- Adopted (`lccondense.EXACT_H`): erosion e' = ey / (1 - V/X) with the uniform stretch (X + 2e')/X: strokes in the
+  band of E(M) weight V come out exactly T, no band edges.  Strokes above X / below 0 are only shifted, so they come out
+  2(e' - ey) too thin: `lcE.outer_bands` (via `lcE.COMP`) shrinks the f's, j's hook and the g's tail counter ellipses
+  (ib, tib) by that much.  Needed: condense2's vertical erosion in steps of <= 20 units (a single 49.6-unit offset
+  folded Series A's a with its stub); the masks beyond the cuts use the plain erosion ey0 (a narrow strip collapsed);
+  squarer: arcs under 3 units become bridges, slivers between slivers bridge (r, g in A/B).
+- s: S_SPINE re-solved to keep the spine's thickness across its middle (spine2-style chord) as before: A -23.1,
+  B -24.6, C -14.9, D -12.3, E -8.9, F -4.5.  LC_TIGHT re-solved: B 0.627, C 0.651, D 0.757, E 0.521, F 0.830.
+- Result (ratio to the l stem; E(M) 1.04 / 0.98 / 1.11): z bar 1.05-1.07, o top 0.89-0.98, n arch 1.10-1.23 (A-F).
+  VERSION 1.002.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

@@ -64,9 +64,11 @@ def _tidy(geom):
         return ps[0] if len(ps)==1 else MultiPolygon(ps)
     g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
     return keep(g)
-S_SPINE={'A':-9.0,'B':-12.0}   # the s spine's tangent points moved towards the lobes' extremes (units): the most
-                                # condensed spines come out steeper and thinner (narrowest 0.77, 0.76 of the stroke
-                                # against 0.81-0.83 elsewhere); this makes them 0.89, 0.87
+S_SPINE={'A':-23.1,'B':-24.6,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
+                                # the s spine's tangent points moved towards the lobes' extremes (units).  Its
+                                # thickness across the middle as before the horizontals were made exact (EXACT_H;
+                                # the s's stronger vertical erosion thinned the slanted spine): A 58.4 B 74.8 C 79.7
+                                # D 89.2 E 98.4 F 108.3 units, 0.85-0.95 of the stroke
 def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
@@ -90,8 +92,10 @@ def _s_direct(f,gx,ey,k,S=None):
 def series(S,f=None,only=None):
     f=F_LC[S] if f is None else f
     lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
+    ey0=(V_EM-stroke(S))/2
+    lcE.COMP=ey0/(1-V_EM/X)-ey0 if EXACT_H else 0.0  # (and its outer bands' strokes are compensated, lcE.outer_bands)
     try: out=_series(S,f,only)
-    finally: lcE.COND=0.0
+    finally: lcE.COND=0.0; lcE.COMP=0.0
     n=squareness(S)
     return {c:(strokeop.squarer(C,n) if n>2 else C) for c,C in out.items()} if SQUARE else out
 # The narrow capitals' O is a four-centre oval with long, nearly straight sides; the condensed lower case's arcs are
@@ -99,6 +103,9 @@ def series(S,f=None,only=None):
 # |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
 # exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
 SQUARE=True
+EXACT_H=True        # horizontal strokes at the series weight: see _series (False: the earlier erosion, which left the
+                    # x-height band's horizontals 2 e t / X too heavy, +19 units in Series A); lcE.outer_bands makes up
+                    # the strokes above the x-height and below the baseline
 N_O={'A':4.35,'B':4.00,'C':3.05,'D':2.70,'E':2.40,'F':2.00}
 N_BACK={'A':2.90,'B':2.75}   # in proportion to the O these would be A 3.62, B 3.33: too severe by eye (user), so
                              # the steps keep shrinking instead (D 2.25, C 2.54 +0.29, B +0.21, A +0.15)
@@ -108,6 +115,9 @@ def squareness(S):
 def _series(S,f,only):
     T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
+    ey0=ey                                      # (the plain erosion: for the masks beyond the cuts, below)
+    if EXACT_H: ey=ey/(1-V_EM/X)                # (and with the x-height stretched uniformly by (X+2ey)/X, horizontal
+                                                # strokes in the x-height band come out exactly the series weight)
     t=ey                                        # stub length scale
     k=(X+2*ey)/X
     def ymap(y): return y-ey if y<0 else (k*y-ey if y<X else y+ey)
@@ -120,7 +130,8 @@ def _series(S,f,only):
     for c,(g,prims) in lcE.series().items():
         if only and c not in only: continue
         if c=='s':                                      # built from its mapped construction
-            out[c]=_s_direct(f,gx,ey,k,S); continue
+            es=ey if EXACT_H else ey/(1-V_EM/X)
+            out[c]=_s_direct(f,gx,es,(X+2*es)/X,S); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
             out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
         gc,pc,gu,pu=pair(c)
@@ -150,7 +161,8 @@ def _series(S,f,only):
             band=gl&Polygon([p0-u*2-n*Dx,p1+u*2-n*Dx,p1+u*2+n*Dx,p0-u*2+n*Dx])
             band=lcE.clean(band)
             if band.is_empty: continue
-            Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey,X,mitre=4.0)
+            Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0)   # a mask only:
+            # the milder erosion keeps a narrow strip from collapsing (Series A) and still covers the stub's image
             Sg=_polygon(Cs).buffer(3.0,join_style=2)
             H=Polygon([m-u*3000,m+u*3000,m+u*3000+n*3000,m-u*3000+n*3000])
             geom=geom.difference(H&Sg)
