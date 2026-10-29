@@ -17,7 +17,9 @@ F_LC={'A':0.521,'B':0.55,'C':0.82,'D':0.919,'E':1.0,'F':1.124}
 V_EM=(1+9/16)*SQ                       # E(M) lower-case stem, the source of the constructions
 D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
-def stroke(S): return V_EM-2*D_EM+(A[S]-A['E'])
+LC_CAPS=True                           # the lower-case stroke is the capitals' (False: E(M)'s lower case's relation
+                                       # to its capitals, 134.8 to 138, kept: 3.2 units lighter in every series)
+def stroke(S): return A[S] if LC_CAPS else V_EM-2*D_EM+(A[S]-A['E'])
 def pair(c):
     """(cut letter, its ellipses, uncut letter, its ellipses).  Straight-line letters: the uncut letter has its
     slanted stem top (k) squared off"""
@@ -64,11 +66,12 @@ def _tidy(geom):
         return ps[0] if len(ps)==1 else MultiPolygon(ps)
     g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
     return keep(g)
-S_SPINE={'A':-23.1,'B':-24.6,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
+S_SPINE={'A':-23.9,'B':-25.2,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
                                 # the s spine's tangent points moved towards the lobes' extremes (units).  Its
                                 # thickness across the middle as before the horizontals were made exact (EXACT_H;
-                                # the s's stronger vertical erosion thinned the slanted spine): A 58.4 B 74.8 C 79.7
-                                # D 89.2 E 98.4 F 108.3 units, 0.85-0.95 of the stroke
+                                # the s's stronger vertical erosion thinned the slanted spine), as a fraction of the
+                                # stroke: A 0.95 B 0.90 C-F 0.85-0.86 (A 61.4 B 77.7 C 82.4 D 91.9 E 101.1 F 111.1
+                                # units with the capitals' stroke, LC_CAPS)
 def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
@@ -97,7 +100,9 @@ def series(S,f=None,only=None):
     try: out=_series(S,f,only)
     finally: lcE.COND=0.0; lcE.COMP=0.0
     n=squareness(S)
-    return {c:(strokeop.squarer(C,n) if n>2 else C) for c,C in out.items()} if SQUARE else out
+    ey=(V_EM-stroke(S))/2; ey=ey/(1-V_EM/X) if EXACT_H else ey; k=(X+2*ey)/X
+    bands=[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)]           # condense2's vertical map
+    return {c:(strokeop.squarer(C,n,bands=bands,erosion=ey) if n>2 else C) for c,C in out.items()} if SQUARE else out
 # The narrow capitals' O is a four-centre oval with long, nearly straight sides; the condensed lower case's arcs are
 # ellipses, which stay curved all the way down.  With SQUARE on, each arc in the condensed lower case becomes
 # |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
@@ -123,6 +128,9 @@ def _series(S,f,only):
     def ymap(y): return y-ey if y<0 else (k*y-ey if y<X else y+ey)
     P=lambda q: np.array([q[0]*f,ymap(q[1])])
     def edge(q,n):                             # a point on the outline with outward normal n
+        if strokeop.DIRN:                      # as condense2: along the mapped normal, by its direction's amount
+            m=np.array([n[0]/f,n[1]/k]); m/=np.linalg.norm(m)
+            return P(q)+m*(-(V_EM*np.sqrt((f*m[0])**2+(k*m[1])**2)-T)/2)
         return P(q)+strokeop._support(n,(gx,0.0))+strokeop._support(n,(0.0,-ey))
     import lcoutline
     from shapely.geometry import Polygon

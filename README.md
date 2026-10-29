@@ -119,7 +119,7 @@ They are then squeezed back to the baseline and cap line by 690/(690 + 2d) (`bui
 
 **Series B, C, D, E and F lower case.** These come from the E(M) constructions by the rule the 1961 capitals follow
 (`work/lccondense.py`, `strokeop.condense2`). The width less the stroke scales by a width factor f. The stroke steps
-with the series, as the capitals' table strokes do:
+with the series and is the capitals' table stroke:
 
 1. Scale x by f.
 2. Offset horizontally by (T − V·f)/2, which brings the vertical strokes to the series stroke T (V is the E(M)
@@ -127,18 +127,22 @@ with the series, as the capitals' table strokes do:
 3. Offset vertically by −(V − T)/2, with a stretch that lands the baseline and x-height back on their lines, which
    brings the horizontal strokes to T.
 
+In practice the three are applied together, edge by edge (`strokeop._proportional`): each edge moves along its own
+normal by what the stroke across it needs, measured on the narrowed and stretched letter, so diagonals and curves come
+out the same weight as stems and bars.
+
 | Series | Capital stroke (1961 table) | Lower-case stroke T | Capitals' width factor | Lower-case width factor |
 |---|---|---|---|---|
-| A | 64.69 | 61.5 | 0.450 | 0.521 |
-| B | 86.25 | 83.0 | 0.475 | 0.55 |
-| C | 97.03 | 93.8 | 0.65 | 0.82 |
-| D | 107.81 | 104.6 | 0.825 | 0.919 |
-| E | 118.59 | 115.4 | 1 | 1 |
+| A | 64.69 | 64.69 | 0.450 | 0.521 |
+| B | 86.25 | 86.25 | 0.475 | 0.55 |
+| C | 97.03 | 97.03 | 0.65 | 0.82 |
+| D | 107.81 | 107.81 | 0.825 | 0.919 |
+| E | 118.59 | 118.59 | 1 | 1 |
 | E(M) | 138 (one-fifth of 690) | 134.8 | — | 1 (as constructed) |
-| F | 129.38 | 126.1 | 1.175 | 1.124 |
+| F | 129.38 | 129.38 | 1.175 | 1.124 |
 
 - **Series A** was dropped in 1966 and never had a lower case or an FHWA digital font. Its lower case follows the
-  same rule: stroke 61.5 by the series step, and a width factor keeping Series B's ratio of lower-case to capital factor.
+  same rule: the capitals' stroke 64.69, and a width factor keeping Series B's ratio of lower-case to capital factor.
   Its punctuation and space are spaced as Series B's, with every side bearing scaled by 0.766 and the space by 0.814:
   across B to F the capitals' mean side bearing is linear in the stroke, and that is its value at Series A's stroke.
   Letters and figures follow the spacing tables like the other series (below).
@@ -154,6 +158,12 @@ with the series, as the capitals' table strokes do:
   stroke, X the x-height), up to 39% heavier than the stems in Series A (the z's bars against the Z's). The strokes
   above the x-height and below the baseline, which are not stretched, are thickened in the construction to match
   (`lcE.outer_bands`).
+- **Even strokes, the capitals' weight.** Every lower-case stroke comes out the series' capital stroke: stems, bars,
+  bowls, arches and diagonals alike (the z's diagonal had been 0.72 of the stem in Series A). E(M)'s lower case is
+  drawn 3.2 units lighter than its capitals (134.8 against 138), and its strokes vary a little among themselves (l
+  132, n 137.5); in the other series strokes within 0.9–1.15 of the E(M) stem are all brought to the capital
+  stroke. The thinning where a curve meets a stem (a b d g h m n p q r u) keeps its proportion. E(M) itself is as
+  drawn. (`lccondense.LC_CAPS`; off, the lower case keeps E(M)'s 3.2-unit difference.)
 - **Terminal cuts and slanted stem ends keep their angles.** Each letter is also built without its cuts
   (`lcE.build(c, nocut=True)`), with a short stub beyond each cut. The whole letter is condensed, and each cut is then
   remade at its original angle through the mapped edge point. The diagonals of v w x y z change angle, as the
@@ -177,7 +187,7 @@ with the series, as the capitals' table strokes do:
   least-squares proportion of the loop height over the four sizes. (The 1983 table is the 15-inch column in
   millimetres, but labelled for a 375 mm loop height rather than 381 mm, so its spaces are 1.6% too wide.) It is
   for E(M), whose lower case follows it as it stands. The other series get it
-  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.51–0.83) so
+  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.46–0.76) so
   that each lower-case alphabet (the sum of the a–z advances) is as wide as the FHWA 2000 font's, as the
   lower-case widths are; set in text, a line of lower case runs the same length as in the official font, so these
   can stand in for it. Series A, with no FHWA font, takes Series B's factor.

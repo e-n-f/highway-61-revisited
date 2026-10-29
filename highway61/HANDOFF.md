@@ -458,6 +458,29 @@ ends keep their angles.
 - Result (ratio to the l stem; E(M) 1.04 / 0.98 / 1.11): z bar 1.05-1.07, o top 0.89-0.98, n arch 1.10-1.23 (A-F).
   VERSION 1.002.
 
+### Even lower-case strokes at the capitals' weight (2026-10-29)
+- User, on 1.002: Series A's z diagonal thin; e sides heavier than its top; f top possibly collapsing.  "The strokes
+  of the lower case are meant to be consistently thick except for the thinning where a curve meets a stem (in a, b,
+  d, g, h, m, n, p, q, r, u) and to match the thickness of the capitals."
+- `strokeop.condense2` (DIRN): narrow and stretch first, then move each edge along its own normal n.  A full stroke
+  there is V s wide, s = sqrt((f nx)^2 + (k ny)^2) (normals transform by the inverse transpose).  Diagonals were
+  over-eroded by the old horizontal-then-vertical offsets (A z 0.72).
+- PROPORTIONAL (`strokeop._proportional`): each edge's amount comes from the local width w, measured by a ray inward
+  from the edge.  The stroke ends T * _even(w / (V s)): 1 for 0.9-1.15 (the source's own variation evened out),
+  proportional below 0.8 (junction thinning), a ramp between, and w - 0.15 V s above (merges).  Alignment edges (tops
+  at the x-height/ascender, bottoms at the baseline/descender) move by the full-stroke amount, and the far side takes
+  the rest.  Arcs are probed near their ends, at their middle and at the axis points they pass; lines at their middle.
+  `_reconcile` fits a line's amount and an arc's two semi-axis amounts by least squares.  Smooth (< 10 deg) joins
+  must match: otherwise the joint lands between the two moved carriers, notching stems and arches.  A line's probe
+  counts 5x, so a stem keeps its weight beside an arc.  Offsets are applied in steps of <= 20 units, with per-segment
+  amounts carried through `offset_contour` as tags.
+- `lccondense.LC_CAPS`: the lower-case stroke is now the capitals' A[S] (was A[S] - 3.2, E(M)'s lower case's
+  relation to its capitals).  E(M) is unchanged (l 132.0, i 134.5, n 137.5 against I 138).
+- Result (skeleton medians over the stroke, A-F): nearly all letters 0.99-1.02; l, i, n, d stems equal the I's;
+  z 1.00; e side 0.93-1.03 / top 0.94-0.98 (E(M) 0.96 / 0.87); f hook 0.90-0.98 (was 0.70-0.83).
+- S_SPINE A -23.9, B -25.2 (chord ratios kept); LC_TIGHT re-solved: B 0.567, C 0.575, D 0.683, E 0.463, F 0.761.
+  spacingcheck max |.| <= 1.0.  VERSION 1.003.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

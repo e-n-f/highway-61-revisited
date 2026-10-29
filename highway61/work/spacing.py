@@ -20,7 +20,7 @@ def classes():
 # Lower-case spaces relative to the E(M) table scaled by lower-case stroke, solved by lcspace.py so that each
 # series' a-z advances add up to the FHWA 2000 font's (as the lower-case widths are, lcwidth.py).  E(M) is the
 # table itself; Series A (no FHWA font) takes Series B's factor.
-LC_TIGHT={'B':0.627,'C':0.651,'D':0.757,'E':0.521,'F':0.830}
+LC_TIGHT={'B':0.567,'C':0.575,'D':0.683,'E':0.463,'F':0.761}
 def lc_scale(S):
     """lower-case table scale for series S: E(M) 1, others their lower-case stroke over E(M)'s times LC_TIGHT"""
     import lccondense
