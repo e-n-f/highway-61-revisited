@@ -584,6 +584,20 @@ ends keep their angles.
   0.89/0.91; E and F were already even (0.87-0.89).  The spine is unchanged.
 - LC_TIGHT B 0.572.  VERSION 1.011.
 
+### Deeper notches in A and B (2026-10-29)
+- User: the notches were clearer in A and B in main (1.0) than now; make them more visible.  1.0's were deeper and,
+  with rounder bowls, opened wider (A b 14, p 33; B p 15.5 units).  Ours had become slits: the deepened edge ran
+  along the bowl.
+- `lccondense.NOTCH` is per series: A (0.40, 0.60), B (0.25, 0.40) strokes at the baseline / x-height (A 26/39, B
+  22/35 units); others (0.10, 0.15) as before.
+- `strokeop.deepen_notches`: the stem's edge runs to that depth.  The second edge leaves at NOTCH_ANGLE (45 degrees)
+  to the baseline, towards the bowl, and ends where it first meets the arc (whether the point is inside the bowl's
+  ellipse or not).  At least 0.15 rad of the arc must be left beyond (the squarer re-finds the end on the squared
+  curve, and a shorter remnant ran backwards).  When the meeting point is closer than that to a piece's far end, the
+  edge ends at the piece's end and the piece goes.  All the notches of a b d g m n p q r u in A and B now reach their
+  depth; h has none at the x-height (its arch meets the ascender stem below it).
+- VERSION 1.012.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

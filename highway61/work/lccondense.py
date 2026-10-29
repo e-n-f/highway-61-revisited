@@ -113,7 +113,8 @@ def series(S,f=None,only=None):
     ey=(V_EM-stroke(S))/2; ey=ey/(1-V_EM/X) if EXACT_H else ey; k=(X+2*ey)/X
     bands=[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)]           # condense2's vertical map
     T=stroke(S)
-    out={c:[strokeop.deepen_notches(cc,X,NOTCH[0]*T,NOTCH[1]*T) for cc in C] for c,C in out.items()}
+    nl,nh=NOTCH.get(S,NOTCH[None])
+    out={c:[strokeop.deepen_notches(cc,X,nl*T,nh*T) for cc in C] for c,C in out.items()}
     return {c:(strokeop.squarer(C,n,bands=bands,erosion=ey) if n>2 else C) for c,C in out.items()} if SQUARE else out
 # The narrow capitals' O is a four-centre oval with long, nearly straight sides; the condensed lower case's arcs are
 # ellipses, which stay curved all the way down.  With SQUARE on, each arc in the condensed lower case becomes
@@ -130,8 +131,10 @@ CUT_TURN={'t':{'A':25.0,'B':25.0}}   # the t's tail cut turned clockwise by this
 F_HOOK={'A':9.9,'B':5.2,'C':4.2,'D':1.7}   # the f's hook thickened by this much more (units, lcE.FHOOK): the narrowest series' hooks came out
                     # light (A 0.6 of the stroke near its end, against E(M)'s 0.79); solved to E(M)'s proportion
                     # (E 0.79 and F 0.81 already)
-NOTCH=(0.10,0.15)   # the least depth of the notches where a bowl or arch meets its stem, in strokes, at the baseline
-                    # and at the x-height (E(M): b 0.10, d 0.09, p 0.19, q 0.17): deepened where shallower (Series B)
+NOTCH={None:(0.10,0.15),'A':(0.40,0.60),'B':(0.25,0.40)}
+                    # the least depth of the notches where a bowl or arch meets its stem, in strokes, at the baseline
+                    # and at the x-height (E(M): b 0.10, d 0.09, p 0.19, q 0.17): deepened where shallower.  A and B
+                    # deeper, a little beyond 1.0's (user: A b 14, p 33; B b 7.5, p 15.5 units)
 EXACT_H=True        # horizontal strokes at the series weight: see _series (False: the earlier erosion, which left the
                     # x-height band's horizontals 2 e t / X too heavy, +19 units in Series A); lcE.outer_bands makes up
                     # the strokes above the x-height and below the baseline
