@@ -111,6 +111,10 @@ def series(S,f=None,only=None):
 # |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
 # exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
 SQUARE=True
+CUT_BACK={'r':{'A':20.0,'B':20.0}}   # the r's arm cut this much further back (units, along the cut's normal): its
+                    # point had come out sharp in the narrowest series (user)
+CUT_TURN={'t':{'A':25.0,'B':25.0}}   # the t's tail cut turned clockwise by this much (degrees): its nearly
+                    # level cut left a flat shelf on the narrowest series' tails (user)
 F_HOOK={'A':9.9,'B':5.2,'C':4.2,'D':1.7}   # the f's hook thickened by this much more (units, lcE.FHOOK): the narrowest series' hooks came out
                     # light (A 0.6 of the stroke near its end, against E(M)'s 0.79); solved to E(M)'s proportion
                     # (E 0.79 and F 0.81 already)
@@ -141,7 +145,7 @@ def _series(S,f,only):
             return P(q)+m*(-(V_EM*np.sqrt((f*m[0])**2+(k*m[1])**2)-T)/2)
         return P(q)+strokeop._support(n,(gx,0.0))+strokeop._support(n,(0.0,-ey))
     import lcoutline
-    from shapely.geometry import Polygon
+    from shapely.geometry import Polygon, Point, box
     out={}
     for c,(g,prims) in lcE.series().items():
         if only and c not in only: continue
@@ -176,6 +180,8 @@ def _series(S,f,only):
             # is removed beyond it is the condensed image of the stub, condensed on its own together with a band of
             # the letter on the near side of the cut (so that its edge at the cut does not move)
             u=(p1-p0)/np.linalg.norm(p1-p0); m=edge((p0+p1)/2,n)
+            last=(p0+p1)[0]/2>=max((a_[0]+b_[0])/2 for a_,b_,_ in cs)-1e-6   # the letter's rightmost cut (r's arm,
+            if last: m=m-n*CUT_BACK.get(c,{}).get(S,0.0)                       # t's tail)
             Dx=DX[(tuple(p0),tuple(p1))]
             band=gl&Polygon([p0-u*2-n*Dx,p1+u*2-n*Dx,p1+u*2+n*Dx,p0-u*2+n*Dx])
             band=lcE.clean(band)
@@ -189,7 +195,13 @@ def _series(S,f,only):
                 Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr)
                 g_=_polygon(Cs); Sg=g_ if Sg is None else Sg|g_
             Sg=Sg.buffer(10.0,join_style=2)                 # (beyond the cut only: H, below)
+            turn=np.radians(CUT_TURN.get(c,{}).get(S,0.0)) if last else 0.0
+            if turn:                                        # the cut turned clockwise about its middle: what it newly
+                R_=np.array([[np.cos(turn),np.sin(turn)],[-np.sin(turn),np.cos(turn)]])  # takes off lies near it
+                u,n=R_@u,R_@n; Lc=np.linalg.norm(P(p1)-P(p0))   # (only about the cut's end: its line, turned,
+                near_=Point(*m).buffer(1.2*Lc)&box(m[0]-0.6*Lc,-3000,3000,3000)  # crosses the stem further on)
             H=Polygon([m-u*3000,m+u*3000,m+u*3000+n*3000,m-u*3000+n*3000])
+            if turn: geom=geom.difference(H&near_)
             geom=geom.difference(H&Sg)
             # ears: whatever is left beyond the cut close to its two ends (found exactly on the output's outline): the
             # ends of the straight run of outline along the cut line nearest the cut's middle (another part of the

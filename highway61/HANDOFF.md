@@ -527,6 +527,16 @@ ends keep their angles.
   in 1.005 it also carries a slight bend from the lower case's own offsets.  `punct._strip` now makes the tail the
   band between its two long edges, flat at top and bottom.  VERSION 1.006.
 
+### r's arm and t's tail cuts in A and B (2026-10-29)
+- User: cut the r's and t's tails further left, for a less sharp point on the r and less flat top on the t.
+- `lccondense.CUT_BACK` moves a letter's rightmost cut back along its own normal: r 20 units in A and B (chosen
+  from 0/10/20).
+- The t's tail cut is nearly level (as in E(M)), so moving it back only lowered the tail with the same shelf.
+  `lccondense.CUT_TURN` turns it clockwise about its middle instead: t 25 degrees in A and B (between the 20 and 30
+  tried).  What the turned cut takes off is removed only near the tail's end, within 1.2 cut lengths of its middle
+  and right of 0.6 of one (its line, turned, crosses the stem further on).
+- LC_TIGHT B 0.570.  VERSION 1.007.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
