@@ -467,7 +467,7 @@ ends keep their angles.
   over-eroded by the old horizontal-then-vertical offsets (A z 0.72).
 - PROPORTIONAL (`strokeop._proportional`): each edge's amount comes from the local width w, measured by a ray inward
   from the edge.  The stroke ends T * _even(w / (V s)): 1 for 0.9-1.15 (the source's own variation evened out),
-  proportional below 0.8 (junction thinning), a ramp between, and w - 0.15 V s above (merges).  Alignment edges (tops
+  proportional below 0.8 (junction thinning), a ramp between; above 1.15 (merges) the loss stays that of 1.15.  Alignment edges (tops
   at the x-height/ascender, bottoms at the baseline/descender) move by the full-stroke amount, and the far side takes
   the rest.  Arcs are probed near their ends, at their middle and at the axis points they pass; lines at their middle.
   `_reconcile` fits a line's amount and an arc's two semi-axis amounts by least squares.  Smooth (< 10 deg) joins
@@ -480,6 +480,29 @@ ends keep their angles.
   z 1.00; e side 0.93-1.03 / top 0.94-0.98 (E(M) 0.96 / 0.87); f hook 0.90-0.98 (was 0.70-0.83).
 - S_SPINE A -23.9, B -25.2 (chord ratios kept); LC_TIGHT re-solved: B 0.567, C 0.575, D 0.683, E 0.463, F 0.761.
   spacingcheck max |.| <= 1.0.  VERSION 1.003.
+
+### Joins and terminals after the even-stroke change (2026-10-29)
+- User marked bad joins and tails on 1.003 in a b d g j k p q r (A, B) and a bubbly s spine (A, B, C).  Fixes:
+- `_reconcile`: at corners up to 60 deg (firmly) and 120 deg (weight 30), both sides depart alike from the
+  full-stroke amounts of their own normals.  Their moved carriers had crossed far from the corner (the shift goes as
+  1 / sin of the angle): slivers where B's counters meet the stems, steps in the k.  150 tangled the m's crotch.
+  Lines on the alignment lines are pinned (the corner terms had pulled F's stems 1 unit off the baseline).  Arc
+  probes add points at 3% and 97% of the sweep, counted thrice (A's a bowl top had been cut through at the stem).
+- `_offset_once`: a long mitre is bevelled only at acute corners.  A long one at a blunter corner comes from the
+  sides moving differently (the a's counter meeting its stem) or from a crotch (F's m, left flat).
+- `_jogs` after condense2: runs of lines under 10 units between longer lines meet at the lines' intersection, and
+  specks are dropped (the k's crotch and stem junction).
+- Cuts (`lccondense._series`): edges within a stroke of a cut's ends move by direction alone, as the remade cut is
+  placed (`condense2(plain=...)`; the r's counter fell short of its arm's cut).  The stub mask is the union of the
+  proportional and direction-only condensations, buffered 10 beyond the cut (3 left pieces of A's t and e stubs).
+  `strokeop.trim_jogs` then takes out short lines left at the remade cuts.  A remnant run between an arc and a long
+  line goes, and the line is extended to the arc.  A single jog is joined to the line, or the arc is extended to it.
+- Squarer: a line tangent to arcs at both ends (the s's spine edges) becomes the common tangent of the two squared
+  arcs (fsolve; accepted by residual).  Other formerly smooth joins that squaring turned into corners (where the s's
+  counters end in their small ellipses) get a cubic fillet, FILLET = 5 units each side.
+- Not changed: S_SPINE.  The common-tangent spine is heavier: chord over the stroke A 1.02, B 0.95, C-F 0.86-0.87
+  (E(M) 0.88).  Ascenders now within about 6 units of E(M)'s (before: 8-17 low), with descenders about the same.
+- LC_TIGHT re-solved: B 0.556, C 0.575, D 0.677, E 0.455, F 0.763.  spacingcheck max |.| <= 1.0.  VERSION 1.004.
 
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user

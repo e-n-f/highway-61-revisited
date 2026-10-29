@@ -157,7 +157,10 @@ def _series(S,f,only):
             DX[(tuple(p0),tuple(p1))]=Dx
             stubs.append(st); gl=gl|st
         gl=lcE.clean(gl)
-        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM)
+        # edges near a cut's ends move by direction alone, as the remade cut is placed (edge(), below): measured
+        # widths there run across the oblique cut, and the r's counter fell short of its arm's cut
+        plain=[(P(q),T) for p0,p1,n in cs for q in (p0,p1)]
+        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain)
         geom=_polygon(C)
         prims2=[s[3] for cc in C for s in cc if s[0]=='E']
         for (p0,p1,n),st in zip(cs,stubs):
@@ -169,9 +172,15 @@ def _series(S,f,only):
             band=gl&Polygon([p0-u*2-n*Dx,p1+u*2-n*Dx,p1+u*2+n*Dx,p0-u*2+n*Dx])
             band=lcE.clean(band)
             if band.is_empty: continue
-            Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0)   # a mask only:
-            # the milder erosion keeps a narrow strip from collapsing (Series A) and still covers the stub's image
-            Sg=_polygon(Cs).buffer(3.0,join_style=2)
+            # a mask only: the milder erosion keeps a narrow strip from collapsing (Series A) and still covers the
+            # stub's image.  Made both by stroke width and by direction alone, and the two joined: a band cut out of
+            # the letter can mismeasure its strokes (Series A's a), and direction alone can miss a thin stroke's
+            # stub, which is thinned less (Series A's t)
+            Sg=None
+            for pr in (True,False):
+                Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr)
+                g_=_polygon(Cs); Sg=g_ if Sg is None else Sg|g_
+            Sg=Sg.buffer(10.0,join_style=2)                 # (beyond the cut only: H, below)
             H=Polygon([m-u*3000,m+u*3000,m+u*3000+n*3000,m-u*3000+n*3000])
             geom=geom.difference(H&Sg)
             # ears: whatever is left beyond the cut close to its two ends (found exactly on the output's outline): the
@@ -203,7 +212,7 @@ def _series(S,f,only):
             geom=ps[0] if len(ps)==1 else MultiPolygon(ps)
         if gx<0:                                     # the outline was eroded sideways (Series A): its re-cuts and
             geom=_tidy(geom)                         # junctions leave nicks and hooks a few units wide
-        out[c]=[[tuple(sg) for sg in segs] for segs in lcoutline.contours(geom,prims2)]
+        out[c]=[[tuple(sg) for sg in strokeop.trim_jogs(segs)] for segs in lcoutline.contours(geom,prims2)]
     return out
 if __name__=='__main__':
     for S in 'BCDF': print(S,'f',F[S],'stroke',round(stroke(S),2))

@@ -133,7 +133,13 @@ def _offset_once(segs,d):
         m=na+nb; g=P+m/max(np.linalg.norm(m),1e-9)*dd/max(np.cos(np.arccos(np.clip(na@nb,-1,1))/2),0.2)
         q=_intersect(C[i-1],C[i],g)
         q=q if q is not None else g
-        if MITRE is not None and np.hypot(*(q-P))>MITRE*abs(dd):
+        def own(dv,nn): return abs(dv(nn)) if callable(dv) else abs(amt(dv))
+        big=max(abs(dd),own(D[i-1],na),own(D[i],nb))  # (amounts that differ by side: each along its own normal)
+        # a long mitre is bevelled only where the corner is acute enough to spike: a long one at a blunter corner
+        # comes from its sides moving differently (the a's counter meeting its stem), which only slides the corner
+        # along them, or from a crotch (the m's, which a bevel left flat)
+        acute=MITRE is not None and np.sqrt(max((1+na@nb)/2,0.0))*MITRE<1
+        if acute and np.hypot(*(q-P))>MITRE*big:
             pa=P+_support(na,D[i-1]); pb=P+_support(nb,D[i]); BEV[i]=(pa,pb); J.append(None); continue
         J.append(q)
     out=[]; IDX=[]
@@ -332,11 +338,12 @@ def _even(r):
     """a stroke's width as a fraction of the series stroke, from its source width r (fraction of the source stroke):
     strokes from 0.9 to 1.15 of the source stroke all come out the series stroke, the source's own small variations
     (E(M)'s l 0.98, n 1.02) evened out; thinner ones (where a curve meets a stem) keep their proportion below 0.8,
-    with a ramp between; heavier ones (where strokes merge) lose the same as a full stroke"""
+    with a ramp between.  (Heavier ones, where strokes merge, are left to _proportional: they lose what one of 1.15
+    does, so the junctions are not eaten into.)"""
     if r<0.8: return r
     if r<0.9: return 0.8+2*(r-0.8)
-    return max(1.0,r-0.15)
-def _proportional(contours,f,k,V,T,ey,X):
+    return 1.0
+def _proportional(contours,f,k,V,T,ey,X,plain=()):
     """per-segment offset amounts (negative: erosion) that thin each stroke by its width, so that every stroke ends
     as the series weight T (or, where thinner, in proportion: _even): a stroke whose width here (after the narrowing
     and stretching) is w, across an edge of normal n, loses w - T _even(w / (V s)), s = sqrt((f nx)^2 + (k ny)^2).
@@ -366,9 +373,10 @@ def _proportional(contours,f,k,V,T,ey,X):
     def amount(p,no):
         """erosion (positive) at the edge point p with outward normal no"""
         if is_align(p,no): return dV(no)
+        if any(np.hypot(*(p-np.asarray(z)))<r_ for z,r_ in plain): return dV(no)   # near a cut: as the cut is placed
         w,q=ray(p,no)
         if w is None or w>1.6*V*sk(no): return dV(no)
-        total=w-T*_even(w/(V*sk(no)))
+        total=min(w,1.15*V*sk(no))-T*_even(w/(V*sk(no)))
         # the far side: an alignment edge there (its outward normal is about -no) takes the full-stroke amount
         if q is not None and is_align(q,-no): return total-dV(-no)
         return total/2
@@ -377,30 +385,35 @@ def _proportional(contours,f,k,V,T,ey,X):
         data=[]
         for sg in c:
             if sg[0]=='L':
-                p,no=_seg_mid(sg); data.append([(None,amount(p,no))]); continue
+                p,no=_seg_mid(sg); data.append([(None,amount(p,no))]+([('pin',dV(no))] if is_align(p,no) else []))
+                continue
             e=sg[3]; t0,sw=sg[4],sg[5]; sgn=np.sign(sw)
-            ts=[t0+sw*u for u in (0.1,0.5,0.9)]            # near the ends, the middle, and the axis points it passes
+            ts=[t0+sw*u for u in (0.1,0.5,0.9)+(0.03,0.97)*3]   # near the ends (closest counted thrice: the
+                                                     # junctions are there), the middle, and the axis points it passes
             lo,hi=min(t0,t0+sw),max(t0,t0+sw)
             ts+=[jj*np.pi/2 for jj in range(-8,9) if lo<jj*np.pi/2<hi]
             row=[]
             for t in ts:
                 p=_ept(e,t); u=_etan(e,t)*sgn; u=u/np.linalg.norm(u); row.append((t,amount(p,np.array([-u[1],u[0]]))))
             data.append(row)
-        out.append(_reconcile(c,data,(dV(np.array([1.0,0.0])),dV(np.array([0.0,1.0])))))
+        out.append(_reconcile(c,data,(dV(np.array([1.0,0.0])),dV(np.array([0.0,1.0]))),dV))
     return out
 def _arc_coef(a,b,c2,s2):
     """how far a point of an ellipse (a, b) moves along its normal per unit change of each semi-axis, at the point
     with cos^2 t = c2, sin^2 t = s2"""
     r=np.sqrt(b*b*c2+a*a*s2); return np.array([b*c2/r,a*s2/r])
-def _reconcile(c,data,prior):
+def _reconcile(c,data,prior,dV):
     """per-segment amounts from the probed ones (data: for each segment, (parameter, amount) pairs; parameter None for
     a line), fitted by least squares: a line has one amount, an arc one for each semi-axis, its amount at a point being
     how far that moves the point along its normal; segments that meet smoothly must move their common end alike
     (otherwise the joint is placed between the two moved carriers, re-angling the lines and stepping the arcs: the
     notches in Series A's stems and arches).  prior: the full-stroke amounts (x, y), weakly held where the probes leave
     an arc's other semi-axis free (a short piece near its top or side).  A line's probe counts five times an arc's:
-    where they meet, the arc gives way.  Returns the amount functions of the outward
-    normal (negative: erosion)"""
+    where they meet, the arc gives way; a line on an alignment line (a stem's foot, the x-height) is held there.  At
+    corners up to 60 degrees (and, less firmly, up to 120) the two sides must depart alike from the
+    full-stroke amounts dV of their own normals: otherwise their moved carriers cross far from the corner (the
+    shift grows as 1 / sin of the angle), leaving slivers where Series B's counters meet the stems and steps in the
+    k, and the a's counter bulging past its stem.  Returns the amount functions of the outward normal (negative: erosion)"""
     n=len(c); col=[]; nv=0
     for sg in c: k_=1 if sg[0]=='L' else 2; col.append(list(range(nv,nv+k_))); nv+=k_
     def coef(i,t):
@@ -411,12 +424,18 @@ def _reconcile(c,data,prior):
     A=[]; y=[]
     for i,rows in enumerate(data):
         wt=5.0 if c[i][0]=='L' else 1.0                 # a straight stroke keeps its weight; the arc beside it gives
-        for t,v in rows: A.append(wt*coef(i,t)); y.append(wt*v)
+        for t,v in rows:
+            if t=='pin': A.append(1e5*coef(i,None)); y.append(1e5*v); continue      # on an alignment line: stays there
+            A.append(wt*coef(i,t)); y.append(wt*v)
         for j,pv in zip(col[i],prior if c[i][0]=='E' else prior[:0]):
             r=np.zeros(nv); r[j]=0.03; A.append(r); y.append(0.03*pv)
+    def nrm(u): return np.array([-u[1],u[0]])
     for i in range(n):
-        if n<2 or tangent(c[i-1],1)@tangent(c[i],0)<np.cos(np.radians(10.0)): continue   # smooth or nearly so
-        A.append(1e3*(coef(i-1,end(i-1,1))-coef(i,end(i,0)))); y.append(0.0)
+        if n<2: break
+        ua,ub=tangent(c[i-1],1),tangent(c[i],0)
+        if ua@ub<np.cos(np.radians(120.0)): continue          # (150 tangles the m's crotch in A and B)
+        wj=1e3 if ua@ub>=np.cos(np.radians(60.0)) else 30.0      # steeper corners: held less firmly
+        A.append(wj*(coef(i-1,end(i-1,1))-coef(i,end(i,0)))); y.append(wj*(dV(nrm(ua))-dV(nrm(ub))))
     x=np.linalg.lstsq(np.array(A),np.array(y),rcond=None)[0]
     res=[]
     for i,sg in enumerate(c):
@@ -427,7 +446,117 @@ def _reconcile(c,data,prior):
             return -float(_arc_coef(a,b,cc/tot,ss/tot)@[dx,dy])
         res.append(fa)
     return res
-def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
+def _jogs(c,short=10.0):
+    """a contour with its jogs taken out: a run of lines shorter than `short` between two longer lines (left by the
+    corner offsets where the k's arm meets its leg and stem) becomes the longer lines' intersection, when that is
+    near; a speck (a contour no longer than a jog) is dropped"""
+    c=list(c)
+    if sum(np.hypot(*(s[2]-s[1])) for s in c)<4*short: return None
+    L=lambda s: s[0]=='L' and np.hypot(*(s[2]-s[1]))<short
+    changed=True
+    while changed and len(c)>3:
+        changed=False; n=len(c)
+        for i in range(n):
+            if not L(c[i]) or L(c[i-1]) or c[i-1][0]!='L': continue
+            j=i
+            while L(c[j%n]) and j-i<n-2: j+=1
+            b=c[j%n]; a=c[i-1]
+            if b[0]!='L': continue
+            u=a[2]-a[1]; v=b[2]-b[1]; den=u[0]*v[1]-u[1]*v[0]
+            if abs(den)<1e-9*np.hypot(*u)*np.hypot(*v): continue
+            t=((b[1]-a[1])[0]*v[1]-(b[1]-a[1])[1]*v[0])/den; q=a[1]+u*t
+            if np.hypot(*(q-a[2]))>3*short or np.hypot(*(q-b[1]))>3*short: continue
+            run=[k%n for k in range(i,j)]
+            c[i-1]=('L',a[1],q); c[j%n]=('L',q,b[2])
+            c=[s for k,s in enumerate(c) if k not in run]; changed=True; break
+    return c
+def trim_jogs(c,short=15.0,reach=30.0):
+    """short lines left between an arc and a long line (where a cut was remade and its ears removed: the t's tail,
+    the a's terminal) taken out: the long line is extended to the arc's ellipse, if that is within reach; between
+    two lines, the two meet"""
+    c=list(c); changed=True
+    ln_=lambda sg: np.hypot(*(np.array(sg[2],float)-np.array(sg[1],float)))
+    def meet(e,p,d,end):
+        """the point of the line p + d s on ellipse e nearest `end`, or None"""
+        cx,cy,a,b=e[:4]; q0=np.array([(p[0]-cx)/a,(p[1]-cy)/b]); q1=np.array([d[0]/a,d[1]/b])
+        A2,B2,C2=q1@q1,2*q0@q1,q0@q0-1; disc=B2*B2-4*A2*C2
+        if disc<0: return None
+        return min([p+d*s_ for s_ in ((-B2-np.sqrt(disc))/(2*A2),(-B2+np.sqrt(disc))/(2*A2))],key=lambda r: np.hypot(*(r-end)))
+    # first: a run of lines (together under 2 short) between an arc and a long line (a remnant of the edge beside a
+    # remade cut, with its jogs: Series A's e) goes, the long line extended to the arc
+    while changed and len(c)>4:
+        changed=False; n=len(c)
+        for i in range(n):
+            if c[i][0]!='E': continue
+            for dr in (1,-1):
+                run=[]; j=(i+dr)%n
+                while c[j][0]=='L' and ln_(c[j])<1.5*short and len(run)<4: run.append(j); j=(j+dr)%n
+                if len(run)<2 or sum(ln_(c[r]) for r in run)>=2*short or c[j][0]!='L' or ln_(c[j])<3*short: continue
+                A_,L_=c[i],c[j]; p=np.array(L_[1],float); d=np.array(L_[2],float)-p
+                end=np.array(A_[2] if dr==1 else A_[1],float); q=meet(A_[3],p,d,end)
+                if q is None or np.hypot(*(q-end))>reach: continue
+                e=A_[3]; tq=_par(e[:4],q); sw=A_[5]
+                if dr==1:
+                    t0=A_[4]; nsw=(tq-t0)%(2*np.pi) if sw>0 else -((t0-tq)%(2*np.pi))
+                    if abs(nsw-sw)>0.5: continue
+                    c[i]=('E',A_[1],q,e,t0,nsw); c[j]=('L',q,np.array(L_[2],float))
+                else:
+                    t1=A_[4]+sw; nsw=(t1-tq)%(2*np.pi) if sw>0 else -((tq-t1)%(2*np.pi))
+                    if abs(nsw-sw)>0.5: continue
+                    c[i]=('E',q,A_[2],e,tq,nsw); c[j]=('L',np.array(L_[1],float),q)
+                c=[sg for k,sg in enumerate(c) if k not in run]; changed=True; break
+            if changed: break
+    changed=True
+    while changed and len(c)>3:
+        changed=False; n=len(c)
+        for i in range(n):
+            sg=c[i]
+            if sg[0]!='L' or np.hypot(*(np.array(sg[2])-np.array(sg[1])))>=short: continue
+            P_,N_=c[(i-1)%n],c[(i+1)%n]
+            if P_[0]=='L' and N_[0]=='L':                   # line, jog, line: the two lines meet
+                p=np.array(P_[1],float); u=np.array(P_[2],float)-p; q_=np.array(N_[1],float); v=np.array(N_[2],float)-q_
+                den=u[0]*v[1]-u[1]*v[0]
+                if abs(den)>1e-9*np.hypot(*u)*np.hypot(*v):
+                    t_=((q_-p)[0]*v[1]-(q_-p)[1]*v[0])/den; X_=p+u*t_
+                    if np.hypot(*(X_-np.array(P_[2],float)))<reach and np.hypot(*(X_-q_))<reach and 0<t_:
+                        c[(i-1)%n]=('L',p,X_); c[(i+1)%n]=('L',X_,np.array(N_[2],float)); del c[i]; changed=True; break
+                continue
+            for arc_i,line_i in (((i-1)%n,(i+1)%n),((i+1)%n,(i-1)%n)):
+                A_,L_=c[arc_i],c[line_i]
+                if A_[0]!="E" or L_[0]!="L" or np.hypot(*(np.array(L_[2])-np.array(L_[1])))<1.5*short: continue
+                e=A_[3]; p=np.array(L_[1],float); d=np.array(L_[2],float)-p
+                cx,cy,a,b=e[:4]
+                # points of the line p + d s on the ellipse: ((x-cx)/a)^2 + ((y-cy)/b)^2 = 1
+                q0=np.array([(p[0]-cx)/a,(p[1]-cy)/b]); q1=np.array([d[0]/a,d[1]/b])
+                A2,B2,C2=q1@q1,2*q0@q1,q0@q0-1; disc=B2*B2-4*A2*C2
+                end=np.array(A_[2] if arc_i==(i-1)%n else A_[1],float)
+                if disc>=0:
+                    cand=[p+d*s_ for s_ in ((-B2-np.sqrt(disc))/(2*A2),(-B2+np.sqrt(disc))/(2*A2))]
+                    q=min(cand,key=lambda r: np.hypot(*(r-end)))
+                    newline=None
+                else:                                   # the ellipse falls short of the line (the r's arm end): the
+                    nl=np.array([-d[1],d[0]])/np.linalg.norm(d)     # arc ends at its point nearest the line, and the
+                    ts=np.linspace(0,2*np.pi,721)                   # line turns a little to reach it
+                    P=np.c_[cx+a*np.cos(ts),cy+b*np.sin(ts)]; dist=np.abs((P-p)@nl)
+                    q=P[np.argmin(dist)]
+                    if dist.min()>6.0: continue
+                    newline=True
+                if np.hypot(*(q-end))>reach: continue
+                tq=_par(e[:4],q); sw=A_[5]
+                if arc_i==(i-1)%n:                      # arc, jog, line: the arc's end moves to q
+                    t0=A_[4]; nsw=(tq-t0)%(2*np.pi) if sw>0 else -((t0-tq)%(2*np.pi))
+                    if abs(nsw-sw)>(1.0 if newline else 0.5): continue
+                    c[arc_i]=('E',A_[1],q,e,t0,nsw); c[line_i]=('L',q,np.array(L_[2],float))
+                    if newline and np.hypot(*(np.array(L_[2],float)-q))<1.5*short: c[arc_i],c[line_i]=A_,L_; continue
+                else:                                   # line, jog, arc: the arc's start moves to q
+                    t1=A_[4]+sw; nsw=(t1-tq)%(2*np.pi) if sw>0 else -((tq-t1)%(2*np.pi))
+                    if abs(nsw-sw)>(1.0 if newline else 0.5): continue
+                    c[arc_i]=('E',q,A_[2],e,tq,nsw); c[line_i]=('L',np.array(L_[1],float),q)
+                    if newline and np.hypot(*(np.array(L_[1],float)-q))<1.5*short: c[arc_i],c[line_i]=A_,L_; continue
+                del c[i]; changed=True; break
+            if changed: break
+    return c
+def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,plain=()):
     """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),
     stretch y so that, after the vertical offset by -ey (horizontal strokes to weight), the baseline and x-height are
     back on their lines; dots are kept round"""
@@ -446,7 +575,7 @@ def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
         V=2*(ey+gx)/(k-f); T=k*V-2*ey
         out=vmap(out,[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)])
         out=[clean(c) for c in out]
-        amounts=_proportional(out,f,k,V,T,ey,X) if PROPORTIONAL else \
+        amounts=_proportional(out,f,k,V,T,ey,X,plain) if (PROPORTIONAL if proportional is None else proportional) else \
                 [[(lambda n: -(V*np.sqrt((f*n[0])**2+(k*n[1])**2)-T)/2)]*len(c) for c in out]
         steps=max(1,int(np.ceil(max(abs(gx),abs(ey))/20.0)))
         MITRE=mitre
@@ -458,7 +587,7 @@ def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None):
                     c,tg=clean(c,tags=tg)
                     c,tg=offset_contour(c,[(lambda n,a=a: a(n)/steps) for a in tg],tags=tg)
                 c,tg=clean(c,tags=tg); res.append(c)
-            out=res
+            out=[t for t in (_jogs(c) for c in res) if t]
         finally: MITRE=None
     else:
         MITRE=mitre
@@ -565,6 +694,7 @@ def squarer(contours,n,keep_circles=True,bands=None,erosion=0.0):
                        for sg in segs] for segs in contours]
         return _squarer(contours,n,keep_circles)
     finally: SQ_BANDS=None
+FILLET=5.0     # squarer: the length of each side of a smoothed join
 def _squarer(contours,n,keep_circles=True):
     """every elliptic arc to the curve |x/a|^2 + |y/b|^n = 1 about its own centre (n > 2: straighter sides, blunter
     tops and bottoms, as the condensed capital O; the axis points stay, with their tangents); arcs become cubic
@@ -595,6 +725,31 @@ def _squarer(contours,n,keep_circles=True):
                               method='bounded',options={'xatol':1e-10})
             T[j][0]=r.x; pm=(pa+_sq_pt(segs[j][3],r.x,n))/2
             for v in [(i0+1)%m]+[(q+1)%m for q in run]: SNAP[(v,0)]=pm; done.add(v)
+        # a line tangent to arcs at both ends (the s's spine): it becomes the common tangent of the two squared arcs,
+        # so that the joins stay smooth (intersecting the squared curves with the old line left corners, more the
+        # squarer the series)
+        from scipy.optimize import fsolve
+        def sqtan(e,t,h=1e-6): return (_sq_pt(e,t+h,n)-_sq_pt(e,t-h,n))/(2*h)
+        def cr(u,v): return u[0]*v[1]-u[1]*v[0]
+        for k in range(m):
+            i,j=(k-1)%m,(k+1)%m; ln=segs[k]
+            if ln[0]!='L' or short(ln) or i==j or not (is_sq(segs[i]) and is_sq(segs[j])): continue
+            if k in done or j in done or _axis(T[i][1]) or _axis(T[j][0]): continue
+            def tg(s,end):
+                if s[0]=='L': v=np.array(s[2],float)-np.array(s[1],float)
+                else: v=_etan(s[3][:4],s[4]+(s[5] if end else 0.0))*np.sign(s[5])
+                return v/np.linalg.norm(v)
+            if tg(segs[i],1)@tg(ln,0)<np.cos(np.radians(2.0)) or tg(ln,1)@tg(segs[j],0)<np.cos(np.radians(2.0)): continue
+            ea,eb=segs[i][3],segs[j][3]; u0,v0=T[i][1],T[j][0]
+            def F(x):
+                d=_sq_pt(eb,x[1],n)-_sq_pt(ea,x[0],n); L=max(np.linalg.norm(d),1e-9)
+                return [cr(sqtan(ea,x[0]),d)/np.linalg.norm(sqtan(ea,x[0]))/L,cr(sqtan(eb,x[1]),d)/np.linalg.norm(sqtan(eb,x[1]))/L]
+            x=fsolve(F,[u0,v0],xtol=1e-12)
+            if max(abs(x[0]-u0),abs(x[1]-v0))>0.4 or max(map(abs,F(x)))>1e-7: continue     # (by the residual:
+                                                     # fsolve can report slow progress on a converged solution)
+            d=_sq_pt(eb,x[1],n)-_sq_pt(ea,x[0],n)
+            if d@(np.array(ln[2],float)-np.array(ln[1],float))<=0: continue
+            T[i][1],T[j][0]=x; V[k]=_sq_pt(ea,x[0],n); V[j]=_sq_pt(eb,x[1],n); done.update({k,j})
         for k in range(m):                                   # vertex k: end of segment k-1 = start of segment k
             if k in done: continue
             i,j=(k-1)%m,k; a,b=segs[i],segs[j]
@@ -630,9 +785,51 @@ def _squarer(contours,n,keep_circles=True):
             else: V[k]=np.array(b[1],float)
         for v,k in collapse.items(): V[v]=V[k]
         for (si,e_),pm in SNAP.items(): V[si if e_==0 else (si+1)%m]=pm
+        # joins that were smooth before squaring and are corners after it (two squared arcs, each about its own
+        # centre, meet at an angle: where the s's counters end in their small ellipses): each side is backed off by
+        # FILLET units and the gap bridged by a cubic along both sides' directions
+        FIL={}; END={}
+        snapped={si if e_==0 else (si+1)%m for (si,e_) in SNAP}|set(collapse)|done
+        def stg(sg,end):
+            if sg[0]=='L': v=np.array(sg[2],float)-np.array(sg[1],float)
+            else: v=_etan(sg[3][:4],sg[4]+(sg[5] if end else 0.0))*np.sign(sg[5])
+            return v/max(np.linalg.norm(v),1e-12)
+        for k in range(m):
+            i=(k-1)%m; a,b=segs[i],segs[k]
+            if k in snapped or m<3 or V[k] is None or not (is_sq(a) or is_sq(b)): continue
+            if stg(a,1)@stg(b,0)<np.cos(np.radians(2.0)): continue                       # a corner by design
+            if is_sq(a) and is_sq(b) and _axis(T[i][1]) and _axis(T[k][0]): continue      # already smooth
+            def back(idx,end):
+                """the point FILLET units from vertex k along segment idx, its parameter, and the direction of travel"""
+                sg=segs[idx]
+                if not is_sq(sg):
+                    q0=np.array(sg[1],float) if sg[0]=='L' else None
+                    if q0 is None: return None
+                    P0,P1=V[idx],V[(idx+1)%m]; L=np.linalg.norm(P1-P0)
+                    if L<3*FILLET: return None
+                    u=(P1-P0)/L; return (P1-u*FILLET if end else P0+u*FILLET),None,u
+                t0,t1=T[idx]; sw=t1-t0
+                if abs(sw)<1e-6: return None
+                Pv=_sq_pt(sg[3],t1 if end else t0,n)
+                lo,hi=0.0,abs(sw)/2
+                if np.linalg.norm(_sq_pt(sg[3],(t1-np.sign(sw)*hi) if end else (t0+np.sign(sw)*hi),n)-Pv)<2*FILLET: return None
+                for _ in range(60):
+                    md=(lo+hi)/2; t=(t1-np.sign(sw)*md) if end else (t0+np.sign(sw)*md)
+                    if np.linalg.norm(_sq_pt(sg[3],t,n)-Pv)<FILLET: lo=md
+                    else: hi=md
+                t=(t1-np.sign(sw)*lo) if end else (t0+np.sign(sw)*lo); h=1e-6*np.sign(sw)
+                d=_sq_pt(sg[3],t+h,n)-_sq_pt(sg[3],t-h,n); return _sq_pt(sg[3],t,n),t,d/np.linalg.norm(d)
+            ra,rb=back(i,1),back(k,0)
+            if ra is None or rb is None: continue
+            pa,ta,da=ra; pb,tb,db=rb
+            if da@db<np.cos(np.radians(30.0)): continue
+            if ta is not None: T[i][1]=ta
+            if tb is not None: T[k][0]=tb
+            L=np.linalg.norm(pb-pa)/3; FIL[k]=('B',pa,pb,pa+da*L,pb-db*L); END[k]=pa; V[k]=pb
         cs=[]
         for k,s in enumerate(segs):
-            p0,p1=V[k],V[(k+1)%m]
+            if k in FIL: cs.append(FIL[k])
+            p0,p1=V[k],END.get((k+1)%m,V[(k+1)%m])
             if not is_sq(s):
                 if s[0]=='L' and np.linalg.norm(p1-p0)<1e-9: continue
                 cs.append(('L',p0,p1) if s[0]=='L' else (s[0],p0,p1)+tuple(s[3:])); continue

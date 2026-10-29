@@ -30,7 +30,7 @@ SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited %s' % ('E(M)' if S == 'EM' else S)
-VERSION = '1.003'          # bump for every release: Font Book compares it to decide whether a font is a new version
+VERSION = '1.004'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited-%s' % S
 
 geoms = vgeom.series('E' if S == 'EM' else S)
