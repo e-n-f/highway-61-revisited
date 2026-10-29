@@ -569,12 +569,12 @@ def trim_jogs(c,short=15.0,reach=30.0,near=None):
                 del c[i]; changed=True; break
             if changed: break
     return c
-NOTCH_ANGLE=45.0     # deepen_notches: the second edge of a deepened notch, degrees from the baseline
 def deepen_notches(c,X,low,high):
     """the notches where a bowl or arch meets its stem (an upright line from the baseline or x-height to an arc)
-    made at least `low` deep at the baseline and `high` at the x-height: the stem's edge runs on to that depth and
-    a straight edge leaves it at NOTCH_ANGLE to the baseline for the arc (Series B's were 3.5-5 units, and its b's
-    and d's had been lost)"""
+    made at least `low` deep at the baseline and `high` at the x-height (Series B's were 3.5-5 units, and its b's and
+    d's had been lost; A's and B's are made deeper still).  The stem's edge runs on to that depth, and the bowl's
+    curve from its bottom (or top) point to the stem is redrawn as one elliptic arc, with the bowl's height and its
+    level tangent at that point, as wide as it must be to meet the stem there: the notch keeps a curved side"""
     c=list(c); n=len(c)
     for i in range(n):
         sg=c[i]
@@ -585,57 +585,36 @@ def deepen_notches(c,X,low,high):
             for end,(pa,pb) in ((1,(p0,p1)),(0,(p1,p0))):   # pa on the line, pb the joint with the arc
                 if abs(pa[1]-base)>0.5 or (pb[1]-base)*sgn<=0 or (pb[1]-base)*sgn>=want: continue
                 j=(i+1)%n if end==1 else (i-1)%n
-                Q=np.array([pa[0],base+sgn*want]); done=False
-                for step in range(3):                   # the edge may meet one of the next arcs
+                Q=np.array([pa[0],base+sgn*want])
+                ax=-np.pi/2 if sgn>0 else np.pi/2   # the bowl's bottom point (baseline notches) or top (x-height)
+                for step in range(4):               # walk the arcs from the notch to the one through that point
                     k=(j+(step if end==1 else -step))%n; A_=c[k]
                     if A_[0]!='E': break
-                    cx,cy,a,b=A_[3][:4]; Ax,Bx=(Q[0]-cx)/a,(Q[1]-cy)/b; R=np.hypot(Ax,Bx)
-                    t0,sw=A_[4],A_[5]; lo,hi=min(t0,t0+sw),max(t0,t0+sw)
-                    # the notch's second edge leaves Q at NOTCH_ANGLE to the baseline, towards the bowl and the line,
-                    # and ends where it first meets the arc (a wide V, as the rounder bowls of 1.0 had; one along the
-                    # bowl left a slit)
-                    far=(t0+sw) if end==1 else t0
-                    xdir=np.sign(_ept(A_[3][:4],far)[0]-Q[0]) or 1.0
-                    th=np.radians(NOTCH_ANGLE); d=np.array([xdir*np.cos(th),-sgn*np.sin(th)])
-                    q0=np.array([(Q[0]-cx)/a,(Q[1]-cy)/b]); q1=np.array([d[0]/a,d[1]/b])
-                    A2,B2,C2=q1@q1,2*q0@q1,q0@q0-1; disc=B2*B2-4*A2*C2
-                    cands=[]
-                    if disc>=0:
-                        ss=[v for v in ((-B2-np.sqrt(disc))/(2*A2),(-B2+np.sqrt(disc))/(2*A2)) if v>1e-6]
-                        if ss:
-                            tt=_par(A_[3][:4],Q+d*min(ss)); tt=lo+((tt-lo)%(2*np.pi))
-                            if lo<tt<hi and abs(far-tt)<0.15:     # just short of the piece's far end: the edge ends
-                                T_=np.array(A_[2] if end==1 else A_[1],float)   # there and the piece goes
-                                if end==1:
-                                    c[i]=('L',pa,Q); new=('L',Q,T_); drop=[(j+m)%n for m in range(step+1)]
-                                else:
-                                    c[i]=('L',Q,pa); new=('L',T_,Q); drop=[(j-m)%n for m in range(step+1)]
-                                out=[]
-                                for m,sg_ in enumerate(c):
-                                    if m in drop: continue
-                                    if end==1 and m==i: out+=[sg_,new]
-                                    elif end==0 and m==i: out+=[new,sg_]
-                                    else: out.append(sg_)
-                                return deepen_notches(out,X,low,high)
-                            if abs(far-tt)>=0.15: cands=[tt]
-                    for tt in cands:
-                        far=(t0+sw) if end==1 else t0                # (enough of the arc left beyond the new end: the
-                        if lo<tt<hi and abs(far-tt)>=0.15:           # squarer re-finds it on the squared curve)
-                            T_=_ept(A_[3][:4],tt)
-                            if end==1:                  # line up the stem, then the tangent, then the arc from T_
-                                c[i]=('L',pa,Q); new=('L',Q,T_); c[k]=('E',T_,A_[2],A_[3],tt,t0+sw-tt)
-                                drop=[(j+m)%n for m in range(step)]
-                            else:                       # the arc to T_, the tangent, then down the stem
-                                c[i]=('L',Q,pa); new=('L',T_,Q); c[k]=('E',A_[1],T_,A_[3],t0,tt-t0)
-                                drop=[(j-m)%n for m in range(step)]
-                            out=[]
-                            for m,sg_ in enumerate(c):
-                                if m in drop: continue
-                                if end==1 and m==i: out+= [sg_,new]
-                                elif end==0 and m==i: out+=[new,sg_]
-                                else: out.append(sg_)
-                            return deepen_notches(out,X,low,high)
-                    if done: break
+                    cx,cy,a,b=A_[3][:4]; t0,sw=A_[4],A_[5]; lo,hi=min(t0,t0+sw),max(t0,t0+sw)
+                    tax=lo+((ax-lo)%(2*np.pi))
+                    if not (lo-1e-9<=tax<=hi+1e-9): continue
+                    P=_ept((cx,cy,a,b),tax)
+                    v=1-((Q[1]-cy)/b)**2
+                    if v<=1e-6 or abs(Q[0]-cx)<1e-6: break
+                    a2=abs(Q[0]-cx)/np.sqrt(v); e2=(cx,cy,a2,b)
+                    tq=_par(e2,Q); tq=tax+((tq-tax+np.pi)%(2*np.pi))-np.pi     # nearest to the axis point
+                    if end==1:      # notch line up to Q, then the new arc Q -> bottom point, then the rest of piece k
+                        new=[('E',Q,P,e2,tq,tax-tq)]
+                        rest=('E',P,A_[2],A_[3],tax,t0+sw-tax)
+                        drop=[(j+m)%n for m in range(step+1)]
+                    else:           # the rest of piece k to the bottom point, the new arc to Q, then the notch line
+                        new=[('E',P,Q,e2,tax,tq-tax)]
+                        rest=('E',A_[1],P,A_[3],t0,tax-t0)
+                        drop=[(j-m)%n for m in range(step+1)]
+                    if abs(new[0][5])<1e-6 or np.sign(new[0][5])!=np.sign(sw): break
+                    if abs(rest[5])>1e-6: new=(new+[rest]) if end==1 else ([rest]+new)
+                    c[i]=('L',pa,Q) if end==1 else ('L',Q,pa)
+                    out=[]
+                    for m,sg_ in enumerate(c):
+                        if m in drop: continue
+                        if m==i: out+=([sg_]+new) if end==1 else (new+[sg_])
+                        else: out.append(sg_)
+                    return deepen_notches(out,X,low,high)
     return c
 def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,plain=()):
     """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),

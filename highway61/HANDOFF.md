@@ -590,13 +590,19 @@ ends keep their angles.
   along the bowl.
 - `lccondense.NOTCH` is per series: A (0.40, 0.60), B (0.25, 0.40) strokes at the baseline / x-height (A 26/39, B
   22/35 units); others (0.10, 0.15) as before.
-- `strokeop.deepen_notches`: the stem's edge runs to that depth.  The second edge leaves at NOTCH_ANGLE (45 degrees)
+- (superseded in 1.013, below) `strokeop.deepen_notches`: the stem's edge runs to that depth.  The second edge leaves at NOTCH_ANGLE (45 degrees)
   to the baseline, towards the bowl, and ends where it first meets the arc (whether the point is inside the bowl's
   ellipse or not).  At least 0.15 rad of the arc must be left beyond (the squarer re-finds the end on the squared
   curve, and a shorter remnant ran backwards).  When the meeting point is closer than that to a piece's far end, the
   edge ends at the piece's end and the piece goes.  All the notches of a b d g m n p q r u in A and B now reach their
   depth; h has none at the x-height (its arch meets the ascender stem below it).
 - VERSION 1.012.
+
+### Notches with curved sides (2026-10-29)
+- User, on 1.012: the curved side of the notches had become a straight diagonal.  `strokeop.deepen_notches` now
+  redraws the bowl's curve from its bottom (or top) point to the stem as one elliptic arc.  The arc keeps the bowl's
+  height and its level tangent at that point, and is as wide as it must be to meet the stem at the notch's depth.
+  The depths are as in 1.012 (`lccondense.NOTCH`); NOTCH_ANGLE is gone.  VERSION 1.013.
 
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
