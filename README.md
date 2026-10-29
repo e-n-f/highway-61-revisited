@@ -187,10 +187,12 @@ out the same weight as stems and bars.
   least-squares proportion of the loop height over the four sizes. (The 1983 table is the 15-inch column in
   millimetres, but labelled for a 375 mm loop height rather than 381 mm, so its spaces are 1.6% too wide.) It is
   for E(M), whose lower case follows it as it stands. The other series get it
-  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.45–0.77) so
+  scaled by their lower-case stroke over E(M)'s and then tightened uniformly (`spacing.LC_TIGHT`, 0.47–0.77) so
   that each lower-case alphabet (the sum of the a–z advances) is as wide as the FHWA 2000 font's, as the
   lower-case widths are; set in text, a line of lower case runs the same length as in the official font, so these
-  can stand in for it. Series A, with no FHWA font, takes Series B's factor.
+  can stand in for it. Series A, with no FHWA font, takes Series B's factor. The spaces before a j are the
+  exception: the table measures them to the end of the j's tail, which does not shrink with the spaces, so for the
+  j the scaled quantity is E(M)'s gap to the j's stem instead (descenders keep at least the scaled space).
 
   The tables are not additive, so they are met with side bearings and class kerning (`work/spacing.py`): each
   character gets its own right side bearing, every character of a following class the same left side bearing,

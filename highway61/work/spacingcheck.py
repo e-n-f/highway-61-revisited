@@ -108,15 +108,35 @@ def cap_pairs(S):
     for a,codes in NCODES.items():
         for b,g in NGROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]+kn[(a,b)]))
     return out
+def font_poly(fn):
+    """char -> the glyph's outline as a shapely geometry (curves flattened)"""
+    from fontTools.ttLib import TTFont
+    from fontTools.pens.recordingPen import RecordingPen
+    from shapely.geometry import Polygon
+    f=TTFont(fn); gs=f.getGlyphSet(); cm=f.getBestCmap()
+    def poly(ch):
+        rp=RecordingPen(); gs[cm[ord(ch)]].draw(rp); g=Polygon(); cur=[]
+        for op,a in rp.value:
+            if op=='moveTo': cur=[a[0]]
+            elif op=='lineTo': cur.append(a[0])
+            elif op=='curveTo':
+                p0=np.array(cur[-1]); p1,p2,p3=map(np.array,a)
+                cur+=[tuple((1-t)**3*p0+3*(1-t)**2*t*p1+3*(1-t)*t*t*p2+t**3*p3) for t in np.linspace(0,1,17)[1:]]
+            elif op=='closePath':
+                if len(cur)>2: g=g.symmetric_difference(Polygon(cur).buffer(0))
+        return g
+    return poly
 def lc_pairs(S='EM'):
-    """the same for the lower-case table; other series than E(M) scaled by spacing.lc_scale"""
-    import spacing
-    sc=spacing.lc_scale(S)
-    sb,kn=bearings(os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)); out=[]
+    """the same for the lower-case table; other series than E(M) scaled by spacing.lc_scale (and the j column by
+    E(M)'s stem-to-stem gap: spacing.targets)"""
+    import spacing, string
+    fn=os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)
+    geo=spacing.geometry(font_poly(fn),string.ascii_letters+string.digits); T=spacing.targets(S,geo=geo)
+    sb,kn=bearings(fn); out=[]
     for r,row in zip(LCROWS,LCRATIO):
         for cols,v in zip(LCCOLS,row):
             for a in r:
-                for b in cols: out.append((a,b,v*XH*sc,sb[a][1]+sb[b][0]+kn[(a,b)]))
+                for b in cols: out.append((a,b,T[(a,cols)],sb[a][1]+sb[b][0]+kn[(a,b)]))
     return out
 def report(pairs,label):
     d=np.array([f-s for _,_,s,f in pairs]); print('%-10s pairs %4d  font-standard: mean %+6.1f  mean|.| %5.1f  max|.| %5.1f'

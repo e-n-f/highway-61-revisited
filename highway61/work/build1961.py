@@ -30,7 +30,7 @@ SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited %s' % ('E(M)' if S == 'EM' else S)
-VERSION = '1.008'          # bump for every release: Font Book compares it to decide whether a font is a new version
+VERSION = '1.009'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited-%s' % S
 
 geoms = vgeom.series('E' if S == 'EM' else S)
@@ -140,7 +140,8 @@ _cur, _box = {}, {}
 for ch in _string.ascii_letters + _string.digits:
     _bp = BoundsPen(None); new[_gn(ch)].draw(_bp); x0, _, x1, _ = _bp.bounds
     _box[ch] = (x0, x1); _cur[ch] = (x0, width[_gn(ch)] - x1)
-_sb, KERN = spacing.solve(S, _cur)
+_geo = spacing.geometry(lambda ch: _glyph_poly(_gn(ch)), _string.ascii_letters + _string.digits)
+_sb, KERN = spacing.solve(S, _cur, geo=_geo)
 for ch, (l, r) in _sb.items():
     n = _gn(ch); x0, x1 = _box[ch]
     new[n].dx += l - x0; width[n] = int(round(l + (x1 - x0) + r))

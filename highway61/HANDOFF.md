@@ -545,6 +545,17 @@ ends keep their angles.
   4.3, B 3.8.  Spine edges A 39 -> 44, B 34 -> 39 degrees; chord A 65.7, B 81.6 as before.  LC_TIGHT unchanged.
   VERSION 1.008.
 
+### Spacing before j (2026-10-29)
+- User: i-j looks right in E(M) but too open in C and E.  The table's spaces run to the j's extreme edge, the end of
+  its tail.  The other series scale those spaces, to 0.4 of E(M)'s in Series E, but the tail barely shrinks (E's
+  reaches 103 units left of its stem, E(M)'s 102).  So the stem-to-stem gap before a j was too wide: i-j over i-i
+  was 1.55 in E, 1.35 in C and 1.31 in A, against E(M)'s 0.96.
+- `spacing.targets(geo=...)`: the j column is now E(M)'s stem-to-stem gap (table space + its tail overhang,
+  `spacing.jov_em`), scaled, less the series' own overhang.  A character with a descender (g, j, p, q, y, Q; F's 9)
+  keeps at least the scaled table space at the descender's level (`spacing.geometry`).  E(M) is unchanged.  The
+  build, lcspace.py and spacingcheck.py all use it; i-j / i-i and n-j / n-n are now 0.96-0.97 in every series.
+- LC_TIGHT re-solved: B 0.570, C 0.584, D 0.688, E 0.470, F 0.768.  VERSION 1.009.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
