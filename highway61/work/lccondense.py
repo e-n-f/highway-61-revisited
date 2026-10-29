@@ -66,12 +66,15 @@ def _tidy(geom):
         return ps[0] if len(ps)==1 else MultiPolygon(ps)
     g=geom.buffer(-TIDY,**k).buffer(TIDY,**k)
     return keep(g)
-S_SPINE={'A':-23.9,'B':-25.2,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
+S_SPINE={'A':-31.7,'B':-34.3,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
                                 # the s spine's tangent points moved towards the lobes' extremes (units).  Its
                                 # thickness across the middle as before the horizontals were made exact (EXACT_H;
                                 # the s's stronger vertical erosion thinned the slanted spine), as a fraction of the
                                 # stroke: A 0.95 B 0.90 C-F 0.85-0.86 (A 61.4 B 77.7 C 82.4 D 91.9 E 101.1 F 111.1
                                 # units with the capitals' stroke, LC_CAPS)
+S_THIN={'A':4.3,'B':3.8}   # the s spine's edge arcs shortened by this much (units), to keep its thickness when
+                    # S_SPINE steepens it: A and B 5 degrees steeper than before (user; A 39 -> 44, B 34 -> 39 degrees)
+                    # at the same thickness (A 65.7, B 81.6 units)
 def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
@@ -83,7 +86,9 @@ def _s_direct(f,gx,ey,k,S=None):
     ink=lambda e: (e[0]*f,e[1]*k-ey,e[2]*f+gx,e[3]*k-ey)
     hole=lambda e: (e[0]*f,e[1]*k-ey,e[2]*f-gx,e[3]*k+ey)
     u1,u2,um,l1,l2,lm=lcE.s_ellipses(p)
-    q=dict(p); q['ell']=(ink(u1),ink(u2),hole(um),ink(l1),ink(l2),hole(lm))
+    U2,L2=ink(u2),ink(l2); th=S_THIN.get(S,0.0)        # the spine thinned: U2's bottom arc up and L2's top arc down
+    U2=(U2[0],U2[1]+th,U2[2],U2[3]-th); L2=(L2[0],L2[1]-th,L2[2],L2[3]-th)   # (U2's top and L2's bottom kept)
+    q=dict(p); q['ell']=(ink(u1),U2,hole(um),ink(l1),L2,hole(lm))
     q['C1x'],q['C1a']=p['C1x']*f,p['C1a']*f-gx; q['C2x'],q['C2a']=p['C2x']*f,p['C2a']*f-gx
     q['s1'],q['s2']=p['s1']*f-S_SPINE.get(S,0.0),p['s2']*f+S_SPINE.get(S,0.0)
     for p0,p1,n in cuts('s'):

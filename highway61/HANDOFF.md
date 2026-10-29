@@ -537,6 +537,14 @@ ends keep their angles.
   and right of 0.6 of one (its line, turned, crosses the stem further on).
 - LC_TIGHT B 0.570.  VERSION 1.007.
 
+### Steeper s spine in A and B (2026-10-29)
+- User: the s's diagonal a little steeper in A and B.  Moving the spine's tangent points (S_SPINE) steepens it but
+  also thickens it (both edges must stay tangent to their arcs).  `lccondense.S_THIN` shortens U2 and L2, the arcs
+  the spine's edges leave: U2's bottom rises and L2's top drops, with U2's top and L2's bottom kept.  The two
+  settings were solved together for 5 degrees steeper at the same thickness: S_SPINE A -31.7, B -34.3; S_THIN A
+  4.3, B 3.8.  Spine edges A 39 -> 44, B 34 -> 39 degrees; chord A 65.7, B 81.6 as before.  LC_TIGHT unchanged.
+  VERSION 1.008.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
