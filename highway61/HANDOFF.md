@@ -571,6 +571,19 @@ ends keep their angles.
 - e sides next to the bar now: A 1.09/1.05, B 1.00/0.97, C 1.06/1.02, D 1.00/0.98 (+20/+40 units), tops 0.99-1.00.
 - LC_TIGHT: B 0.574, C 0.587, D 0.691, E 0.473, F 0.765.  VERSION 1.010.
 
+### a's arch and s's top and bottom (2026-10-29)
+- User: the top of the a and the tops and bottoms of the s are thin compared to the sides in the narrower widths.
+- a (Series B, arch 0.82 of the stroke): its underside lay within the direction-only zone of the a's terminal cut,
+  a whole stroke (86) in B, so it took the full-stroke amount.  The arch is drawn lighter in E(M) (0.91), and that
+  left it light.  `lccondense.PLAIN_R` caps the zone in B at 65 units: arch 0.98-1.03.  A whole stroke was right for
+  C and D, where capping it thickened their bowl tops: the zone keeps those at their condensed_ae weight.
+- s (built from its construction): its top and bottom are drawn lighter than its sides in E(M) (0.90 against
+  0.88-0.96).  Stretched, they came out light: A 0.80/0.82 against sides 0.97, B 0.83/0.85 against 0.95, C 0.86/0.88
+  against 0.94.  `lccondense.S_HBAR` shortens the counter ellipses UM and LM, solved to the sides (skeleton widths
+  at the bowls' mid-heights): A 12.9, B 13.4, C 8.0, D 4.1 units.  Now A 0.96/0.98, B 0.95/0.97, C 0.93/0.95, D
+  0.89/0.91; E and F were already even (0.87-0.89).  The spine is unchanged.
+- LC_TIGHT B 0.572.  VERSION 1.011.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

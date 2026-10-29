@@ -75,6 +75,8 @@ S_SPINE={'A':-31.7,'B':-34.3,'C':-14.9,'D':-12.3,'E':-8.9,'F':-4.5}
 S_THIN={'A':4.3,'B':3.8}   # the s spine's edge arcs shortened by this much (units), to keep its thickness when
                     # S_SPINE steepens it: A and B 5 degrees steeper than before (user; A 39 -> 44, B 34 -> 39 degrees)
                     # at the same thickness (A 65.7, B 81.6 units)
+S_HBAR={'A':12.9,'B':13.4,'C':8.0,'D':4.1}   # the s's counters (UM, LM) this much shorter (units): its top and bottom strokes, drawn lighter
+                    # than its sides in E(M) and stretched, came out light in the narrow series
 def _s_direct(f,gx,ey,k,S=None):
     """the s condensed by mapping its construction rather than its outline: ellipses bounding ink widen by gx and
     lose ey in height, those bounding counters the opposite; x scales by f and heights by k (less ey), as in
@@ -88,7 +90,9 @@ def _s_direct(f,gx,ey,k,S=None):
     u1,u2,um,l1,l2,lm=lcE.s_ellipses(p)
     U2,L2=ink(u2),ink(l2); th=S_THIN.get(S,0.0)        # the spine thinned: U2's bottom arc up and L2's top arc down
     U2=(U2[0],U2[1]+th,U2[2],U2[3]-th); L2=(L2[0],L2[1]-th,L2[2],L2[3]-th)   # (U2's top and L2's bottom kept)
-    q=dict(p); q['ell']=(ink(u1),U2,hole(um),ink(l1),L2,hole(lm))
+    UM,LM=hole(um),hole(lm); hb=S_HBAR.get(S,0.0)     # the counters shortened: the top and bottom strokes heavier
+    UM=(UM[0],UM[1],UM[2],UM[3]-hb); LM=(LM[0],LM[1],LM[2],LM[3]-hb)
+    q=dict(p); q['ell']=(ink(u1),U2,UM,ink(l1),L2,LM)
     q['C1x'],q['C1a']=p['C1x']*f,p['C1a']*f-gx; q['C2x'],q['C2a']=p['C2x']*f,p['C2a']*f-gx
     q['s1'],q['s2']=p['s1']*f-S_SPINE.get(S,0.0),p['s2']*f+S_SPINE.get(S,0.0)
     for p0,p1,n in cuts('s'):
@@ -116,6 +120,9 @@ def series(S,f=None,only=None):
 # |x/a|^2 + |y/b|^n = 1 about its own centre, n in the same proportion to 2 as the series' capital O's best-fit
 # exponent to Series E's (O: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00), never below 2 (E, E(M), F unchanged).
 SQUARE=True
+PLAIN_R={'B':65.0}  # the direction-only zone at a cut's ends reaches a stroke, in B only this far (units): its
+                    # whole stroke reached the a's arch, which came out 0.82 of the stroke.  (Capping it in C and D
+                    # too thickened their a's bowl tops: the zone keeps those at their condensed_ae weight)
 CUT_BACK={'r':{'A':20.0,'B':20.0}}   # the r's arm cut this much further back (units, along the cut's normal): its
                     # point had come out sharp in the narrowest series (user)
 CUT_TURN={'t':{'A':25.0,'B':25.0}}   # the t's tail cut turned clockwise by this much (degrees): its nearly
@@ -176,7 +183,7 @@ def _series(S,f,only):
         gl=lcE.clean(gl)
         # edges near a cut's ends move by direction alone, as the remade cut is placed (edge(), below): measured
         # widths there run across the oblique cut, and the r's counter fell short of its arm's cut
-        plain=[(P(q),T) for p0,p1,n in cs for q in (p0,p1)]
+        plain=[(P(q),min(T,PLAIN_R.get(S,T))) for p0,p1,n in cs for q in (p0,p1)]
         C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain)
         geom=_polygon(C)
         prims2=[s[3] for cc in C for s in cc if s[0]=='E']
