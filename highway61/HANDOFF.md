@@ -430,6 +430,180 @@ ends keep their angles.
   the others give 0.83).  E(M) lower case is now 3.3 units tighter on average (alphabet 23.27 -> 23.15 cap heights).
   LC_TIGHT re-solved (B 0.619, C 0.642, D 0.745, E 0.513, F 0.827) so B-F keep the FHWA alphabet widths.
 
+### Squarer rounds in the narrow lower case (trial, 2026-10-29)
+- User: in Series A the lower-case o/c curve all the way down while the capital O/C have long straight sides.
+  Capital O best-fit |x/a|^2 + |y/b|^n = 1: A 4.35, B 4.00, C 3.05, D 2.70, E 2.40, F 2.00; lower-case o 2.00 in all.
+- `strokeop.squarer` (on with `lccondense.SQUARE`): every elliptic arc of the condensed lower case becomes that
+  curve about its own centre, n = 2 n_O(S)/n_O(E) (A 3.62, B 3.33, C 2.54, D 2.25; E, E(M), F unchanged), as cubics
+  ('B' segments).  Axis points and their tangents stay, so widths, heights and spacing hold.  Arc ends elsewhere are
+  re-ended on the neighbouring line (cut angles and the e's bar kept), across construction slivers (<12 units, which
+  are collapsed), or at the crossing of two squared arcs; dots stay round.  Ink grows up to ~10% in A's o c e s.
+- Backed off in A and B (user: too severe there; C and D encouraging): `lccondense.N_BACK` A 2.90, B 2.75 (from
+  3.62, 3.33), so the steps from D keep shrinking (2.25, 2.54, 2.75, 2.90).
+
+### Exact horizontal weight in the condensed lower case (2026-10-29)
+- User: Series A's z bars heavier than the Z's.  Cause: lccondense eroded every edge by ey = (V - T)/2 and then
+  stretched the x-height band by (X + 2 ey)/X, which thickens horizontals in that band by 2 ey t / X (A: z bar 83.5
+  for a 61.5 stroke, 1.39 of the stem; o top 1.22; n arch 1.51; graded down to F).  Capitals unaffected.
+- Tried first: stretch only between per-letter horizontal stroke bands (piecewise vmap).  Exact, but every curve or
+  diagonal crossing a band edge got a visible corner (worse with the squarer), so dropped.
+- Adopted (`lccondense.EXACT_H`): erosion e' = ey / (1 - V/X) with the uniform stretch (X + 2e')/X: strokes in the
+  band of E(M) weight V come out exactly T, no band edges.  Strokes above X / below 0 are only shifted, so they come out
+  2(e' - ey) too thin: `lcE.outer_bands` (via `lcE.COMP`) shrinks the f's, j's hook and the g's tail counter ellipses
+  (ib, tib) by that much.  Needed: condense2's vertical erosion in steps of <= 20 units (a single 49.6-unit offset
+  folded Series A's a with its stub); the masks beyond the cuts use the plain erosion ey0 (a narrow strip collapsed);
+  squarer: arcs under 3 units become bridges, slivers between slivers bridge (r, g in A/B).
+- s: S_SPINE re-solved to keep the spine's thickness across its middle (spine2-style chord) as before: A -23.1,
+  B -24.6, C -14.9, D -12.3, E -8.9, F -4.5.  LC_TIGHT re-solved: B 0.627, C 0.651, D 0.757, E 0.521, F 0.830.
+- Result (ratio to the l stem; E(M) 1.04 / 0.98 / 1.11): z bar 1.05-1.07, o top 0.89-0.98, n arch 1.10-1.23 (A-F).
+  VERSION 1.002.
+
+### Even lower-case strokes at the capitals' weight (2026-10-29)
+- User, on 1.002: Series A's z diagonal thin; e sides heavier than its top; f top possibly collapsing.  "The strokes
+  of the lower case are meant to be consistently thick except for the thinning where a curve meets a stem (in a, b,
+  d, g, h, m, n, p, q, r, u) and to match the thickness of the capitals."
+- `strokeop.condense2` (DIRN): narrow and stretch first, then move each edge along its own normal n.  A full stroke
+  there is V s wide, s = sqrt((f nx)^2 + (k ny)^2) (normals transform by the inverse transpose).  Diagonals were
+  over-eroded by the old horizontal-then-vertical offsets (A z 0.72).
+- PROPORTIONAL (`strokeop._proportional`): each edge's amount comes from the local width w, measured by a ray inward
+  from the edge.  The stroke ends T * _even(w / (V s)): 1 for 0.9-1.15 (the source's own variation evened out),
+  proportional below 0.8 (junction thinning), a ramp between; above 1.15 (merges) the loss stays that of 1.15.  Alignment edges (tops
+  at the x-height/ascender, bottoms at the baseline/descender) move by the full-stroke amount, and the far side takes
+  the rest.  Arcs are probed near their ends, at their middle and at the axis points they pass; lines at their middle.
+  `_reconcile` fits a line's amount and an arc's two semi-axis amounts by least squares.  Smooth (< 10 deg) joins
+  must match: otherwise the joint lands between the two moved carriers, notching stems and arches.  A line's probe
+  counts 5x, so a stem keeps its weight beside an arc.  Offsets are applied in steps of <= 20 units, with per-segment
+  amounts carried through `offset_contour` as tags.
+- `lccondense.LC_CAPS`: the lower-case stroke is now the capitals' A[S] (was A[S] - 3.2, E(M)'s lower case's
+  relation to its capitals).  E(M) is unchanged (l 132.0, i 134.5, n 137.5 against I 138).
+- Result (skeleton medians over the stroke, A-F): nearly all letters 0.99-1.02; l, i, n, d stems equal the I's;
+  z 1.00; e side 0.93-1.03 / top 0.94-0.98 (E(M) 0.96 / 0.87); f hook 0.90-0.98 (was 0.70-0.83).
+- S_SPINE A -23.9, B -25.2 (chord ratios kept); LC_TIGHT re-solved: B 0.567, C 0.575, D 0.683, E 0.463, F 0.761.
+  spacingcheck max |.| <= 1.0.  VERSION 1.003.
+
+### Joins and terminals after the even-stroke change (2026-10-29)
+- User marked bad joins and tails on 1.003 in a b d g j k p q r (A, B) and a bubbly s spine (A, B, C).  Fixes:
+- `_reconcile`: at corners up to 60 deg (firmly) and 120 deg (weight 30), both sides depart alike from the
+  full-stroke amounts of their own normals.  Their moved carriers had crossed far from the corner (the shift goes as
+  1 / sin of the angle): slivers where B's counters meet the stems, steps in the k.  150 tangled the m's crotch.
+  Lines on the alignment lines are pinned (the corner terms had pulled F's stems 1 unit off the baseline).  Arc
+  probes add points at 3% and 97% of the sweep, counted thrice (A's a bowl top had been cut through at the stem).
+- `_offset_once`: a long mitre is bevelled only at acute corners.  A long one at a blunter corner comes from the
+  sides moving differently (the a's counter meeting its stem) or from a crotch (F's m, left flat).
+- `_jogs` after condense2: runs of lines under 10 units between longer lines meet at the lines' intersection, and
+  specks are dropped (the k's crotch and stem junction).
+- Cuts (`lccondense._series`): edges within a stroke of a cut's ends move by direction alone, as the remade cut is
+  placed (`condense2(plain=...)`; the r's counter fell short of its arm's cut).  The stub mask is the union of the
+  proportional and direction-only condensations, buffered 10 beyond the cut (3 left pieces of A's t and e stubs).
+  `strokeop.trim_jogs` then takes out short lines left at the remade cuts.  A remnant run between an arc and a long
+  line goes, and the line is extended to the arc.  A single jog is joined to the line, or the arc is extended to it.
+- Squarer: a line tangent to arcs at both ends (the s's spine edges) becomes the common tangent of the two squared
+  arcs (fsolve; accepted by residual).  Other formerly smooth joins that squaring turned into corners (where the s's
+  counters end in their small ellipses) get a cubic fillet, FILLET = 5 units each side.
+- Not changed: S_SPINE.  The common-tangent spine is heavier: chord over the stroke A 1.02, B 0.95, C-F 0.86-0.87
+  (E(M) 0.88).  Ascenders now within about 6 units of E(M)'s (before: 8-17 low), with descenders about the same.
+- LC_TIGHT re-solved: B 0.556, C 0.575, D 0.677, E 0.455, F 0.763.  spacingcheck max |.| <= 1.0.  VERSION 1.004.
+
+### f's hook and the bowl notches (2026-10-29)
+- User, on 1.004: the f's top very narrow, especially in A; some notches where a bowl meets its stem lost (A d, B b
+  d p q), and B's could be a little more visible throughout.
+- f: its hook's underside is a flat ellipse, and the arc fit lifted it to match probes on its slopes (A's hook at a
+  quarter of the stroke).  An arc's probes at its axis points now count ten times.  With that, the narrow series'
+  hooks were still light, as in 1.002 (A 0.60 of the stroke near the end, against E(M)'s 0.79).
+  `lccondense.F_HOOK` (A 9.9, B 5.2, C 4.2, D 1.7 units; via `lcE.FHOOK` in `outer_bands`) thickens them to E(M)'s
+  proportion.
+- Notches lost: `trim_jogs` took the notch (a short upright line between a stem's foot and a bowl) for a cut's jog.
+  It now acts only within 1.5 strokes + 15 of a cut's ends.  The squarer's sliver rules now leave alone a short
+  upright line ending on the baseline or x-height.
+- Notch depth: `lccondense.NOTCH` = (0.10, 0.15) strokes at the baseline / x-height (E(M): b 0.10, d 0.09, p 0.19,
+  q 0.17).  `strokeop.deepen_notches` runs the stem's edge on to that depth and leaves along the tangent to the arc.
+  If the bowl runs over the stem there, it goes to where a line meets the arc most nearly along it.  Only Series B was
+  shallower: b, d 3.5-4.5 -> 8.5; p, q 4-5 -> 11.5 (raster depth 2 units from the stem).
+- LC_TIGHT: B 0.566, C 0.576, D 0.678, E 0.457, F 0.761.  VERSION 1.005.
+
+### Comma and quotation marks (2026-10-29)
+- User, on 1.005: the quotation marks have grown serifs.  The comma (and from it the apostrophe and quotes, punct.py)
+  is the y's tail cut at the baseline.  That cut takes a spur of the left arm's junction with it (in 1.002 too), and
+  in 1.005 it also carries a slight bend from the lower case's own offsets.  `punct._strip` now makes the tail the
+  band between its two long edges, flat at top and bottom.  VERSION 1.006.
+
+### r's arm and t's tail cuts in A and B (2026-10-29)
+- User: cut the r's and t's tails further left, for a less sharp point on the r and less flat top on the t.
+- `lccondense.CUT_BACK` moves a letter's rightmost cut back along its own normal: r 20 units in A and B (chosen
+  from 0/10/20).
+- The t's tail cut is nearly level (as in E(M)), so moving it back only lowered the tail with the same shelf.
+  `lccondense.CUT_TURN` turns it clockwise about its middle instead: t 25 degrees in A and B (between the 20 and 30
+  tried).  What the turned cut takes off is removed only near the tail's end, within 1.2 cut lengths of its middle
+  and right of 0.6 of one (its line, turned, crosses the stem further on).
+- LC_TIGHT B 0.570.  VERSION 1.007.
+
+### Steeper s spine in A and B (2026-10-29)
+- User: the s's diagonal a little steeper in A and B.  Moving the spine's tangent points (S_SPINE) steepens it but
+  also thickens it (both edges must stay tangent to their arcs).  `lccondense.S_THIN` shortens U2 and L2, the arcs
+  the spine's edges leave: U2's bottom rises and L2's top drops, with U2's top and L2's bottom kept.  The two
+  settings were solved together for 5 degrees steeper at the same thickness: S_SPINE A -31.7, B -34.3; S_THIN A
+  4.3, B 3.8.  Spine edges A 39 -> 44, B 34 -> 39 degrees; chord A 65.7, B 81.6 as before.  LC_TIGHT unchanged.
+  VERSION 1.008.
+
+### Spacing before j (2026-10-29)
+- User: i-j looks right in E(M) but too open in C and E.  The table's spaces run to the j's extreme edge, the end of
+  its tail.  The other series scale those spaces, to 0.4 of E(M)'s in Series E, but the tail barely shrinks (E's
+  reaches 103 units left of its stem, E(M)'s 102).  So the stem-to-stem gap before a j was too wide: i-j over i-i
+  was 1.55 in E, 1.35 in C and 1.31 in A, against E(M)'s 0.96.
+- `spacing.targets(geo=...)`: the j column is now E(M)'s stem-to-stem gap (table space + its tail overhang,
+  `spacing.jov_em`), scaled, less the series' own overhang.  A character with a descender (g, j, p, q, y, Q; F's 9)
+  keeps at least the scaled table space at the descender's level (`spacing.geometry`).  E(M) is unchanged.  The
+  build, lcspace.py and spacingcheck.py all use it; i-j / i-i and n-j / n-n are now 0.96-0.97 in every series.
+- LC_TIGHT re-solved: B 0.570, C 0.584, D 0.688, E 0.470, F 0.768.  VERSION 1.009.
+
+### e's sides near the bar (2026-10-29)
+- User: Series B's e's sides look thicker than its top.  Measured perpendicular next to the bar, they were 1.06-1.14
+  of the stroke (A 1.16, C 1.10) against a top of 1.00.  Two causes in `_reconcile`:
+  - The soft 60-120 degree corner terms tied the eye's arc to the bar's top line.  The bar is heavier with
+    condensation (`lcE.condensed_ae`), and that carried into the eye's sides: probes asked for 3-5 units more
+    erosion, and the fit gave -1.6.  Dropped (only corners up to 60 degrees are tied).  The a's counter, which they
+    were added for, is held by the mitre rule.
+  - An arc's probe at its side point ran along the bar (no stroke found) and, as an axis probe, counted ten times.
+    Probes whose ray finds no stroke now count a tenth.
+- With those, the m's crotch tangled in the squarer.  `_sq_arcs` took a far crossing of two smoothly-joined arcs'
+  squared curves; with no crossing within 6 units of the joint they now meet at their closest approach.  Fillets
+  that would run backwards are skipped.
+- e sides next to the bar now: A 1.09/1.05, B 1.00/0.97, C 1.06/1.02, D 1.00/0.98 (+20/+40 units), tops 0.99-1.00.
+- LC_TIGHT: B 0.574, C 0.587, D 0.691, E 0.473, F 0.765.  VERSION 1.010.
+
+### a's arch and s's top and bottom (2026-10-29)
+- User: the top of the a and the tops and bottoms of the s are thin compared to the sides in the narrower widths.
+- a (Series B, arch 0.82 of the stroke): its underside lay within the direction-only zone of the a's terminal cut,
+  a whole stroke (86) in B, so it took the full-stroke amount.  The arch is drawn lighter in E(M) (0.91), and that
+  left it light.  `lccondense.PLAIN_R` caps the zone in B at 65 units: arch 0.98-1.03.  A whole stroke was right for
+  C and D, where capping it thickened their bowl tops: the zone keeps those at their condensed_ae weight.
+- s (built from its construction): its top and bottom are drawn lighter than its sides in E(M) (0.90 against
+  0.88-0.96).  Stretched, they came out light: A 0.80/0.82 against sides 0.97, B 0.83/0.85 against 0.95, C 0.86/0.88
+  against 0.94.  `lccondense.S_HBAR` shortens the counter ellipses UM and LM, solved to the sides (skeleton widths
+  at the bowls' mid-heights): A 12.9, B 13.4, C 8.0, D 4.1 units.  Now A 0.96/0.98, B 0.95/0.97, C 0.93/0.95, D
+  0.89/0.91; E and F were already even (0.87-0.89).  The spine is unchanged.
+- LC_TIGHT B 0.572.  VERSION 1.011.
+
+### Deeper notches in A and B (2026-10-29)
+- User: the notches were clearer in A and B in main (1.0) than now; make them more visible.  1.0's were deeper and,
+  with rounder bowls, opened wider (A b 14, p 33; B p 15.5 units).  Ours had become slits: the deepened edge ran
+  along the bowl.
+- `lccondense.NOTCH` is per series: A (0.40, 0.60), B (0.25, 0.40) strokes at the baseline / x-height (A 26/39, B
+  22/35 units); others (0.10, 0.15) as before.
+- (superseded in 1.013, below) `strokeop.deepen_notches`: the stem's edge runs to that depth.  The second edge leaves at NOTCH_ANGLE (45 degrees)
+  to the baseline, towards the bowl, and ends where it first meets the arc (whether the point is inside the bowl's
+  ellipse or not).  At least 0.15 rad of the arc must be left beyond (the squarer re-finds the end on the squared
+  curve, and a shorter remnant ran backwards).  When the meeting point is closer than that to a piece's far end, the
+  edge ends at the piece's end and the piece goes.  All the notches of a b d g m n p q r u in A and B now reach their
+  depth; h has none at the x-height (its arch meets the ascender stem below it).
+- VERSION 1.012.
+
+### Notches with curved sides (2026-10-29)
+- User, on 1.012: the curved side of the notches had become a straight diagonal.  `strokeop.deepen_notches` now
+  redraws the bowl's curve from its bottom (or top) point to the stem as one elliptic arc.  The arc keeps the bowl's
+  height and its level tangent at that point, and is as wide as it must be to meet the stem at the notch's depth.
+  The depths are as in 1.012 (`lccondense.NOTCH`); NOTCH_ANGLE is gone.  VERSION 1.013.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
