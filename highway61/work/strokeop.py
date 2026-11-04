@@ -343,6 +343,14 @@ def _even(r):
     if r<0.8: return r
     if r<0.9: return 0.8+2*(r-0.8)
     return 1.0
+END_CAP=True        # a probe near an arc's end asks at most the thinning its arc's middle asks (no less than a full
+                    # stroke's): near its ends an arc runs into a junction, where a bowl thickens into its stem, and
+                    # evening that thickening out to the stroke pulled the whole arc in.  (A stroke that is heavy all
+                    # along, as the e's sides beside the bar, keeps its evening: its middle asks for it too.)
+                    # (Matched D's u, f 0.971: from f 0.96 the ray from the bowl's end beside the stem met the counter
+                    # across the junction, at 1.1-1.2 strokes, and the notch went from 52 to 104 units deep; E's u at
+                    # f 1.0, 60 units against 52 at f 0.995.)  Continuous in the widths measured.  Thinner strokes (the
+                    # thinning where a curve meets a stem) are unchanged
 def _proportional(contours,f,k,V,T,ey,X,plain=()):
     """per-segment offset amounts (negative: erosion) that thin each stroke by its width, so that every stroke ends
     as the series weight T (or, where thinner, in proportion: _even): a stroke whose width here (after the narrowing
@@ -388,16 +396,21 @@ def _proportional(contours,f,k,V,T,ey,X,plain=()):
                 p,no=_seg_mid(sg); data.append([(None,amount(p,no))]+([('pin',dV(no))] if is_align(p,no) else []))
                 continue
             e=sg[3]; t0,sw=sg[4],sg[5]; sgn=np.sign(sw)
-            ts=[t0+sw*u for u in (0.1,0.5,0.9)+(0.03,0.97)*3]   # near the ends (closest counted thrice: the
-                                                     # junctions are there), the middle, and the axis points it passes
+            ts=[(t0+sw*u,u!=0.5) for u in (0.1,0.5,0.9)+(0.03,0.97)*3]   # near the ends (closest counted thrice:
+                                                     # the junctions are there), the middle, and the axis points it passes
             lo,hi=min(t0,t0+sw),max(t0,t0+sw)
-            ts+=[jj*np.pi/2 for jj in range(-8,9) if lo<jj*np.pi/2<hi]
+            ts+=[(jj*np.pi/2,False) for jj in range(-8,9) if lo<jj*np.pi/2<hi]
             row=[]
-            for t in ts:
-                p=_ept(e,t); u=_etan(e,t)*sgn; u=u/np.linalg.norm(u); no=np.array([-u[1],u[0]])
+            def normal(t):
+                u=_etan(e,t)*sgn; u=u/np.linalg.norm(u); return np.array([-u[1],u[0]])
+            tm=t0+sw*0.5; nm=normal(tm); xm=amount(_ept(e,tm),nm)-dV(nm)   # the middle's thinning beyond a full stroke's
+            for t,near_end in ts:
+                p=_ept(e,t); no=normal(t)
                 w,_=ray(p,no)
                 stroke=is_align(p,no) or (w is not None and w<=1.6*V*sk(no))
-                row.append((t,amount(p,no),1.0 if stroke else 0.1))   # (a ray that finds no stroke, running along
+                am=amount(p,no)
+                if near_end and END_CAP: am=min(am,dV(no)+max(0.0,xm))   # (END_CAP)
+                row.append((t,am,1.0 if stroke else 0.1))   # (a ray that finds no stroke, running along
             data.append(row)                                          # the e's bar, says little: weak)
         out.append(_reconcile(c,data,(dV(np.array([1.0,0.0])),dV(np.array([0.0,1.0]))),dV))
     return out

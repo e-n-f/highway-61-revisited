@@ -632,6 +632,27 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### u notch: junction probes (2026-11-04)
+- User: Matched D's u had a much bigger notch than its n.  Notch depths (stem edge to where the bowl or arch meets
+  it): n 50.8, u 104.2 at Matched D's f 0.971, against n 47.8, u 52.3 at f 0.95.  Not deepen_notches or the
+  squarer: `strokeop._proportional` gave the u's outer bowl arc (the quarter from its bottom point up to the stem) a
+  semi-axis of 117 instead of about 140, so it met the stem twice as high.
+- Cause: the arc's probes near its ends (at 0.9 and 0.97 of its sweep, the latter counted thrice).  Beside the stem
+  the ray from the bowl's end runs through the junction.  Up to f 0.955 it passed under the counter and crossed the
+  whole letter (2.8 strokes: no stroke, weak, full-stroke amount); from 0.96 it met the counter at 1.1-1.2 strokes
+  and was taken as a stroke to even out (25 units against 17 elsewhere on the arc), at full weight.  Series E's u
+  had the same at f 1.0 exactly (Main and Natural E): the ray read just over a stroke, notch 60.3 against 52.2 at
+  f 0.995.
+- `strokeop.END_CAP`: a probe near an arc's end asks at most the thinning beyond a full stroke's that the arc's
+  middle asks.  A junction's local thickening is no longer evened out, while a stroke heavy all along keeps its
+  evening (a plain cap at the full-stroke amount made B's e sides 2.5 units heavy, undoing the 1.010 fix).
+  Continuous in the measured widths; thinner strokes (the thinning at junctions) are untouched.  Sweeps of f over
+  each series' range now change n and u notches smoothly; u is 3-5 units deeper than n in C, D, E (as in E(M):
+  33.7 / 38.5, the 1966 drawings' own difference), 9 shallower in F, and A and B are set by NOTCH.
+- Main fonts: hairline changes at the junctions of a b d e g h j m n p q r t u (largest the m's crotch, under about a
+  unit along it), advances within 3 units; E's u notch 60.3 -> 52.9.  E(M) unchanged.  Matched and Main totals
+  within 0.06% of before (factors not re-solved).  VERSION 1.014.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
