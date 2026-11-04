@@ -5,7 +5,8 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from scipy.optimize import minimize
-SCRATCH = '/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/'
+import tempfile
+SCRATCH = tempfile.gettempdir() + '/'               # overlays
 _pages = {}
 _last = {}
 def page(p):
@@ -75,16 +76,15 @@ def edge_samples(g, p, box, scale=0.858, reach=12):
 def outline(p, box, width_units):
     """the drawn letter's outer contour (background flood-filled from the box's corner), in font units: x from the
     leftmost point, y from the lowest point, scaled so the contour is width_units wide"""
-    import cv2
+    import imgops
     x0, y0, x1, y1 = box
-    dark = page(p)[y0:y1, x0:x1].astype(np.uint8)
-    dark = cv2.dilate(dark, np.ones((3, 3), np.uint8))
-    ff = (1 - dark) * 255
-    mask = np.zeros((ff.shape[0] + 2, ff.shape[1] + 2), np.uint8)
-    cv2.floodFill(ff, mask, (0, 0), 128)
-    inside = (ff != 128).astype(np.uint8)
-    cs, _ = cv2.findContours(inside, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    c = max(cs, key=cv2.contourArea)[:, 0, :].astype(float)
+    dark = imgops.dilate(page(p)[y0:y1, x0:x1], np.ones((3, 3), bool))
+    _, lab, _ = imgops.components(~dark, connectivity=4)
+    inside = lab != lab[0, 0]                                  # all but the background reached from the corner
+    _, lab, st = imgops.components(inside)
+    big = 1 + int(np.argmax(st[1:, 4]))                        # the largest piece's outer contour
+    from scipy.ndimage import binary_fill_holes
+    c = imgops.boundary_points(binary_fill_holes(lab == big)).astype(float)
     s = (c[:, 0].max() - c[:, 0].min()) / width_units
     return np.c_[(c[:, 0] - c[:, 0].min()) / s, (c[:, 1].max() - c[:, 1]) / s], s
 

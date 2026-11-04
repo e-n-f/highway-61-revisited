@@ -1,5 +1,5 @@
 """Series E capitals/figures rebuilt from the 1961 dimensioned drawings (page E-5)."""
-import numpy as np,cv2,pickle
+import numpy as np,pickle
 from fractions import Fraction as Fr
 H_IN=18.0; U=690.0/H_IN                    # font units per inch at 18-inch letter height
 # 18-inch row of the table, read from the page (inches)
@@ -63,9 +63,10 @@ def raster(polys,scale=1.0,pad=40):
     allp=np.vstack([np.array(p) for p in polys]); x0=allp[:,0].min(); y1=allp[:,1].max()
     W=int(allp[:,0].max()-x0+2*pad); Hh=int(y1-min(0,allp[:,1].min())+2*pad)
     img=np.zeros((Hh,W),np.uint8)
-    pts=[np.round(np.column_stack([np.array(p)[:,0]-x0+pad, pad+y1-np.array(p)[:,1]])*16).astype(np.int32) for p in polys]
-    cv2.fillPoly(img,pts[:1],1,shift=4)
-    for h in pts[1:]: cv2.fillPoly(img,[h],0,shift=4)
+    import imgops
+    pts=[np.column_stack([np.array(p)[:,0]-x0+pad, pad+y1-np.array(p)[:,1]]) for p in polys]
+    img[imgops.fill_poly(img.shape,pts[:1])>0]=1
+    for h in pts[1:]: img[imgops.fill_poly(img.shape,[h])>0]=0
     return img, pad, pad+y1                                     # bitmap, x of letter's left edge, row of baseline
 
 # ---------------- curved figures: unions of circular rings (compass construction) ----------------

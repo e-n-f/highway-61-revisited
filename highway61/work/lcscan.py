@@ -3,8 +3,7 @@
 Ink is opened with a small disk to drop the grid lines that touch the letters, then contoured at sub-pixel precision
 on the grey image.  Coordinates: gx to the right, gy upwards, both in squares from the page's first grid lines; font
 units = squares x SQ, with the baseline and a reference vertical line chosen per letter."""
-import numpy as np, cv2, pickle, os
-from skimage import measure
+import numpy as np, pickle, os, imgops
 from lcgrid import Page, SQ
 PAGES={'p33':'abcdefghi','p34':'jklmnopqr','p35':'stuvwxyz'}
 _cache={}
@@ -14,9 +13,8 @@ def page(n):
 def blobs(n):
     P=page(n); im=P.im
     d=(im<128).astype(np.uint8)
-    k=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
-    L=cv2.morphologyEx(d,cv2.MORPH_OPEN,k)
-    nl,lab,st,_=cv2.connectedComponentsWithStats(L)
+    L=imgops.opening(d,imgops.ellipse_kernel(9,9))
+    nl,lab,st=imgops.components(L)
     out=[]
     for i in range(1,nl):
         x,y,w,h,a=st[i]
@@ -26,10 +24,11 @@ def blobs(n):
 def contours(n,mask):
     """sub-pixel contours of one letter: grey image, with everything away from the opened mask set to white"""
     P=page(n); g=P.im.astype(float)
-    near=cv2.dilate(mask.astype(np.uint8),np.ones((5,5),np.uint8))>0
-    inner=cv2.erode(mask.astype(np.uint8),np.ones((5,5),np.uint8))>0
+    from skimage import measure
+    near=imgops.dilate(mask,np.ones((5,5),bool))
+    inner=imgops.erode(mask,np.ones((5,5),bool))
     g=np.where(near,g,255.0); g=np.where(inner,0.0,g)
-    g=cv2.GaussianBlur(g,(0,0),0.8)
+    g=imgops.gaussian(g,0.8)
     cs=measure.find_contours(g,128)
     out=[]
     for c in cs:

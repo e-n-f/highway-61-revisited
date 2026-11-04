@@ -208,11 +208,13 @@ out the same weight as stems and bars.
 Requirements: Python 3.10 or later (tested with 3.13) and
 
 ```
-pip install fonttools shapely numpy scipy pillow opencv-python-headless
+pip install fonttools shapely numpy scipy pillow
 ```
 
-These versions were used: fontTools 4.67, shapely 2.2, numpy 2.5, scipy 1.18, Pillow 12.3, OpenCV 5.0. The
-specimens use the DejaVu Sans font for their labels (`/usr/share/fonts/truetype/dejavu/`).
+These versions were used: fontTools 4.67, shapely 2.2, numpy 2.5, scipy 1.18, Pillow 12.3. The
+specimens use the DejaVu Sans font for their labels (`/usr/share/fonts/truetype/dejavu/`). Re-extracting the
+lower-case letters from the 1966 scans, which only happens if `work/lc1966/contours.pkl` is deleted, also needs
+scikit-image (`pip install scikit-image`, tested with 0.26).
 
 All scripts run from `highway61/work/`.  The fonts are written to `otf/` and `ttf/`, the headline specimens to
 `specimen/`, and other specimens and checks to `highway61/outputs/`:
