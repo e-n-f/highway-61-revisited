@@ -37,7 +37,7 @@ Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 uni
 descenders about −200 to −260.
 
 Specimens, in `specimen/`: `specimen-lc-series.png` (all seven series), `specimen-lc-versions.png` (each series'
-lower case in the three versions), `comparison-1966-vs-2000.png` (against
+lower case in the three versions, with the FHWA 2000 font between Matched and Natural), `comparison-1966-vs-2000.png` (against
 the FHWA 2000 fonts), and `specimen-lines-h61.png` / `specimen-lines-fhwa.png` (a line of each font, ours and
 FHWA's).  The fonts are in `otf/` and `ttf/`; everything used to make them and the specimens is under `highway61/`. The detailed working history, with
 every construction decision, is in `highway61/HANDOFF.md`.
@@ -289,6 +289,7 @@ Specimens:
 ```
 python3 lcseries.py          # specimen/specimen-lc-series.png: all seven series
 python3 versionspecimen.py   # specimen/specimen-lc-versions.png: each series' lower case in the three versions
+                             # (and FHWA 2000's, if fhwa2otf.py has made its fonts)
 python3 specimen1961.py D    # highway61/outputs/specimen-1961-D.png: one series' capitals and figures
 ```
 
@@ -314,5 +315,5 @@ python3 linespecimen.py            # specimen/specimen-lines-{h61,fhwa}.png: a l
 ```
 
 The repository does not include these fonts (`highway61/fhwa2000/` is git-ignored). They are part of the official
-publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`, `linespecimen.py`,
+publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`, `linespecimen.py`, `versionspecimen.py`,
 `lcwidth.py`, `lcspace.py` or `lcmatch.py`, which need them.
