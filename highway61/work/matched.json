@@ -1,0 +1,32 @@
+{
+ "B": {
+  "advance_multiplier": 0.48999,
+  "f": 0.5343,
+  "ink_multiplier": 0.55672,
+  "tight": 0.5419
+ },
+ "C": {
+  "advance_multiplier": 0.6406,
+  "f": 0.7785,
+  "ink_multiplier": 0.75221,
+  "tight": 0.5606
+ },
+ "D": {
+  "advance_multiplier": 0.74251,
+  "f": 0.9316,
+  "ink_multiplier": 0.88739,
+  "tight": 0.5464
+ },
+ "E": {
+  "advance_multiplier": 0.75997,
+  "f": 0.9512,
+  "ink_multiplier": 0.9258,
+  "tight": 0.4668
+ },
+ "F": {
+  "advance_multiplier": 0.93334,
+  "f": 1.1584,
+  "ink_multiplier": 1.10557,
+  "tight": 0.5985
+ }
+}

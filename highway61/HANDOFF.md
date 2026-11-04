@@ -604,6 +604,28 @@ ends keep their angles.
   height and its level tangent at that point, and is as wide as it must be to meet the stem at the notch's depth.
   The depths are as in 1.012 (`lccondense.NOTCH`); NOTCH_ANGLE is gone.  VERSION 1.013.
 
+### Matched and Natural versions of the lower case (2026-11-04)
+- User: a version whose lower-case width and advance multipliers are FHWA's, and a version with natural widths and
+  advances relative to the capitals.  `work/variant.py` names the version (`build1961.py <S> matched|natural`);
+  the fonts are `Highway 61 Revisited Matched <S>` / `Natural <S>` (`Highway61RevisitedMatched-<S>` etc.).  E(M) is the
+  reference for both and has no other version.
+- First tried per letter (each letter's ink width and advance E(M)'s times FHWA's ratio for that letter).  The
+  FHWA narrow series are not uniform scalings of ModE: core ratios in Series D run from s 0.67, z 0.71, r 0.73,
+  t 0.74 to k 1.05, w 1.18.  User: one multiplier per width, no per-letter cases, and especially not FHWA's s and w.
+- Matched (`lcmatch.py` -> `work/matched.json`): FHWA Series S 2000 over Series E Modified 2000, summed over a-z
+  without s and w: ink widths B 0.5567, C 0.7522, D 0.8874, E 0.9258, F 1.1056; advances B 0.4900, C 0.6406, D
+  0.7425, E 0.7600, F 0.9333.  One width factor f per series makes our ink-width sum (same letters) that multiple of
+  E(M)'s, B 0.5343 C 0.7785 D 0.9316 E 0.9512 F 1.1584; then one spacing factor (as LC_TIGHT) makes the advance sum
+  the second, B 0.5419 C 0.5606 D 0.5464 E 0.4668 F 0.5985 (within 0.1%).  Series A: B's f times 0.450/0.475, B's
+  spacing factor, as in the main fonts.
+- Natural: `lccondense.F` (the capitals' 1961 factors) for the lower case, and the 1966 table scaled by the stroke
+  only (no LC_TIGHT), as the capitals' table spaces are.  `lcE.C_REF` follows that version's Series C factor
+  (`lccondense.c_ref`), so the e's bar and a's bowl top are still full weight at Series C's narrowing.  The per-series
+  tunings (S_SPINE, S_HBAR, F_HOOK, NOTCH...) are the main fonts' as they stand, not re-solved for the narrower
+  widths.  Note: the Palo Alto Series C signs match the main fonts' C lower case (0.82), not Natural's 0.65.
+- Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
+  table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

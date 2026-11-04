@@ -101,14 +101,26 @@ def _s_direct(f,gx,ey,k,S=None):
         q[pre+'x'],q[pre+'y']=mm; q[pre+'ref']=tuple(mm-n*30.0)      # a point on the ink side of the cut
     lcgeom.REG.clear(); g=lcE.clean(lcE.letter_s_ell(q)); prims=list(lcgeom.REG)
     return [[tuple(sg) for sg in segs] for segs in lcoutline.contours(g,prims)]
+def f_lc(S):
+    """the lower-case width factor of series S in the version being built (variant.py)"""
+    import variant
+    if variant.NAME=='natural': return F[S]
+    if variant.NAME=='matched':                     # lcmatch.py; Series A: Series B's ratio to the capitals' factor
+        return variant.matched()['B']['f']*F['A']/F['B'] if S=='A' else variant.matched()[S]['f']
+    return F_LC[S]
+def c_ref():
+    """Series C's condensation in the version being built: where lcE.condensed_ae is full"""
+    import variant
+    return 1-(F['C'] if variant.NAME=='natural' else F_LC['C'])
 def series(S,f=None,only=None):
-    f=F_LC[S] if f is None else f
+    f=f_lc(S) if f is None else f
+    lcE.C_REF=c_ref()
     lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
     ey0=(V_EM-stroke(S))/2
     lcE.COMP=ey0/(1-V_EM/X)-ey0 if EXACT_H else 0.0  # (and its outer bands' strokes are compensated, lcE.outer_bands)
     lcE.FHOOK=F_HOOK.get(S,0.0)
     try: out=_series(S,f,only)
-    finally: lcE.COND=0.0; lcE.COMP=0.0; lcE.FHOOK=0.0
+    finally: lcE.COND=0.0; lcE.COMP=0.0; lcE.FHOOK=0.0; lcE.C_REF=1-F_LC['C']
     n=squareness(S)
     ey=(V_EM-stroke(S))/2; ey=ey/(1-V_EM/X) if EXACT_H else ey; k=(X+2*ey)/X
     bands=[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)]           # condense2's vertical map

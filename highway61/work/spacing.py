@@ -23,8 +23,11 @@ def classes():
 LC_TIGHT={'B':0.572,'C':0.587,'D':0.691,'E':0.473,'F':0.765}
 def lc_scale(S):
     """lower-case table scale for series S: E(M) 1, others their lower-case stroke over E(M)'s times LC_TIGHT"""
-    import lccondense
+    import lccondense, variant
     if S=='EM': return 1.0
+    if variant.NAME=='natural': return lccondense.stroke(S)/lccondense.V_EM      # by the stroke alone, as the capitals
+    if variant.NAME=='matched':                 # FHWA's spacing (lcmatch.py; Series A: Series B's factor)
+        return lccondense.stroke(S)/lccondense.V_EM*variant.matched()['B' if S=='A' else S].get('tight',1.0)
     return lccondense.stroke(S)/lccondense.V_EM*LC_TIGHT.get('B' if S=='A' else S,1.0)
 _JOV_EM=[]
 def jov_em():

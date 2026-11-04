@@ -100,9 +100,13 @@ def bearings(fn):
     kg=kerning(f); chars=string.ascii_letters+string.digits
     kern={(a,b):kg.get((cm[ord(a)],cm[ord(b)]),0) for a in chars for b in chars}
     return out,kern
+def fontfile(S):
+    """the series' .otf in the version being checked (variant.py)"""
+    import variant
+    return os.path.join(ROOT,'otf','Highway61Revisited%s-%s.otf'%(variant.PS[variant.NAME],S))
 def cap_pairs(S):
     """(preceding, following, standard gap, font gap) for every capital pair and figure pair, font units"""
-    sb,kn=bearings(os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)); st=STROKE[S]; out=[]
+    sb,kn=bearings(fontfile(S)); st=STROKE[S]; out=[]
     for a,codes in CODES.items():
         for b,g in GROUP.items(): out.append((a,b,FACTOR[codes[g]]*st,sb[a][1]+sb[b][0]+kn[(a,b)]))
     for a,codes in NCODES.items():
@@ -130,7 +134,7 @@ def lc_pairs(S='EM'):
     """the same for the lower-case table; other series than E(M) scaled by spacing.lc_scale (and the j column by
     E(M)'s stem-to-stem gap: spacing.targets)"""
     import spacing, string
-    fn=os.path.join(ROOT,'otf','Highway61Revisited-%s.otf'%S)
+    fn=fontfile(S)
     geo=spacing.geometry(font_poly(fn),string.ascii_letters+string.digits); T=spacing.targets(S,geo=geo)
     sb,kn=bearings(fn); out=[]
     for r,row in zip(LCROWS,LCRATIO):
@@ -142,6 +146,9 @@ def report(pairs,label):
     d=np.array([f-s for _,_,s,f in pairs]); print('%-10s pairs %4d  font-standard: mean %+6.1f  mean|.| %5.1f  max|.| %5.1f'
           %(label,len(d),d.mean(),np.abs(d).mean(),np.abs(d).max()))
     return d
-if __name__=='__main__':
-    for S in (sys.argv[1:] or ['A','B','C','D','E','EM','F']):
+if __name__=='__main__':                  # python3 spacingcheck.py [series...] [matched|natural]
+    import variant
+    args=[a for a in sys.argv[1:] if a not in variant.NAMES]
+    if len(args)<len(sys.argv)-1: variant.NAME=[a for a in sys.argv[1:] if a in variant.NAMES][0]
+    for S in (args or ['A','B','C','D','E','F']+([] if variant.NAME else ['EM'])):
         report(cap_pairs(S),S+' caps'); report(lc_pairs(S),S+' lc')
