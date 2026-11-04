@@ -625,12 +625,22 @@ ends keep their angles.
   0.02%).  abcde's advances over FHWA's: B 1.017, C 1.000, D 1.008, E 0.998, F 0.962; FHWA widens single letters
   differently from its series average (F's b and d 1.20 of ModE, the average 1.11), which one factor cannot follow.
 - Natural: `lccondense.F` (the capitals' 1961 factors) for the lower case, and the 1966 table scaled by the stroke
-  only (no LC_TIGHT), as the capitals' table spaces are.  `lcE.C_REF` follows that version's Series C factor
+  only (no LC_TIGHT), as the capitals' table spaces are (superseded below: spaces in proportion to the letters).  `lcE.C_REF` follows that version's Series C factor
   (`lccondense.c_ref`), so the e's bar and a's bowl top are still full weight at Series C's narrowing.  The per-series
   tunings (S_SPINE, S_HBAR, F_HOOK, NOTCH...) are the main fonts' as they stand, not re-solved for the narrower
   widths.  Note: the Palo Alto Series C signs match the main fonts' C lower case (0.82), not Natural's 0.65.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
+
+### Natural spacing in proportion to the letters (2026-11-04)
+- User: Natural B very widely spaced.  The stroke-scaled table shrinks spaces by the stroke (B 0.64) while the letters
+  shrink by the width factor (0.475 of the core): a-z space over ink width B 0.56, against E(M) 0.44 and Main B 0.29
+  (capitals 0.25 in E, 0.36 in B by the same rule).  User: scale the lower-case spaces by the same factor as the
+  letters.
+- `lcnatural.py` -> `natural.json`: one spacing factor per series (on the stroke-scaled table, as LC_TIGHT) giving
+  the a-z E(M)'s space/ink ratio 0.4416: A 0.939, B 0.798, C 0.924, D 1.014, E 1.097, F 1.170 (ratios 0.441-0.443).
+  A solved on its own.  a-z lengths: A 10.42, B 11.96, C 15.38, D 18.74, E 22.26, F 25.90 cap heights (B was 12.90,
+  E 21.64, F 24.73): B and C tighter, D-F looser, as E(M)'s lower case is spaced more loosely than FHWA's.
 
 ### u notch: junction probes (2026-11-04)
 - User: Matched D's u had a much bigger notch than its n.  Notch depths (stem edge to where the bowl or arch meets

@@ -221,21 +221,23 @@ The main fonts set each series' lower-case width factor and spacing so that the 
   s narrower and its w wider than the rest, and those are not followed. Single letters still differ from FHWA's,
   because FHWA doesn't narrow every letter by the same amount. Series A, which has no FHWA font, takes Series B's factors in
   proportion to the capitals' (as the main fonts do). `work/lcmatch.py` solves the factors into `work/matched.json`.
-- **Natural** (`Highway 61 Revisited Natural`): the lower case narrowed exactly as the capitals are. The width factor
-  is the capitals' 1961 one (`lccondense.F`), and the spacing is the 1966 table scaled by the stroke alone, as the
-  capitals' table spaces are, with no tightening.
+- **Natural** (`Highway 61 Revisited Natural`): the lower case narrowed exactly as the capitals are, by the
+  capitals' 1961 width factor (`lccondense.F`), and its spaces narrowed with it. One spacing factor per series keeps
+  the a–z's total space (advances less ink widths) in E(M)'s proportion to its total ink width, 0.44.
+  `work/lcnatural.py` solves the factors into `work/natural.json`. (Scaling the table by the stroke alone, as the
+  capitals' spaces are, left the narrow series much looser than E(M): Series B 0.56.)
 
 | Series | Main: width / spacing | Matched: width / spacing | Natural: width / spacing |
 |---|---|---|---|
-| A | 0.521 / 0.572 | 0.533 / 0.558 | 0.450 / 1 |
-| B | 0.550 / 0.572 | 0.563 / 0.558 | 0.475 / 1 |
-| C | 0.820 / 0.587 | 0.815 / 0.581 | 0.650 / 1 |
-| D | 0.919 / 0.691 | 0.971 / 0.564 | 0.825 / 1 |
-| E | 1.000 / 0.473 | 0.995 / 0.482 | 1.000 / 1 |
-| F | 1.124 / 0.765 | 1.208 / 0.613 | 1.175 / 1 |
+| A | 0.521 / 0.572 | 0.533 / 0.558 | 0.450 / 0.939 |
+| B | 0.550 / 0.572 | 0.563 / 0.558 | 0.475 / 0.798 |
+| C | 0.820 / 0.587 | 0.815 / 0.581 | 0.650 / 0.924 |
+| D | 0.919 / 0.691 | 0.971 / 0.564 | 0.825 / 1.014 |
+| E | 1.000 / 0.473 | 0.995 / 0.482 | 1.000 / 1.097 |
+| F | 1.124 / 0.765 | 1.208 / 0.613 | 1.175 / 1.170 |
 
-(Spacing: the multiplier on the stroke-scaled 1966 table, `LC_TIGHT`; 1 means the table scaled by the stroke alone.
-Series A's are B's, with its width factor in proportion to the capitals'.)
+(Spacing: the multiplier on the stroke-scaled 1966 table, as `LC_TIGHT`; 1 would be the table scaled by the stroke
+alone. In Main and Matched, Series A takes B's, with its width factor in proportion to the capitals'.)
 
 E(M) is the reference for both versions, so it has no other version. Its fonts are the main ones.
 
@@ -300,6 +302,7 @@ python3 lcfitall.py nhm      # refit the named lower-case letters to the 1966 sc
 python3 lcwidth.py B         # solve a series' lower-case width factor; copy the result into lccondense.F_LC
 python3 lcspace.py B         # then its lower-case spacing factor; copy the result into spacing.LC_TIGHT
 python3 lcmatch.py B         # the Matched version's two factors for a series (rewrites its entry in matched.json)
+python3 lcnatural.py B       # the Natural version's spacing factor for a series (rewrites its entry in natural.json)
 ```
 
 ### Comparison with the FHWA 2000 fonts

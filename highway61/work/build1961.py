@@ -168,8 +168,8 @@ if variant.NAME == 'matched':
              'measurement)%s.' % ('B' if S == 'A' else S, '; Series A, which has no FHWA '
              'font, scales Series B\'s by the capitals\' width factors' if S == 'A' else ''))
 if variant.NAME == 'natural':
-    DESC += (' Natural version: the lower case narrowed by the capitals\' width factor, its spacing the 1966 table '
-             'scaled by the stroke, as the capitals\' is.')
+    DESC += (' Natural version: the lower case narrowed by the capitals\' width factor, and its spaces with it, in '
+             'E(M)\'s proportion to the letters.')
 
 
 def setup(fb, outlines_kind):

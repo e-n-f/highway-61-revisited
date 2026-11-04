@@ -25,7 +25,8 @@ def lc_scale(S):
     """lower-case table scale for series S: E(M) 1, others their lower-case stroke over E(M)'s times LC_TIGHT"""
     import lccondense, variant
     if S=='EM': return 1.0
-    if variant.NAME=='natural': return lccondense.stroke(S)/lccondense.V_EM      # by the stroke alone, as the capitals
+    if variant.NAME=='natural':                 # spaces in E(M)'s proportion to the ink (lcnatural.py)
+        return lccondense.stroke(S)/lccondense.V_EM*variant.natural().get(S,{}).get('tight',1.0)
     if variant.NAME=='matched':                 # FHWA's spacing (lcmatch.py; Series A: Series B's factor)
         return lccondense.stroke(S)/lccondense.V_EM*variant.matched()['B' if S=='A' else S].get('tight',1.0)
     return lccondense.stroke(S)/lccondense.V_EM*LC_TIGHT.get('B' if S=='A' else S,1.0)
