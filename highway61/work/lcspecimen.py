@@ -1,7 +1,7 @@
 """Specimen of the constructed lower case: python3 lcspecimen.py -> outputs/specimen-lc-E.png
 Top: words in Highway 61 Revisited E (constructed letters in black, the rest still from Highway Even 1966 in grey).
 Bottom: each constructed letter's outline (red) over the scan of the 1966 sheet."""
-import os, numpy as np, cv2
+import os, tempfile, numpy as np, imgops
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import DecomposingRecordingPen
 import lcE
@@ -40,7 +40,7 @@ def main():
         if ch not in ser: continue
         g=ser[ch][0]
         if ch in lcE.dims(): g=__import__('shapely').affinity.translate(g,lcE.dims()[ch].get('ox',0)*lcE.SQ)
-        fn='/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/_lc_%s.png'%ch; overlay(ch,g,fn,scale=0.3); tiles.append(cv2.imread(fn))
+        fn=os.path.join(tempfile.gettempdir(),'_lc_%s.png'%ch); overlay(ch,g,fn,scale=0.3); tiles.append(imgops.imread_rgb(fn))
     h=max(t.shape[0] for t in tiles); rows=[]; cur=[]; w=0
     for t in tiles+[None]:
         if t is None or w+t.shape[1]>W:
@@ -48,5 +48,5 @@ def main():
             rows.append(np.hstack([r,np.full((h,W-r.shape[1],3),255,np.uint8)])); cur=[]; w=0
             if t is None: break
         cur.append(t); w+=t.shape[1]
-    cv2.imwrite(os.path.join(OUT,'specimen-lc-E.png'),np.vstack([img]+rows))
+    imgops.imwrite(os.path.join(OUT,'specimen-lc-E.png'),np.vstack([img]+rows))
 main()

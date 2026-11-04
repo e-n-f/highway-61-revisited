@@ -2,7 +2,8 @@
 import sys, json, os, numpy as np
 import lcE
 from lcmodel import fit, overlay, SQ
-SCR='/tmp/claude-0/-home-user-standard-alphabets/d2c3cfcf-66d0-5f41-8524-bbf06168e396/scratchpad/'
+import tempfile
+SCR=tempfile.gettempdir()+'/'                      # overlays of the fits
 FN='lc1966/fit.json'
 def load():
     return json.load(open(FN)) if os.path.exists(FN) else {}

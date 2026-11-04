@@ -604,6 +604,23 @@ ends keep their angles.
   height and its level tangent at that point, and is as wide as it must be to meet the stem at the notch's depth.
   The depths are as in 1.012 (`lccondense.NOTCH`); NOTCH_ANGLE is gone.  VERSION 1.013.
 
+### No OpenCV (2026-11-04)
+- The current scripts no longer use OpenCV.  `work/imgops.py` has the raster operations they used, written with
+  scipy.ndimage and Pillow: reading greyscale images, erosion, dilation and opening (OpenCV's border rules and its
+  elliptical kernel), connected components (numbered in OpenCV's order), contour pixels, Gaussian blur (OpenCV's kernel
+  size and border), polygon fills, and anti-aliased drawing by 4x supersampling.  Users: dim1961.raster, dimE6.poly_mask
+  (the raster back end; the build uses vgeom's vector one), lcgrid, lcscan, lcview, lcmodel, scanfit.outline, emverify
+  and lcspecimen.
+- Checked against OpenCV: the 1966 sheets' contours re-extracted from the JPEGs equal lc1966/contours.pkl to 1e-15
+  squares; `lcfitall.py n` gives the same fit; emverify's statistics are unchanged; Series E builds identically
+  (apart from the timestamp).  The raster back end's polygon fill differs from OpenCV's by a pixel at some edges
+  (OpenCV also sets pixels whose centres are just outside).  The two diagnostic images, outputs/verify-EM-caps.png
+  and specimen-lc-E.png, are redrawn with Pillow.
+- lcfitall, scanfit, lcview and lcspecimen wrote their overlays to a fixed scratch directory from an earlier session;
+  they now use the system's temporary directory.
+- Scripts from the earlier traced-font stages (build.py, family*.py, geomc*.py, g*check.py, src.py and others not
+  named in the README) still import cv2; they are not part of the current process.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).

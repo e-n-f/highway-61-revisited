@@ -52,6 +52,5 @@ def fit(ch,build,p0,names,fixed=None,region=None,verbose=True,ftol=1e-6):
     return p,g,st
 def overlay(ch,g,out,scale=1.2,extra=()):
     from lcview import view
-    import cv2
     M=[np.array(r.coords) for p in getattr(g.buffer(SPREAD,join_style=2),'geoms',[g.buffer(SPREAD,join_style=2)]) if p.geom_type=='Polygon' for r in [p.exterior,*p.interiors]]
     view(ch,extra=[(m,(0,0,255)) for m in M]+list(extra),scale=scale,out=out)

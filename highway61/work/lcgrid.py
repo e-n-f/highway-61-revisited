@@ -4,7 +4,7 @@ Every printed grid line is fitted individually (x = a + b*y for verticals, y = a
 mapped to grid coordinates by interpolating between the lines either side of it, so the letters are measured against
 the squares they were drawn on, whatever the printing or scanning did to the pitch.  One square = 1 inch of an 8-inch
 letter = 690/8 = 86.25 font units."""
-import numpy as np, cv2
+import numpy as np, imgops
 SQ=690/8
 def _peaks(s,thr,sep=25):
     idx=[i for i in range(1,len(s)-1) if s[i]>thr and s[i]>=s[i-1] and s[i]>=s[i+1]]
@@ -24,9 +24,9 @@ def _fill(pos,pitch=59.0):
     return out
 class Page:
     def __init__(self,name,x0=150,x1=1960,y0=150,y1=2500):
-        im=cv2.imread(f'lc1966/{name}.jpg',0); self.im=im
+        im=imgops.imread_gray(f'lc1966/{name}.jpg'); self.im=im
         d=(im<150).astype(np.uint8)
-        blob=cv2.dilate(cv2.morphologyEx(d,cv2.MORPH_OPEN,np.ones((9,9),np.uint8)),np.ones((13,13),np.uint8))
+        blob=imgops.dilate(imgops.opening(d,np.ones((9,9),bool)),np.ones((13,13),bool)).astype(np.uint8)
         thin=d&(1-blob); self.thin=thin; self.ink=(im<128)&(blob>0)
         ys_,xs_=np.nonzero(thin)
         self.V=self._lines(xs_,ys_,x0,x1,y0,y1,len(im[0]))     # x = a + b*y

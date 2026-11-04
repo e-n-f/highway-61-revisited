@@ -37,12 +37,11 @@ def fig7():
     stem=ring(g,c,O+A,O)&(g.Y>=0)&(g.Y<=CAP-A)
     return g.bitmap(stem|((g.X>=0)&(g.X<=B)&(g.Y>=CAP-A)&(g.Y<=CAP))),{'centre':c.round(1)}
 
-import cv2
 from dimE4 import arc
 def poly_mask(g,poly):
-    H,W=g.X.shape; m=np.zeros((H,W),np.uint8)
-    pts=np.round(np.column_stack([np.array(poly)[:,0]-g.x0, g.y1-np.array(poly)[:,1]])*16).astype(np.int32)
-    cv2.fillPoly(m,[pts],1,shift=4); return m.astype(bool)
+    import imgops
+    pts=np.column_stack([np.array(poly)[:,0]-g.x0, g.y1-np.array(poly)[:,1]])
+    return imgops.fill_poly(g.X.shape,[pts]).astype(bool)
 def oval(ct,rt,cl,rl,cb,rb,cr,rr):
     """four-centre oval: arcs joined where neighbouring circles touch (internal tangency)"""
     def tp(c1,r1,c2,r2):
