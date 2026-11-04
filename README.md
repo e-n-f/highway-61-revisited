@@ -214,12 +214,12 @@ out the same weight as stems and bars.
 The main fonts set each series' lower-case width factor and spacing so that the whole a–z is as long as in the FHWA
 2000 font. Two other versions differ only in those two numbers per series (`work/variant.py`):
 
-- **Matched** (`Highway 61 Revisited Matched`): FHWA's own proportions to its Series E Modified. Across a–z, with s
-  and w left out, the FHWA 2000 Series S letters have, in total, some multiple of Series E Modified 2000's ink width,
-  and another multiple of its advances. One width factor per series makes our letters' ink widths that first
-  multiple of E(M)'s, and one spacing factor (on the stroke-scaled 1966 table, as `LC_TIGHT` is) makes our advances
-  the second. Every letter is narrowed the same way, s and w included: FHWA draws its s narrower and its w wider
-  than the rest, and those are not followed. Series A, which has no FHWA font, takes Series B's factors in
+- **Matched** (`Highway 61 Revisited Matched`): FHWA's totals for ink width and for advances, separately. One
+  width factor per series makes our a–z ink widths add up to the FHWA 2000 font's, at equal cap height. One
+  spacing factor (on the stroke-scaled 1966 table, as `LC_TIGHT` is) then makes our a–z advances add up to FHWA's.
+  The s and w are left out of both totals. Every letter is narrowed the same way, s and w included: FHWA draws its
+  s narrower and its w wider than the rest, and those are not followed. Single letters still differ from FHWA's,
+  because FHWA doesn't narrow every letter by the same amount. Series A, which has no FHWA font, takes Series B's factors in
   proportion to the capitals' (as the main fonts do). `work/lcmatch.py` solves the factors into `work/matched.json`.
 - **Natural** (`Highway 61 Revisited Natural`): the lower case narrowed exactly as the capitals are. The width factor
   is the capitals' 1961 one (`lccondense.F`), and the spacing is the 1966 table scaled by the stroke alone, as the
@@ -227,12 +227,12 @@ The main fonts set each series' lower-case width factor and spacing so that the 
 
 | Series | Main: width / spacing | Matched: width / spacing | Natural: width / spacing |
 |---|---|---|---|
-| A | 0.521 / 0.572 | 0.506 / 0.542 | 0.450 / 1 |
-| B | 0.550 / 0.572 | 0.534 / 0.542 | 0.475 / 1 |
-| C | 0.820 / 0.587 | 0.778 / 0.561 | 0.650 / 1 |
-| D | 0.919 / 0.691 | 0.932 / 0.546 | 0.825 / 1 |
-| E | 1.000 / 0.473 | 0.951 / 0.467 | 1.000 / 1 |
-| F | 1.124 / 0.765 | 1.158 / 0.599 | 1.175 / 1 |
+| A | 0.521 / 0.572 | 0.533 / 0.558 | 0.450 / 1 |
+| B | 0.550 / 0.572 | 0.563 / 0.558 | 0.475 / 1 |
+| C | 0.820 / 0.587 | 0.815 / 0.581 | 0.650 / 1 |
+| D | 0.919 / 0.691 | 0.971 / 0.564 | 0.825 / 1 |
+| E | 1.000 / 0.473 | 0.995 / 0.482 | 1.000 / 1 |
+| F | 1.124 / 0.765 | 1.208 / 0.613 | 1.175 / 1 |
 
 (Spacing: the multiplier on the stroke-scaled 1966 table, `LC_TIGHT`; 1 means the table scaled by the stroke alone.
 Series A's are B's, with its width factor in proportion to the capitals'.)

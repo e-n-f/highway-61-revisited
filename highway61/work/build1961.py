@@ -163,9 +163,9 @@ if S == 'EM':
             '(1966 recommendation); lower case constructed from the 1966 E(M) sheets (lines and quarter-ellipses); '
             'punctuation made from the letters.')
 if variant.NAME == 'matched':
-    DESC += (' Matched version: the lower case\'s width factor and spacing give its letters, overall, the ratios to E(M) '
-             'that the FHWA 2000 Series %s lower case has to Series E Modified 2000\'s (the s and w left out of the '
-             'measurement), in ink width and in advance%s.' % ('B' if S == 'A' else S, '; Series A, which has no FHWA '
+    DESC += (' Matched version: the lower case\'s width factor and spacing make its letters\' ink widths and advances '
+             'add up to the FHWA 2000 Series %s lower case\'s, at equal cap height (the s and w left out of the '
+             'measurement)%s.' % ('B' if S == 'A' else S, '; Series A, which has no FHWA '
              'font, scales Series B\'s by the capitals\' width factors' if S == 'A' else ''))
 if variant.NAME == 'natural':
     DESC += (' Natural version: the lower case narrowed by the capitals\' width factor, its spacing the 1966 table '

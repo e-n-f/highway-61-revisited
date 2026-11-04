@@ -618,6 +618,12 @@ ends keep their angles.
   E(M)'s, B 0.5343 C 0.7785 D 0.9316 E 0.9512 F 1.1584; then one spacing factor (as LC_TIGHT) makes the advance sum
   the second, B 0.5419 C 0.5606 D 0.5464 E 0.4668 F 0.5985 (within 0.1%).  Series A: B's f times 0.450/0.475, B's
   spacing factor, as in the main fonts.
+- Then anchored absolutely (user: abcde in Matched was always a little narrower than FHWA's).  The ratio version
+  inherits our E(M)'s 3.3% shortfall against ModE (s, w left out), so Matched ran about 3% short of FHWA in every
+  series.  Now f and the spacing factor make our ink-width and advance sums equal FHWA's in cap heights (same letters):
+  f B 0.5631 C 0.8149 D 0.9709 E 0.9952 F 1.2082; spacing B 0.5578 C 0.5805 D 0.5638 E 0.4820 F 0.6126 (sums within
+  0.02%).  abcde's advances over FHWA's: B 1.017, C 1.000, D 1.008, E 0.998, F 0.962; FHWA widens single letters
+  differently from its series average (F's b and d 1.20 of ModE, the average 1.11), which one factor cannot follow.
 - Natural: `lccondense.F` (the capitals' 1961 factors) for the lower case, and the 1966 table scaled by the stroke
   only (no LC_TIGHT), as the capitals' table spaces are.  `lcE.C_REF` follows that version's Series C factor
   (`lccondense.c_ref`), so the e's bar and a's bowl top are still full weight at Series C's narrowing.  The per-series
