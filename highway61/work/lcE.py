@@ -169,7 +169,14 @@ def hook(p,top):
     if p['icy']>p['hyr']: ink=fuse(ink|box(p['hx'],p['hyr'],p['hR'],p['icy']))
     # and so is the strip beside the inner ellipse, from the hook body up to the ellipse's centre
     if p['icy']>min(p['hyl'],p['hyr']): ink=fuse(ink|box(x1,min(p['hyl'],p['hyr']),x1+p['ia'],p['icy']))
-    inner=ellipse(x1+p['ia'],p['icy'],p['ia'],p['ib'])|box(x1,p['icy'],3000,3000)
+    if 'iR' in p:   # (t) the counter's tail side its own quarter-ellipse, from the bottom point up to its right extreme
+                    # (iR, iyr) beyond the steep cut and above the tip: the cut crosses it rising, so the tail ends in
+                    # the 1966 drawing's sharp point (one ellipse turns vertical first, leaving a flat top)
+        xb,B=x1+p['ia'],p['icy']-p['ib']
+        LL=ellipse(xb,p['icy'],p['ia'],p['ib'])&box(x1,-3000,xb,p['icy'])
+        LR=ellipse(xb,p['iyr'],p['iR']-xb,p['iyr']-B)&box(xb,-3000,p['iR'],p['iyr'])
+        inner=fuse(LL|LR|box(x1,p['icy'],xb,3000)|box(x1,p['iyr'],3000,3000))
+    else: inner=ellipse(x1+p['ia'],p['icy'],p['ia'],p['ib'])|box(x1,p['icy'],3000,3000)
     ink=ink.difference(inner)
     # a shallow cut (t) applies only beyond the inner ellipse's centre, so it cannot reach the counter's stem side;
     # a steep one (f, j) applies everywhere right of the stem

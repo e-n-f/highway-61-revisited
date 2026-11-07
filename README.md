@@ -6,13 +6,13 @@ and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archiv
 with the addition of a pleasing, consistent generalization of the
 1966 lower case to the widths and weights of the rest of the series. The "/" character comes from the [1958 Manual for Signing and Pavement Marking of the National System of Interstate and Defense Highways](https://mutcd.kittelson.com/wp-content/uploads/2022/11/1958InterstateSignsMarkings-1.pdf).
 
-<img width="6987" height="1750" alt="Image" src="https://github.com/user-attachments/assets/b08d4dba-1283-4cf2-a15d-7a7e753b94ff" />
+![A line of each Highway 61 Revisited font: capitals, lower case, figures and punctuation](specimen/specimen-lines-h61.png)
 
 It is a protest against the ugly and inconsistent lower case and punctuation
 of the narrow widths of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
 which since 2009 have been required on American street name signs.
 
-<img width="6789" height="1500" alt="Image" src="https://github.com/user-attachments/assets/d14a2244-b723-4200-8226-2b9df44d0b3e" />
+![A line of each FHWA 2000 Standard Alphabets font: capitals, lower case, figures and punctuation](specimen/specimen-lines-fhwa.png)
 
 The 1961 and 1966 letterforms are spaced and kerned as specified in
 the original documents; the other lower cases have tighter spacing
@@ -25,13 +25,17 @@ like those from 2000.
 | Highway 61 Revisited A, B, C, D, E, F | `otf/Highway61Revisited-{A,B,C,D,E,F}.otf` / `ttf/….ttf` |
 | Highway 61 Revisited E(M) | `otf/Highway61Revisited-EM.otf` / `ttf/Highway61Revisited-EM.ttf` |
 
+A Matched version of the lower case's widths and spacing can also be built; its fonts are not in the repository at
+present. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
+
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
 quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
 
 Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 units), x-height 517.5, ascender 690,
 descenders about −200 to −260.
 
-Specimens, in `specimen/`: `specimen-lc-series.png` (all seven series), `comparison-1966-vs-2000.png` (against
+Specimens, in `specimen/`: `specimen-lc-series.png` (all seven series), `specimen-lc-versions.png` (each series'
+lower case beside the FHWA 2000 font's, and the Matched version's if it has been built), `comparison-1966-vs-2000.png` (against
 the FHWA 2000 fonts), and `specimen-lines-h61.png` / `specimen-lines-fhwa.png` (a line of each font, ours and
 FHWA's).  The fonts are in `otf/` and `ttf/`; everything used to make them and the specimens is under `highway61/`. The detailed working history, with
 every construction decision, is in `highway61/HANDOFF.md`.
@@ -203,6 +207,41 @@ out the same weight as stems and bars.
   bearings from the matching Highway Even 1966 font (`highway61/outputs/HighwayEven1966-<S>.ttf`, for E(M)
   `highway61/outputs/Highway1966-EM-Constructed.ttf`), the earlier traced fonts of this project.
 
+## The Matched version of the lower case
+
+*Not built at present:* the code and its factors (`work/matched.json`) are kept, but the Matched fonts are not in
+the repository while the decision about metric matching is open. `python3 build1961.py <S> matched` (A–F and EM)
+builds them into `otf/` and `ttf/`.
+
+The main fonts set each series' lower-case width factor and spacing so that the whole a–z is as long as in the FHWA
+2000 font. The Matched version (`Highway 61 Revisited Matched`, `work/variant.py`) differs only in those two numbers
+per series. It follows FHWA's totals for ink width and for advances, separately. One width factor per series makes
+our a–z ink widths add up to the FHWA 2000 font's, at equal cap height. One spacing factor (on the stroke-scaled
+1966 table, as `LC_TIGHT` is) then makes our a–z advances add up to FHWA's. The s and w are left out of both totals.
+Every letter is narrowed the same way, s and w included: FHWA draws its s narrower and its w wider than the rest,
+and those are not followed. Single letters still differ from FHWA's, because FHWA doesn't narrow every letter by the
+same amount. Series A, which has no FHWA font, takes Series B's factors in proportion to the capitals' (as the main
+fonts do). `work/lcmatch.py` solves the factors into `work/matched.json`.
+
+| Series | Main: width / spacing | Matched: width / spacing |
+|---|---|---|
+| A | 0.521 / 0.572 | 0.533 / 0.558 |
+| B | 0.550 / 0.572 | 0.563 / 0.558 |
+| C | 0.820 / 0.587 | 0.815 / 0.581 |
+| D | 0.919 / 0.691 | 0.971 / 0.564 |
+| E | 1.000 / 0.473 | 0.995 / 0.482 |
+| F | 1.124 / 0.765 | 1.208 / 0.613 |
+| E(M) | 1 / 1 | 1.051 / 1.031 |
+
+(Spacing: the multiplier on the stroke-scaled 1966 table, as `LC_TIGHT`; 1 would be the table scaled by the stroke
+alone. In Main and Matched, Series A takes B's, with its width factor in proportion to the capitals'.)
+
+Matched E(M) is matched to FHWA's Series E
+Modified 2000 in the same way, keeping E(M)'s strokes as drawn: its lower case is widened by direction alone
+(`lccondense.PROP`), not evened to a series weight, so at a factor of 1 it would be E(M) itself. The 1998–2000
+digital ModE lower case is 3.3% wider than the 1966 drawings; Matched E(M) takes that width. Its capitals are
+E(M)'s.
+
 ## Regenerating the fonts
 
 Requirements: Python 3.10 or later (tested with 3.13) and
@@ -224,6 +263,9 @@ for S in A B C D E EM F; do python3 strokecheck.py $S; done   # every glyph must
 python3 spacingcheck.py                                        # every table pair within a unit of the standard
 ```
 
+The Matched version: `python3 build1961.py <S> matched` writes `Highway61RevisitedMatched-<S>`;
+`strokecheck.py <S> matched` and `spacingcheck.py matched` check it the same way.
+
 `build1961.py <S>` writes `otf/Highway61Revisited-<S>.otf` and `ttf/Highway61Revisited-<S>.ttf`. The fonts' version (the `head`
 revision and the name table's version string) is `VERSION` near the top of `build1961.py`: raise it for each
 release, or Font Book and other font managers will treat the new fonts as duplicates of installed ones. Rebuilding from a fresh clone reproduces the
@@ -241,13 +283,15 @@ The scans (`work/p1961/`, `work/lc1966/p3?.jpg`) are needed only for refitting a
 
 Everything in `highway61/outputs/` is either one of these base fonts or the output of a current script:
 `specimen1961.py` (`specimen-1961-<S>.png`), `lcspecimen.py` (`specimen-lc-E.png`), `emverify.py`
-(`verify-EM-caps.png`) and `fhwacompare.py` (`compare-fhwa2000.png`). The base fonts come from the project's
+(`verify-EM-caps.png`), `lcverify.py` (`verify-EM-lc.png`: the E(M) lower case in red over the 1966 sheets) and `fhwacompare.py` (`compare-fhwa2000.png`). The base fonts come from the project's
 earlier traced fonts and are not regenerated by the current process.
 
 Specimens:
 
 ```
 python3 lcseries.py          # specimen/specimen-lc-series.png: all seven series
+python3 versionspecimen.py   # specimen/specimen-lc-versions.png: each series' lower case in both versions
+                             # (and FHWA 2000's, if fhwa2otf.py has made its fonts)
 python3 specimen1961.py D    # highway61/outputs/specimen-1961-D.png: one series' capitals and figures
 ```
 
@@ -257,6 +301,7 @@ Refitting and retuning, only when changing the designs:
 python3 lcfitall.py nhm      # refit the named lower-case letters to the 1966 scans (rewrites lc1966/fit.json)
 python3 lcwidth.py B         # solve a series' lower-case width factor; copy the result into lccondense.F_LC
 python3 lcspace.py B         # then its lower-case spacing factor; copy the result into spacing.LC_TIGHT
+python3 lcmatch.py B         # the Matched version's two factors for a series (rewrites its entry in matched.json)
 ```
 
 ### Comparison with the FHWA 2000 fonts
@@ -272,5 +317,5 @@ python3 linespecimen.py            # specimen/specimen-lines-{h61,fhwa}.png: a l
 ```
 
 The repository does not include these fonts (`highway61/fhwa2000/` is git-ignored). They are part of the official
-publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`, `linespecimen.py`,
-`lcwidth.py` or `lcspace.py`, which need them.
+publication, and `fhwa2otf.py` recreates them from it. Run it before `fhwaspecimen.py`, `fhwacompare.py`, `linespecimen.py`, `versionspecimen.py`,
+`lcwidth.py`, `lcspace.py` or `lcmatch.py`, which need them.

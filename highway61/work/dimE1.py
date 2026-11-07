@@ -22,18 +22,32 @@ def letter_A():
     inner=(side(pL+nL*A,dL,g.X,g.Y)>=0)&(side(pR+nR*A,dR,g.X,g.Y)<=0)
     m=outer&~(inner&((g.Y<C)|(g.Y>C+A)))
     return g.bitmap(m)
+KU=None; KL=None   # corner radii of the upper and lower counters' ends (None: fitted, BK below); the table gives none
 def letter_B():
+    """counters: bars A thick, the middle bar centred on J; each counter's end a side arc, G (upper) or H (lower),
+    centred at the counter's mid-height, joined to its flat top and bottom by corner arcs tangent to both (radius BK:
+    the table has no corner dimension, so it is fitted to the drawing, which shows the ends running smoothly into the
+    flats).  (A counter is shorter than its side arc's diameter, so the arc alone met the flats at about 30 degrees.)"""
     g=Grid(); D,E,F,G,H,I,J=DIM['D'],DIM['E'],DIM['F'],DIM['G'],DIM['H'],DIM['I'],DIM['J']
     cu=np.array([D-I-F,CAP-F]); cl=np.array([D-E,E])                     # outer bowls touch the top / baseline
     outer=((g.X>=0)&(g.X<=cu[0])&(g.Y>=J)&(g.Y<=CAP))|((g.X>=0)&(g.X<=cl[0])&(g.Y>=0)&(g.Y<=J))
     outer|=(g.disk(cu,F)&(g.X>=cu[0])&(g.Y>=J-200))|(g.disk(cl,E)&(g.X>=cl[0])&(g.Y<=J+200))
     outer&=(g.Y>=0)&(g.Y<=CAP)
-    # counters: bars A thick; middle bar centred on J; rounded ends of radius G (upper) and H (lower)
     ut,ub=CAP-A,J+A/2; lt,lb=J-A/2,A
     ciu=np.array([D-I-A-G,(ut+ub)/2]); cil=np.array([D-A-H,(lt+lb)/2])
-    cnt=((g.X>=A)&(g.X<=ciu[0])&(g.Y>ub)&(g.Y<ut))|(g.disk(ciu,G)&(g.X>=ciu[0])&(g.Y>ub)&(g.Y<ut))
-    cnt|=((g.X>=A)&(g.X<=cil[0])&(g.Y>lb)&(g.Y<lt))|(g.disk(cil,H)&(g.X>=cil[0])&(g.Y>lb)&(g.Y<lt))
+    def end(top,bot,c,R,k):
+        """counter from x = A rightwards: side arc R centred at c, corners k tangent to the flats and to R"""
+        def corner(y,sgn):
+            yc=y-sgn*k; return np.array([c[0]+np.sqrt((R-k)**2-(yc-c[1])**2),yc])
+        ct,cb=corner(top,1),corner(bot,-1)
+        ang=lambda p,q: np.degrees(np.arctan2(q[1]-p[1],q[0]-p[0]))
+        m=(g.X>=A)&(g.Y>bot)&(g.Y<top)&(g.disk(c,R)|(g.X<=c[0]))
+        m&=~(g.sector(ct,ang(c,ct),90)&~g.disk(ct,k))
+        m&=~(g.sector(cb,-90,ang(c,cb))&~g.disk(cb,k))
+        return m
+    cnt=end(ut,ub,ciu,G,BK[0] if KU is None else KU)|end(lt,lb,cil,H,BK[1] if KL is None else KL)
     return g.bitmap(outer&~cnt)
+BK=(70.0,85.0)   # fitted to the drawing (page 180): upper counter half-height 72.8, lower 94.3
 def letter_C():
     g=Grid(); D,K,L,M=DIM['D'],DIM['K'],DIM['L'],DIM['M']
     cK=np.array([K,CAP/2]); yu=TOP-L; yl=BOT+L

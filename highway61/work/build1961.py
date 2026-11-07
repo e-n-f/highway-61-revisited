@@ -20,6 +20,9 @@ from fontTools.pens.reverseContourPen import ReverseContourPen
 import vgeom, outline, lcoutline, strokeop
 
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
+import variant                                   # the version of the lower-case widths and spacing (variant.py)
+if len(sys.argv) > 2: variant.NAME = sys.argv[2]
+assert variant.NAME in variant.NAMES
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
 DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')   # the fonts go to the repository's top level
 BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' else 'HighwayEven1966-%s.ttf' % ('B' if S == 'A' else S)))
@@ -29,9 +32,9 @@ SB_SCALE = 0.766 if S == 'A' else 1.0
 SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
-FAMILY = 'Highway 61 Revisited %s' % ('E(M)' if S == 'EM' else S)
-VERSION = '1.013'          # bump for every release: Font Book compares it to decide whether a font is a new version
-PS = 'Highway61Revisited-%s' % S
+FAMILY = 'Highway 61 Revisited%s %s' % (variant.FAMILY[variant.NAME], 'E(M)' if S == 'EM' else S)
+VERSION = '1.017'          # bump for every release: Font Book compares it to decide whether a font is a new version
+PS = 'Highway61Revisited%s-%s' % (variant.PS[variant.NAME], S)
 
 geoms = vgeom.series('E' if S == 'EM' else S)
 order = BASE.getGlyphOrder()
@@ -97,6 +100,11 @@ def _lighter_w(C, T):
     return strokeop.vmap(strokeop.offset(C, -d), bands)
 if S in 'ABCDEF':
     new['w'] = SegShifted(_lighter_w(new['w'].c, lccondense.stroke(S)), 'w')
+elif variant.NAME == 'matched':                  # Matched E(M): its lower case widened as drawn (lccondense.PROP)
+    import lccondense
+    for c, C in lccondense.series(S).items():
+        new[c] = SegShifted(C, c)
+    new['w'] = SegShifted(_lighter_w(new['w'].c, lccondense.stroke(S)), 'w')
 else:
     g, prims = lcE.series()['w']
     new['w'] = SegShifted(_lighter_w(strokeop.from_lc(g, prims), (1 + 9 / 16) * 690 / 8), 'w')
@@ -159,6 +167,11 @@ if S == 'EM':
     DESC = ('Series E(M): 1961 Series E capitals and figures with the stroke widened to one-fifth of the letter height '
             '(1966 recommendation); lower case constructed from the 1966 E(M) sheets (lines and quarter-ellipses); '
             'punctuation made from the letters.')
+if variant.NAME == 'matched':
+    DESC += (' Matched version: the lower case\'s width factor and spacing make its letters\' ink widths and advances '
+             'add up to the FHWA 2000 Series %s lower case\'s, at equal cap height (the s and w left out of the '
+             'measurement)%s.' % ({'A': 'B', 'EM': 'E Modified'}.get(S, S), '; Series A, which has no FHWA '
+             'font, scales Series B\'s by the capitals\' width factors' if S == 'A' else ''))
 
 
 def setup(fb, outlines_kind):

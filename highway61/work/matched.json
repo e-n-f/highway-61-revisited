@@ -1,0 +1,50 @@
+{
+ "B": {
+  "advance_multiplier": 0.48999,
+  "advance_total": 10.7298,
+  "f": 0.5631,
+  "ink_multiplier": 0.55672,
+  "ink_total": 8.3449,
+  "tight": 0.5578
+ },
+ "C": {
+  "advance_multiplier": 0.6406,
+  "advance_total": 14.0281,
+  "f": 0.8149,
+  "ink_multiplier": 0.75221,
+  "ink_total": 11.2752,
+  "tight": 0.5805
+ },
+ "D": {
+  "advance_multiplier": 0.74251,
+  "advance_total": 16.2596,
+  "f": 0.9709,
+  "ink_multiplier": 0.88739,
+  "ink_total": 13.3015,
+  "tight": 0.5638
+ },
+ "E": {
+  "advance_multiplier": 0.75997,
+  "advance_total": 16.6421,
+  "f": 0.9952,
+  "ink_multiplier": 0.9258,
+  "ink_total": 13.8772,
+  "tight": 0.482
+ },
+ "EM": {
+  "advance_multiplier": 1.0,
+  "advance_total": 21.8982,
+  "f": 1.051,
+  "ink_multiplier": 1.0,
+  "ink_total": 14.9895,
+  "tight": 1.0314
+ },
+ "F": {
+  "advance_multiplier": 0.93334,
+  "advance_total": 20.4386,
+  "f": 1.2082,
+  "ink_multiplier": 1.10557,
+  "ink_total": 16.5719,
+  "tight": 0.6126
+ }
+}

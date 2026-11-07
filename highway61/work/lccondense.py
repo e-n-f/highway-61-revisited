@@ -19,7 +19,9 @@ D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
 LC_CAPS=True                           # the lower-case stroke is the capitals' (False: E(M)'s lower case's relation
                                        # to its capitals, 134.8 to 138, kept: 3.2 units lighter in every series)
-def stroke(S): return A[S] if LC_CAPS else V_EM-2*D_EM+(A[S]-A['E'])
+def stroke(S):
+    if S=='EM': return V_EM                 # E(M)'s lower case as drawn (only the Matched version widens it)
+    return A[S] if LC_CAPS else V_EM-2*D_EM+(A[S]-A['E'])
 def pair(c):
     """(cut letter, its ellipses, uncut letter, its ellipses).  Straight-line letters: the uncut letter has its
     slanted stem top (k) squared off"""
@@ -101,14 +103,24 @@ def _s_direct(f,gx,ey,k,S=None):
         q[pre+'x'],q[pre+'y']=mm; q[pre+'ref']=tuple(mm-n*30.0)      # a point on the ink side of the cut
     lcgeom.REG.clear(); g=lcE.clean(lcE.letter_s_ell(q)); prims=list(lcgeom.REG)
     return [[tuple(sg) for sg in segs] for segs in lcoutline.contours(g,prims)]
+def f_lc(S):
+    """the lower-case width factor of series S in the version being built (variant.py)"""
+    import variant
+    if variant.NAME=='matched':                     # lcmatch.py; Series A: Series B's ratio to the capitals' factor
+        return variant.matched()['B']['f']*F['A']/F['B'] if S=='A' else variant.matched()[S]['f']
+    return F_LC[S]
+def c_ref():
+    """Series C's condensation in the version being built: where lcE.condensed_ae is full"""
+    return 1-F_LC['C']
 def series(S,f=None,only=None):
-    f=F_LC[S] if f is None else f
+    f=f_lc(S) if f is None else f
+    lcE.C_REF=c_ref()
     lcE.COND=1-f                                    # the e's bar and the a's bowl top follow the condensation (lcE)
     ey0=(V_EM-stroke(S))/2
     lcE.COMP=ey0/(1-V_EM/X)-ey0 if EXACT_H else 0.0  # (and its outer bands' strokes are compensated, lcE.outer_bands)
     lcE.FHOOK=F_HOOK.get(S,0.0)
     try: out=_series(S,f,only)
-    finally: lcE.COND=0.0; lcE.COMP=0.0; lcE.FHOOK=0.0
+    finally: lcE.COND=0.0; lcE.COMP=0.0; lcE.FHOOK=0.0; lcE.C_REF=1-F_LC['C']
     n=squareness(S)
     ey=(V_EM-stroke(S))/2; ey=ey/(1-V_EM/X) if EXACT_H else ey; k=(X+2*ey)/X
     bands=[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)]           # condense2's vertical map
@@ -124,10 +136,13 @@ SQUARE=True
 PLAIN_R={'B':65.0}  # the direction-only zone at a cut's ends reaches a stroke, in B only this far (units): its
                     # whole stroke reached the a's arch, which came out 0.82 of the stroke.  (Capping it in C and D
                     # too thickened their a's bowl tops: the zone keeps those at their condensed_ae weight)
-CUT_BACK={'r':{'A':20.0,'B':20.0}}   # the r's arm cut this much further back (units, along the cut's normal): its
-                    # point had come out sharp in the narrowest series (user)
-CUT_TURN={'t':{'A':25.0,'B':25.0}}   # the t's tail cut turned clockwise by this much (degrees): its nearly
-                    # level cut left a flat shelf on the narrowest series' tails (user)
+CUT_BACK={'r':{'A':20.0,'B':20.0},'t':{'B':8.0}}   # the r's arm cut this much further back (units, along the cut's
+                    # normal): its point had come out sharp in the narrowest series (user).  The t's steep tail cut in
+                    # B: at f 0.55 the remade cut fell about 12 units right of where the counter's rising edge ends,
+                    # leaving a short ledge in place of the 1966 point (Matched B, f 0.563, met it already)
+CUT_TURN={}         # a letter's rightmost cut turned clockwise by this much (degrees), {letter: {series: deg}}.  (The
+                    # t's had 25 in A and B while its tail was cut nearly level, which left a flat shelf; its 1966
+                    # steep cut, which ends the tail in a point, needs none)
 F_HOOK={'A':9.9,'B':5.2,'C':4.2,'D':1.7}   # the f's hook thickened by this much more (units, lcE.FHOOK): the narrowest series' hooks came out
                     # light (A 0.6 of the stroke near its end, against E(M)'s 0.79); solved to E(M)'s proportion
                     # (E 0.79 and F 0.81 already)
@@ -144,6 +159,8 @@ N_BACK={'A':2.90,'B':2.75}   # in proportion to the O these would be A 3.62, B 3
 def squareness(S):
     if S in N_BACK: return N_BACK[S]
     return 2.0 if S=='EM' else max(2.0,2*N_O[S]/N_O['E'])
+PROP={'EM':False}   # E(M) widened (Matched E(M)) keeps its strokes as drawn, every edge moved by direction alone (as at
+                    # f 1 nothing moves); the other series' strokes are evened to the series weight (strokeop.PROPORTIONAL)
 def _series(S,f,only):
     T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
@@ -168,7 +185,7 @@ def _series(S,f,only):
             es=ey if EXACT_H else ey/(1-V_EM/X)
             out[c]=_s_direct(f,gx,es,(X+2*es)/X,S); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
-            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
+            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM,V=(V_EM if S=="EM" else None),proportional=PROP.get(S)); continue
         gc,pc,gu,pu=pair(c)
         cs=cuts(c); gl=gc; stubs=[]; DX={}
         for p0,p1,n in cs:
@@ -187,7 +204,7 @@ def _series(S,f,only):
         # edges near a cut's ends move by direction alone, as the remade cut is placed (edge(), below): measured
         # widths there run across the oblique cut, and the r's counter fell short of its arm's cut
         plain=[(P(q),min(T,PLAIN_R.get(S,T))) for p0,p1,n in cs for q in (p0,p1)]
-        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain)
+        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain,V=(V_EM if S=="EM" else None),proportional=PROP.get(S))
         geom=_polygon(C)
         prims2=[s[3] for cc in C for s in cc if s[0]=='E']
         for (p0,p1,n),st in zip(cs,stubs):
@@ -207,7 +224,7 @@ def _series(S,f,only):
             # stub, which is thinned less (Series A's t)
             Sg=None
             for pr in (True,False):
-                Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr)
+                Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr,V=(V_EM if S=="EM" else None))
                 g_=_polygon(Cs); Sg=g_ if Sg is None else Sg|g_
             Sg=Sg.buffer(10.0,join_style=2)                 # (beyond the cut only: H, below)
             turn=np.radians(CUT_TURN.get(c,{}).get(S,0.0)) if last else 0.0

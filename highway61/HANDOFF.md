@@ -604,6 +604,131 @@ ends keep their angles.
   height and its level tangent at that point, and is as wide as it must be to meet the stem at the notch's depth.
   The depths are as in 1.012 (`lccondense.NOTCH`); NOTCH_ANGLE is gone.  VERSION 1.013.
 
+### Matched and Natural versions of the lower case (2026-11-04)
+- User: a version whose lower-case width and advance multipliers are FHWA's, and a version with natural widths and
+  advances relative to the capitals.  `work/variant.py` names the version (`build1961.py <S> matched|natural`);
+  the fonts are `Highway 61 Revisited Matched <S>` / `Natural <S>` (`Highway61RevisitedMatched-<S>` etc.).  E(M) is the
+  reference for both and has no other version.
+- First tried per letter (each letter's ink width and advance E(M)'s times FHWA's ratio for that letter).  The
+  FHWA narrow series are not uniform scalings of ModE: core ratios in Series D run from s 0.67, z 0.71, r 0.73,
+  t 0.74 to k 1.05, w 1.18.  User: one multiplier per width, no per-letter cases, and especially not FHWA's s and w.
+- Matched (`lcmatch.py` -> `work/matched.json`): FHWA Series S 2000 over Series E Modified 2000, summed over a-z
+  without s and w: ink widths B 0.5567, C 0.7522, D 0.8874, E 0.9258, F 1.1056; advances B 0.4900, C 0.6406, D
+  0.7425, E 0.7600, F 0.9333.  One width factor f per series makes our ink-width sum (same letters) that multiple of
+  E(M)'s, B 0.5343 C 0.7785 D 0.9316 E 0.9512 F 1.1584; then one spacing factor (as LC_TIGHT) makes the advance sum
+  the second, B 0.5419 C 0.5606 D 0.5464 E 0.4668 F 0.5985 (within 0.1%).  Series A: B's f times 0.450/0.475, B's
+  spacing factor, as in the main fonts.
+- Then anchored absolutely (user: abcde in Matched was always a little narrower than FHWA's).  The ratio version
+  inherits our E(M)'s 3.3% shortfall against ModE (s, w left out), so Matched ran about 3% short of FHWA in every
+  series.  Now f and the spacing factor make our ink-width and advance sums equal FHWA's in cap heights (same letters):
+  f B 0.5631 C 0.8149 D 0.9709 E 0.9952 F 1.2082; spacing B 0.5578 C 0.5805 D 0.5638 E 0.4820 F 0.6126 (sums within
+  0.02%).  abcde's advances over FHWA's: B 1.017, C 1.000, D 1.008, E 0.998, F 0.962; FHWA widens single letters
+  differently from its series average (F's b and d 1.20 of ModE, the average 1.11), which one factor cannot follow.
+- Natural: `lccondense.F` (the capitals' 1961 factors) for the lower case, and the 1966 table scaled by the stroke
+  only (no LC_TIGHT), as the capitals' table spaces are (superseded below: spaces in proportion to the letters).  `lcE.C_REF` follows that version's Series C factor
+  (`lccondense.c_ref`), so the e's bar and a's bowl top are still full weight at Series C's narrowing.  The per-series
+  tunings (S_SPINE, S_HBAR, F_HOOK, NOTCH...) are the main fonts' as they stand, not re-solved for the narrower
+  widths.  Note: the Palo Alto Series C signs match the main fonts' C lower case (0.82), not Natural's 0.65.
+- Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
+  table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
+
+### Matched fonts not built for now (2026-11-07)
+- User: stop generating the Matched fonts for now, keeping the code, so the glyph fixes can be merged before
+  deciding about metric matching.  `otf/ttf/Highway61RevisitedMatched-*` removed from the repository; variant.py,
+  lcmatch.py, matched.json and `build1961.py <S> matched` unchanged (A-F, EM).  versionspecimen.py leaves out the
+  Matched rows when the fonts are not there.
+
+### Series E B: smooth counter ends (2026-11-07)
+- User (verify-EM-caps): the E(M) B's counters met their flats in sharp corners; the 1961 drawing (page 180) shows
+  them running in smoothly, as the P's and R's do.  Only Series E (and so E(M)) had it: `dimE1.letter_B` ended
+  each counter with one arc, G (86.2) upper and H (107.8) lower, centred at mid-height, but the counters are only
+  145.6 and 188.6 tall, so the arcs were cut by the flats at about 30 degrees.  A-D and F use `_counter_end`.
+- Now each end is the side arc with corner arcs tangent to the flat and to it (as `_counter_end`); the table has no
+  corner radius, so `dimE1.BK` = (70, 85) units is fitted to the drawing with scanfit (upper half-height 72.8, lower
+  94.3: the ends come out nearly semicircular, as drawn).  Worst distance to the drawn lines at the counter ends
+  8.8 -> 3.3 (upper) / 2.6 (lower) units; all joins tangent (tancheck).  Only B in E, E(M) and their Matched fonts
+  changes.  VERSION 1.017.
+
+### g: the bowl's lower right, and the tail's inside (2026-11-07)
+- User: the outside of the E(M) g's bowl at its lower right, where it meets the tail, is fuller in ours than in
+  the 1966 drawing (the bowl is asymmetrical top to bottom and left to right).  Measured along rays from the bowl's
+  middle: ours 2-5 units inside the scan elsewhere (printing spread), but 12 units outside it at about -50 degrees,
+  just before the tail: the lower-right quarter (bottom point to BR2 4.94 at Byr2 1.69, inside the stem) was long
+  and flat.  (Against the FHWA ModE g, ours is far the closer to 1966: tail median 1.6 / p95 5.4 units against
+  5.4 / 12.4; FHWA's tail's inside is nearly straight and joins the stem lower.)
+- lcfitall's least squares left BR2, Byr2 and the tail's inner ellipse TI where they started (as the t's iyr), so
+  those six were fitted by Nelder-Mead on the same soft-l1 distance, from BR2 4.2, Byr2 2.2: BR2 4.534, Byr2 2.841,
+  TI centre (1.442, 0.662), 2.003 x 2.336 (was (1.556, 1.280), 2.019 x 2.947: rounder, as the user's construction
+  drawing suggested).  Fit p95 3.59 -> 3.00, max 14.0 -> 9.0, median 1.10 -> 1.02; the lower right now 0-3 units
+  inside the scan like the rest, the junction where the drawing has it.  VERSION 1.016.
+
+### t: the 1966 tail, a straight edge to a sharp point (2026-11-07)
+- User (page 33 scan): the 1966 t's tail comes to a sharp point, its right edge a straight diagonal; ours had a
+  curved right edge and a small flat top.  Ours was cut by a nearly level line (tth 4.9), the outer curve running
+  round to it.  The 1966 cut is the right edge itself: on the scan about (3.69, 0.33) to (3.95, 2.03) squares, 81 deg.
+- Refit with that cut (lcfitall.py t): 80.6 deg; fit p95 5.46 -> 4.03, max 17.3 -> 9.8.  But one inner ellipse
+  turns upright before it meets the cut, which left a 13-unit flat at the tip, and holding its centre higher (to
+  make a point) wrecked the fit (p95 9.8).
+- `lcE.hook` with `iR`, `iyr` (t only): the counter is two quarter-ellipses sharing its bottom point, the stem side
+  as before (ia, ib, icy) and the tail side its own quarter rising to a right extreme (iR, iyr) beyond the cut and
+  above the tip; the steep cut crosses it rising, so the tail ends in a point.  The optimizer does not move iyr, and
+  an extreme just beyond the cut (iR 4.31, iyr 2.66: p95 3.89, max 6.3) left the condensed narrow series' cut short
+  of the curve (a ledge in B), so iR 5.0, iyr 3.8 are set by hand and the rest refitted: p95 3.98, max 10.7.
+- `lccondense.CUT_TURN` for the t (A, B 25 deg, for the old level cut) removed.  `CUT_BACK['t']['B']` 8 units: at
+  f 0.55 the remade cut still fell about 12 units right of the end of the counter's edge, leaving a short ledge
+  (Matched B at f 0.563 met it).  Every series' t now ends in a point.  VERSION 1.015 (E(M) changes too).
+
+### Natural version dropped (2026-11-07)
+- User: not particularly useful or good-looking.  The Natural fonts, `lcnatural.py`, `natural.json` and the
+  'natural' variant are removed; the entries below describe it as it was (its fonts are in git history).  Matched
+  and Main are unchanged.
+
+### Matched E(M) (2026-11-07)
+- User: a Matched E(M) against FHWA Series E Modified 2000, as for the other widths.  "hedgerows" had shown that
+  the E(M)/ModE difference is in the letters, not the spacing: gaps within a few units pair by pair (E(M)'s
+  kerning there totals -6), ink 4079 against 4244 (h e d g 434-450 against 455 each, w 657 / 702, s 427 / 453).
+  HighwayD98 and HighwayME98 (in the same publication) equal the 2000 fonts letter for letter, so the digital
+  drawings date from 1998 or before; the user reports the 1983 edition's d is still 1966's narrow one.
+- `build1961.py EM matched`: the E(M) lower case goes through `lccondense.series('EM')` (stroke V_EM, ey 0, k 1)
+  instead of straight from lcE.  `lccondense.PROP['EM'] = False`: edges move by direction alone, so E(M)'s strokes
+  stay as drawn (proportional evening at f 1 had changed letters by up to 6 units; by direction alone f 1 gives E(M)
+  back, b and d notches 1-2 units deeper from NOTCH).  `strokeop.condense2(V=...)`: the source stroke given for E(M),
+  where k = f makes it unrecoverable from gx and ey (passed for E(M) only: the masks beyond the cuts, made with the
+  plain erosion, had used the inferred value, and the other fonts rebuild identically).
+- lcmatch.py EM: f 1.051, spacing 1.0314 (on the table itself, E(M)'s stroke ratio being 1).  Ink and advance sums
+  (no s, w) 1.0001 of ModE's; a-z 0.999, hedgerows 1.004, abcde 1.013.  No Natural E(M).
+
+### Natural spacing in proportion to the letters (2026-11-04)
+- User: Natural B very widely spaced.  The stroke-scaled table shrinks spaces by the stroke (B 0.64) while the letters
+  shrink by the width factor (0.475 of the core): a-z space over ink width B 0.56, against E(M) 0.44 and Main B 0.29
+  (capitals 0.25 in E, 0.36 in B by the same rule).  User: scale the lower-case spaces by the same factor as the
+  letters.
+- `lcnatural.py` -> `natural.json`: one spacing factor per series (on the stroke-scaled table, as LC_TIGHT) giving
+  the a-z E(M)'s space/ink ratio 0.4416: A 0.939, B 0.798, C 0.924, D 1.014, E 1.097, F 1.170 (ratios 0.441-0.443).
+  A solved on its own.  a-z lengths: A 10.42, B 11.96, C 15.38, D 18.74, E 22.26, F 25.90 cap heights (B was 12.90,
+  E 21.64, F 24.73): B and C tighter, D-F looser, as E(M)'s lower case is spaced more loosely than FHWA's.
+
+### u notch: junction probes (2026-11-04)
+- User: Matched D's u had a much bigger notch than its n.  Notch depths (stem edge to where the bowl or arch meets
+  it): n 50.8, u 104.2 at Matched D's f 0.971, against n 47.8, u 52.3 at f 0.95.  Not deepen_notches or the
+  squarer: `strokeop._proportional` gave the u's outer bowl arc (the quarter from its bottom point up to the stem) a
+  semi-axis of 117 instead of about 140, so it met the stem twice as high.
+- Cause: the arc's probes near its ends (at 0.9 and 0.97 of its sweep, the latter counted thrice).  Beside the stem
+  the ray from the bowl's end runs through the junction.  Up to f 0.955 it passed under the counter and crossed the
+  whole letter (2.8 strokes: no stroke, weak, full-stroke amount); from 0.96 it met the counter at 1.1-1.2 strokes
+  and was taken as a stroke to even out (25 units against 17 elsewhere on the arc), at full weight.  Series E's u
+  had the same at f 1.0 exactly (Main and Natural E): the ray read just over a stroke, notch 60.3 against 52.2 at
+  f 0.995.
+- `strokeop.END_CAP`: a probe near an arc's end asks at most the thinning beyond a full stroke's that the arc's
+  middle asks.  A junction's local thickening is no longer evened out, while a stroke heavy all along keeps its
+  evening (a plain cap at the full-stroke amount made B's e sides 2.5 units heavy, undoing the 1.010 fix).
+  Continuous in the measured widths; thinner strokes (the thinning at junctions) are untouched.  Sweeps of f over
+  each series' range now change n and u notches smoothly; u is 3-5 units deeper than n in C, D, E (as in E(M):
+  33.7 / 38.5, the 1966 drawings' own difference), 9 shallower in F, and A and B are set by NOTCH.
+- Main fonts: hairline changes at the junctions of a b d e g h j m n p q r t u (largest the m's crotch, under about a
+  unit along it), advances within 3 units; E's u notch 60.3 -> 52.9.  E(M) unchanged.  Matched and Main totals
+  within 0.06% of before (factors not re-solved).  VERSION 1.014.
+
 ### Next steps
 0. Lower case: harmonise shared dimensions (stem, overshoot, bowl family a/b/d/g/p/q), improve t, f, s; the user
    reviewed the first full set; their notches/joins list (a f h n r s t u) is fixed (2026-10-16).
