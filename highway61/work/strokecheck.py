@@ -1,12 +1,12 @@
 """Check the stroke-changed outlines in the built fonts: each glyph's flattened contours must form a valid shape, and
 no corner may touch a segment shorter than 6 units that the source outline did not have.
-python3 strokecheck.py E|EM [matched|natural]"""
+python3 strokecheck.py E|EM [matched]"""
 import sys, numpy as np
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import RecordingPen
 from shapely.geometry import Polygon
 from shapely.validation import explain_validity
-S=sys.argv[1]; V={'':'','matched':'Matched','natural':'Natural'}[sys.argv[2] if len(sys.argv)>2 else '']
+S=sys.argv[1]; V={'':'','matched':'Matched'}[sys.argv[2] if len(sys.argv)>2 else '']
 F=TTFont(f'../../otf/Highway61Revisited{V}-{S}.otf'); gs=F.getGlyphSet()
 names=[c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']+['zero','one','two','three','four','five','six','seven','eight','nine']+list('abcdefghijklmnopqrstuvwxyz')
 for n in names:

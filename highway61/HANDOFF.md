@@ -632,6 +632,11 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### Natural version dropped (2026-11-07)
+- User: not particularly useful or good-looking.  The Natural fonts, `lcnatural.py`, `natural.json` and the
+  'natural' variant are removed; the entries below describe it as it was (its fonts are in git history).  Matched
+  and Main are unchanged.
+
 ### Matched E(M) (2026-11-07)
 - User: a Matched E(M) against FHWA Series E Modified 2000, as for the other widths.  "hedgerows" had shown that
   the E(M)/ModE difference is in the letters, not the spacing: gaps within a few units pair by pair (E(M)'s

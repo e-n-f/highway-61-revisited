@@ -4,8 +4,7 @@
 Main (lccondense.F_LC, spacing.LC_TIGHT: the a-z as wide as FHWA 2000's), Matched (one width factor and one spacing
 factor per series making the a-z's ink widths and advances, s and w left out, add up to FHWA's; lcmatch.py), the FHWA
 2000 font itself where there is one (B-F, and Series E Modified beside E(M); fhwa2otf.py, skipped if its fonts are
-not there), and Natural (the capitals' width factor, spaces in E(M)'s proportion to the letters; none for E(M));
-see variant.py.  All at equal cap height.  Words are set with each font's
+not there); see variant.py.  All at equal cap height.  Words are set with each font's
 advances; the FHWA subsets have no space, so they get the main font's space of the same series, in cap heights (as
 in fhwaspecimen.py)."""
 import os
@@ -22,7 +21,6 @@ def versions(S):
     out = [('Main', ours(''), sp), ('Matched', ours('Matched'), info(ours('Matched'))[1])]
     fh = os.path.join(FH, 'Series%s2000-Normal.otf' % ('ModE' if S == 'EM' else S))
     if os.path.exists(fh): out.append(('FHWA 2000', fh, sp))
-    if S != 'EM': out.append(('Natural', ours('Natural'), info(ours('Natural'))[1]))   # (E(M) has none)
     return out
 
 

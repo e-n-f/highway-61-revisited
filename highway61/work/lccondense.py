@@ -106,14 +106,12 @@ def _s_direct(f,gx,ey,k,S=None):
 def f_lc(S):
     """the lower-case width factor of series S in the version being built (variant.py)"""
     import variant
-    if variant.NAME=='natural': return F[S]
     if variant.NAME=='matched':                     # lcmatch.py; Series A: Series B's ratio to the capitals' factor
         return variant.matched()['B']['f']*F['A']/F['B'] if S=='A' else variant.matched()[S]['f']
     return F_LC[S]
 def c_ref():
     """Series C's condensation in the version being built: where lcE.condensed_ae is full"""
-    import variant
-    return 1-(F['C'] if variant.NAME=='natural' else F_LC['C'])
+    return 1-F_LC['C']
 def series(S,f=None,only=None):
     f=f_lc(S) if f is None else f
     lcE.C_REF=c_ref()

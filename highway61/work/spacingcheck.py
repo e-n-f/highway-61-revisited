@@ -146,9 +146,9 @@ def report(pairs,label):
     d=np.array([f-s for _,_,s,f in pairs]); print('%-10s pairs %4d  font-standard: mean %+6.1f  mean|.| %5.1f  max|.| %5.1f'
           %(label,len(d),d.mean(),np.abs(d).mean(),np.abs(d).max()))
     return d
-if __name__=='__main__':                  # python3 spacingcheck.py [series...] [matched|natural]
+if __name__=='__main__':                  # python3 spacingcheck.py [series...] [matched]
     import variant
     args=[a for a in sys.argv[1:] if a not in variant.NAMES]
     if len(args)<len(sys.argv)-1: variant.NAME=[a for a in sys.argv[1:] if a in variant.NAMES][0]
-    for S in (args or ['A','B','C','D','E','F']+([] if variant.NAME else ['EM'])):
+    for S in (args or ['A','B','C','D','E','EM','F']):
         report(cap_pairs(S),S+' caps'); report(lc_pairs(S),S+' lc')

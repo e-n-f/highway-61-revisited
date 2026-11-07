@@ -22,7 +22,7 @@ import vgeom, outline, lcoutline, strokeop
 S = sys.argv[1] if len(sys.argv) > 1 else 'E'
 import variant                                   # the version of the lower-case widths and spacing (variant.py)
 if len(sys.argv) > 2: variant.NAME = sys.argv[2]
-assert variant.NAME in variant.NAMES and not (variant.NAME == 'natural' and S == 'EM'), 'E(M) has no Natural version'
+assert variant.NAME in variant.NAMES
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'outputs')
 DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')   # the fonts go to the repository's top level
 BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' else 'HighwayEven1966-%s.ttf' % ('B' if S == 'A' else S)))
@@ -172,9 +172,6 @@ if variant.NAME == 'matched':
              'add up to the FHWA 2000 Series %s lower case\'s, at equal cap height (the s and w left out of the '
              'measurement)%s.' % ({'A': 'B', 'EM': 'E Modified'}.get(S, S), '; Series A, which has no FHWA '
              'font, scales Series B\'s by the capitals\' width factors' if S == 'A' else ''))
-if variant.NAME == 'natural':
-    DESC += (' Natural version: the lower case narrowed by the capitals\' width factor, and its spaces with it, in '
-             'E(M)\'s proportion to the letters.')
 
 
 def setup(fb, outlines_kind):

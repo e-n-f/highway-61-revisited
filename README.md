@@ -25,10 +25,9 @@ like those from 2000.
 | Highway 61 Revisited A, B, C, D, E, F | `otf/Highway61Revisited-{A,B,C,D,E,F}.otf` / `ttf/….ttf` |
 | Highway 61 Revisited E(M) | `otf/Highway61Revisited-EM.otf` / `ttf/Highway61Revisited-EM.ttf` |
 | Highway 61 Revisited Matched A–F, E(M) | `otf/Highway61RevisitedMatched-{A,…,F,EM}.otf` / `ttf/….ttf` |
-| Highway 61 Revisited Natural A–F | `otf/Highway61RevisitedNatural-{A,…,F}.otf` / `ttf/….ttf` |
 
-The Matched and Natural fonts are two other versions of the lower case's widths and spacing. Their capitals,
-figures, punctuation and letterforms are the main fonts'. See [Other versions of the lower case](#other-versions-of-the-lower-case).
+The Matched fonts are another version of the lower case's widths and spacing. Their capitals,
+figures, punctuation and letterforms are the main fonts'. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
 quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
@@ -37,7 +36,7 @@ Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 uni
 descenders about −200 to −260.
 
 Specimens, in `specimen/`: `specimen-lc-series.png` (all seven series), `specimen-lc-versions.png` (each series'
-lower case in the three versions, with the FHWA 2000 font between Matched and Natural), `comparison-1966-vs-2000.png` (against
+lower case in the Main and Matched versions and the FHWA 2000 font), `comparison-1966-vs-2000.png` (against
 the FHWA 2000 fonts), and `specimen-lines-h61.png` / `specimen-lines-fhwa.png` (a line of each font, ours and
 FHWA's).  The fonts are in `otf/` and `ttf/`; everything used to make them and the specimens is under `highway61/`. The detailed working history, with
 every construction decision, is in `highway61/HANDOFF.md`.
@@ -209,38 +208,32 @@ out the same weight as stems and bars.
   bearings from the matching Highway Even 1966 font (`highway61/outputs/HighwayEven1966-<S>.ttf`, for E(M)
   `highway61/outputs/Highway1966-EM-Constructed.ttf`), the earlier traced fonts of this project.
 
-## Other versions of the lower case
+## The Matched version of the lower case
 
 The main fonts set each series' lower-case width factor and spacing so that the whole a–z is as long as in the FHWA
-2000 font. Two other versions differ only in those two numbers per series (`work/variant.py`):
+2000 font. The Matched version (`Highway 61 Revisited Matched`, `work/variant.py`) differs only in those two numbers
+per series. It follows FHWA's totals for ink width and for advances, separately. One width factor per series makes
+our a–z ink widths add up to the FHWA 2000 font's, at equal cap height. One spacing factor (on the stroke-scaled
+1966 table, as `LC_TIGHT` is) then makes our a–z advances add up to FHWA's. The s and w are left out of both totals.
+Every letter is narrowed the same way, s and w included: FHWA draws its s narrower and its w wider than the rest,
+and those are not followed. Single letters still differ from FHWA's, because FHWA doesn't narrow every letter by the
+same amount. Series A, which has no FHWA font, takes Series B's factors in proportion to the capitals' (as the main
+fonts do). `work/lcmatch.py` solves the factors into `work/matched.json`.
 
-- **Matched** (`Highway 61 Revisited Matched`): FHWA's totals for ink width and for advances, separately. One
-  width factor per series makes our a–z ink widths add up to the FHWA 2000 font's, at equal cap height. One
-  spacing factor (on the stroke-scaled 1966 table, as `LC_TIGHT` is) then makes our a–z advances add up to FHWA's.
-  The s and w are left out of both totals. Every letter is narrowed the same way, s and w included: FHWA draws its
-  s narrower and its w wider than the rest, and those are not followed. Single letters still differ from FHWA's,
-  because FHWA doesn't narrow every letter by the same amount. Series A, which has no FHWA font, takes Series B's factors in
-  proportion to the capitals' (as the main fonts do). `work/lcmatch.py` solves the factors into `work/matched.json`.
-- **Natural** (`Highway 61 Revisited Natural`): the lower case narrowed exactly as the capitals are, by the
-  capitals' 1961 width factor (`lccondense.F`), and its spaces narrowed with it. One spacing factor per series keeps
-  the a–z's total space (advances less ink widths) in E(M)'s proportion to its total ink width, 0.44.
-  `work/lcnatural.py` solves the factors into `work/natural.json`. (Scaling the table by the stroke alone, as the
-  capitals' spaces are, left the narrow series much looser than E(M): Series B 0.56.)
-
-| Series | Main: width / spacing | Matched: width / spacing | Natural: width / spacing |
-|---|---|---|---|
-| A | 0.521 / 0.572 | 0.533 / 0.558 | 0.450 / 0.939 |
-| B | 0.550 / 0.572 | 0.563 / 0.558 | 0.475 / 0.798 |
-| C | 0.820 / 0.587 | 0.815 / 0.581 | 0.650 / 0.924 |
-| D | 0.919 / 0.691 | 0.971 / 0.564 | 0.825 / 1.014 |
-| E | 1.000 / 0.473 | 0.995 / 0.482 | 1.000 / 1.097 |
-| F | 1.124 / 0.765 | 1.208 / 0.613 | 1.175 / 1.170 |
-| E(M) | 1 / 1 | 1.051 / 1.031 | — |
+| Series | Main: width / spacing | Matched: width / spacing |
+|---|---|---|
+| A | 0.521 / 0.572 | 0.533 / 0.558 |
+| B | 0.550 / 0.572 | 0.563 / 0.558 |
+| C | 0.820 / 0.587 | 0.815 / 0.581 |
+| D | 0.919 / 0.691 | 0.971 / 0.564 |
+| E | 1.000 / 0.473 | 0.995 / 0.482 |
+| F | 1.124 / 0.765 | 1.208 / 0.613 |
+| E(M) | 1 / 1 | 1.051 / 1.031 |
 
 (Spacing: the multiplier on the stroke-scaled 1966 table, as `LC_TIGHT`; 1 would be the table scaled by the stroke
 alone. In Main and Matched, Series A takes B's, with its width factor in proportion to the capitals'.)
 
-E(M) is the reference for Natural, so it has no Natural version. Matched E(M) is matched to FHWA's Series E
+Matched E(M) is matched to FHWA's Series E
 Modified 2000 in the same way, keeping E(M)'s strokes as drawn: its lower case is widened by direction alone
 (`lccondense.PROP`), not evened to a series weight, so at a factor of 1 it would be E(M) itself. The 1998–2000
 digital ModE lower case is 3.3% wider than the 1966 drawings; Matched E(M) takes that width. Its capitals are
@@ -267,9 +260,8 @@ for S in A B C D E EM F; do python3 strokecheck.py $S; done   # every glyph must
 python3 spacingcheck.py                                        # every table pair within a unit of the standard
 ```
 
-The other versions: `python3 build1961.py <S> matched` or `natural` (A–F) writes
-`Highway61RevisitedMatched-<S>` or `Highway61RevisitedNatural-<S>`; `strokecheck.py <S> matched` and
-`spacingcheck.py matched` check them the same way.
+The Matched version: `python3 build1961.py <S> matched` writes `Highway61RevisitedMatched-<S>`;
+`strokecheck.py <S> matched` and `spacingcheck.py matched` check it the same way.
 
 `build1961.py <S>` writes `otf/Highway61Revisited-<S>.otf` and `ttf/Highway61Revisited-<S>.ttf`. The fonts' version (the `head`
 revision and the name table's version string) is `VERSION` near the top of `build1961.py`: raise it for each
@@ -295,7 +287,7 @@ Specimens:
 
 ```
 python3 lcseries.py          # specimen/specimen-lc-series.png: all seven series
-python3 versionspecimen.py   # specimen/specimen-lc-versions.png: each series' lower case in the three versions
+python3 versionspecimen.py   # specimen/specimen-lc-versions.png: each series' lower case in both versions
                              # (and FHWA 2000's, if fhwa2otf.py has made its fonts)
 python3 specimen1961.py D    # highway61/outputs/specimen-1961-D.png: one series' capitals and figures
 ```
@@ -307,7 +299,6 @@ python3 lcfitall.py nhm      # refit the named lower-case letters to the 1966 sc
 python3 lcwidth.py B         # solve a series' lower-case width factor; copy the result into lccondense.F_LC
 python3 lcspace.py B         # then its lower-case spacing factor; copy the result into spacing.LC_TIGHT
 python3 lcmatch.py B         # the Matched version's two factors for a series (rewrites its entry in matched.json)
-python3 lcnatural.py B       # the Natural version's spacing factor for a series (rewrites its entry in natural.json)
 ```
 
 ### Comparison with the FHWA 2000 fonts
