@@ -632,6 +632,12 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### Matched fonts not built for now (2026-11-07)
+- User: stop generating the Matched fonts for now, keeping the code, so the glyph fixes can be merged before
+  deciding about metric matching.  `otf/ttf/Highway61RevisitedMatched-*` removed from the repository; variant.py,
+  lcmatch.py, matched.json and `build1961.py <S> matched` unchanged (A-F, EM).  versionspecimen.py leaves out the
+  Matched rows when the fonts are not there.
+
 ### Series E B: smooth counter ends (2026-11-07)
 - User (verify-EM-caps): the E(M) B's counters met their flats in sharp corners; the 1961 drawing (page 180) shows
   them running in smoothly, as the P's and R's do.  Only Series E (and so E(M)) had it: `dimE1.letter_B` ended

@@ -24,10 +24,9 @@ like those from 2000.
 |---|---|
 | Highway 61 Revisited A, B, C, D, E, F | `otf/Highway61Revisited-{A,B,C,D,E,F}.otf` / `ttf/….ttf` |
 | Highway 61 Revisited E(M) | `otf/Highway61Revisited-EM.otf` / `ttf/Highway61Revisited-EM.ttf` |
-| Highway 61 Revisited Matched A–F, E(M) | `otf/Highway61RevisitedMatched-{A,…,F,EM}.otf` / `ttf/….ttf` |
 
-The Matched fonts are another version of the lower case's widths and spacing. Their capitals,
-figures, punctuation and letterforms are the main fonts'. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
+A Matched version of the lower case's widths and spacing can also be built; its fonts are not in the repository at
+present. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
 quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
@@ -36,7 +35,7 @@ Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 uni
 descenders about −200 to −260.
 
 Specimens, in `specimen/`: `specimen-lc-series.png` (all seven series), `specimen-lc-versions.png` (each series'
-lower case in the Main and Matched versions and the FHWA 2000 font), `comparison-1966-vs-2000.png` (against
+lower case beside the FHWA 2000 font's, and the Matched version's if it has been built), `comparison-1966-vs-2000.png` (against
 the FHWA 2000 fonts), and `specimen-lines-h61.png` / `specimen-lines-fhwa.png` (a line of each font, ours and
 FHWA's).  The fonts are in `otf/` and `ttf/`; everything used to make them and the specimens is under `highway61/`. The detailed working history, with
 every construction decision, is in `highway61/HANDOFF.md`.
@@ -209,6 +208,10 @@ out the same weight as stems and bars.
   `highway61/outputs/Highway1966-EM-Constructed.ttf`), the earlier traced fonts of this project.
 
 ## The Matched version of the lower case
+
+*Not built at present:* the code and its factors (`work/matched.json`) are kept, but the Matched fonts are not in
+the repository while the decision about metric matching is open. `python3 build1961.py <S> matched` (A–F and EM)
+builds them into `otf/` and `ttf/`.
 
 The main fonts set each series' lower-case width factor and spacing so that the whole a–z is as long as in the FHWA
 2000 font. The Matched version (`Highway 61 Revisited Matched`, `work/variant.py`) differs only in those two numbers
