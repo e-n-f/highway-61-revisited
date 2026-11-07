@@ -6,13 +6,13 @@ and of the [1966 Standard Lower Case Alphabets for Highway Signs](https://archiv
 with the addition of a pleasing, consistent generalization of the
 1966 lower case to the widths and weights of the rest of the series. The "/" character comes from the [1958 Manual for Signing and Pavement Marking of the National System of Interstate and Defense Highways](https://mutcd.kittelson.com/wp-content/uploads/2022/11/1958InterstateSignsMarkings-1.pdf).
 
-<img width="6987" height="1750" alt="Image" src="https://github.com/user-attachments/assets/b08d4dba-1283-4cf2-a15d-7a7e753b94ff" />
+![A line of each Highway 61 Revisited font: capitals, lower case, figures and punctuation](specimen/specimen-lines-h61.png)
 
 It is a protest against the ugly and inconsistent lower case and punctuation
 of the narrow widths of the [2000 Standard Alphabets for Traffic Control Devices](https://mutcd.fhwa.dot.gov/shse/alphabets.pdf),
 which since 2009 have been required on American street name signs.
 
-<img width="6789" height="1500" alt="Image" src="https://github.com/user-attachments/assets/d14a2244-b723-4200-8226-2b9df44d0b3e" />
+![A line of each FHWA 2000 Standard Alphabets font: capitals, lower case, figures and punctuation](specimen/specimen-lines-fhwa.png)
 
 The 1961 and 1966 letterforms are spaced and kerned as specified in
 the original documents; the other lower cases have tighter spacing
