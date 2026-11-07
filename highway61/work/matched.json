@@ -31,6 +31,14 @@
   "ink_total": 13.8772,
   "tight": 0.482
  },
+ "EM": {
+  "advance_multiplier": 1.0,
+  "advance_total": 21.8982,
+  "f": 1.051,
+  "ink_multiplier": 1.0,
+  "ink_total": 14.9895,
+  "tight": 1.0314
+ },
  "F": {
   "advance_multiplier": 0.93334,
   "advance_total": 20.4386,

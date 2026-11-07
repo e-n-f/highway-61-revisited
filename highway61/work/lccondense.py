@@ -19,7 +19,9 @@ D_EM=(690/5-A['E'])/2                  # E(M) <-> E stroke offset
 T_CORE=45.0                            # offset to the thin core (leaves about 45 units of every stroke)
 LC_CAPS=True                           # the lower-case stroke is the capitals' (False: E(M)'s lower case's relation
                                        # to its capitals, 134.8 to 138, kept: 3.2 units lighter in every series)
-def stroke(S): return A[S] if LC_CAPS else V_EM-2*D_EM+(A[S]-A['E'])
+def stroke(S):
+    if S=='EM': return V_EM                 # E(M)'s lower case as drawn (only the Matched version widens it)
+    return A[S] if LC_CAPS else V_EM-2*D_EM+(A[S]-A['E'])
 def pair(c):
     """(cut letter, its ellipses, uncut letter, its ellipses).  Straight-line letters: the uncut letter has its
     slanted stem top (k) squared off"""
@@ -156,6 +158,8 @@ N_BACK={'A':2.90,'B':2.75}   # in proportion to the O these would be A 3.62, B 3
 def squareness(S):
     if S in N_BACK: return N_BACK[S]
     return 2.0 if S=='EM' else max(2.0,2*N_O[S]/N_O['E'])
+PROP={'EM':False}   # E(M) widened (Matched E(M)) keeps its strokes as drawn, every edge moved by direction alone (as at
+                    # f 1 nothing moves); the other series' strokes are evened to the series weight (strokeop.PROPORTIONAL)
 def _series(S,f,only):
     T=stroke(S)
     gx=(T-V_EM*f)/2; ey=(V_EM-T)/2              # horizontal offset after scaling; vertical erosion
@@ -180,7 +184,7 @@ def _series(S,f,only):
             es=ey if EXACT_H else ey/(1-V_EM/X)
             out[c]=_s_direct(f,gx,es,(X+2*es)/X,S); continue
         if c not in lcE.dims() and c!='k':              # straight-line letters without cuts: condensed directly
-            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM); continue
+            out[c]=strokeop.condense2(strokeop.from_lc(g,prims),f,gx,ey,X,dot_scale=T/V_EM,V=(V_EM if S=="EM" else None),proportional=PROP.get(S)); continue
         gc,pc,gu,pu=pair(c)
         cs=cuts(c); gl=gc; stubs=[]; DX={}
         for p0,p1,n in cs:
@@ -199,7 +203,7 @@ def _series(S,f,only):
         # edges near a cut's ends move by direction alone, as the remade cut is placed (edge(), below): measured
         # widths there run across the oblique cut, and the r's counter fell short of its arm's cut
         plain=[(P(q),min(T,PLAIN_R.get(S,T))) for p0,p1,n in cs for q in (p0,p1)]
-        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain)
+        C=strokeop.condense2(strokeop.from_lc(gl,pc+pu),f,gx,ey,X,mitre=4.0,dot_scale=T/V_EM,plain=plain,V=(V_EM if S=="EM" else None),proportional=PROP.get(S))
         geom=_polygon(C)
         prims2=[s[3] for cc in C for s in cc if s[0]=='E']
         for (p0,p1,n),st in zip(cs,stubs):
@@ -219,7 +223,7 @@ def _series(S,f,only):
             # stub, which is thinned less (Series A's t)
             Sg=None
             for pr in (True,False):
-                Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr)
+                Cs=strokeop.condense2(strokeop.from_lc(band,pc+pu),f,gx,ey0,X,mitre=4.0,proportional=pr,V=(V_EM if S=="EM" else None))
                 g_=_polygon(Cs); Sg=g_ if Sg is None else Sg|g_
             Sg=Sg.buffer(10.0,join_style=2)                 # (beyond the cut only: H, below)
             turn=np.radians(CUT_TURN.get(c,{}).get(S,0.0)) if last else 0.0

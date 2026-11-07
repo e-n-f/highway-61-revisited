@@ -629,7 +629,7 @@ def deepen_notches(c,X,low,high):
                         else: out.append(sg_)
                     return deepen_notches(out,X,low,high)
     return c
-def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,plain=()):
+def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,plain=(),V=None):
     """narrow by f with no thin core: scale x by f, offset horizontally by gx (vertical strokes back to weight),
     stretch y so that, after the vertical offset by -ey (horizontal strokes to weight), the baseline and x-height are
     back on their lines; dots are kept round"""
@@ -645,7 +645,8 @@ def condense2(contours,f,gx,ey,X,mitre=None,dot_scale=None,proportional=None,pla
         # weight V needs to become T there: its width is V sqrt(f^2 nx^2 + k^2 ny^2) (normals transform by the inverse
         # transpose), so each side moves (V sqrt(...) - T)/2.  For vertical and horizontal edges that is -gx and ey
         # as before; diagonals no longer lose weight (Series A's z was 0.72 of the stroke)
-        V=2*(ey+gx)/(k-f); T=k*V-2*ey
+        if V is None: V=2*(ey+gx)/(k-f)     # the source stroke (given where k = f: E(M) widened, ey = 0)
+        T=k*V-2*ey
         out=vmap(out,[(-1e9,0.0,1.0,-ey),(0.0,X,k,-ey),(X,1e9,1.0,ey)])
         out=[clean(c) for c in out]
         amounts=_proportional(out,f,k,V,T,ey,X,plain) if (PROPORTIONAL if proportional is None else proportional) else \

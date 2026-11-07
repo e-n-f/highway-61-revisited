@@ -632,6 +632,21 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### Matched E(M) (2026-11-07)
+- User: a Matched E(M) against FHWA Series E Modified 2000, as for the other widths.  "hedgerows" had shown that
+  the E(M)/ModE difference is in the letters, not the spacing: gaps within a few units pair by pair (E(M)'s
+  kerning there totals -6), ink 4079 against 4244 (h e d g 434-450 against 455 each, w 657 / 702, s 427 / 453).
+  HighwayD98 and HighwayME98 (in the same publication) equal the 2000 fonts letter for letter, so the digital
+  drawings date from 1998 or before; the user reports the 1983 edition's d is still 1966's narrow one.
+- `build1961.py EM matched`: the E(M) lower case goes through `lccondense.series('EM')` (stroke V_EM, ey 0, k 1)
+  instead of straight from lcE.  `lccondense.PROP['EM'] = False`: edges move by direction alone, so E(M)'s strokes
+  stay as drawn (proportional evening at f 1 had changed letters by up to 6 units; by direction alone f 1 gives E(M)
+  back, b and d notches 1-2 units deeper from NOTCH).  `strokeop.condense2(V=...)`: the source stroke given for E(M),
+  where k = f makes it unrecoverable from gx and ey (passed for E(M) only: the masks beyond the cuts, made with the
+  plain erosion, had used the inferred value, and the other fonts rebuild identically).
+- lcmatch.py EM: f 1.051, spacing 1.0314 (on the table itself, E(M)'s stroke ratio being 1).  Ink and advance sums
+  (no s, w) 1.0001 of ModE's; a-z 0.999, hedgerows 1.004, abcde 1.013.  No Natural E(M).
+
 ### Natural spacing in proportion to the letters (2026-11-04)
 - User: Natural B very widely spaced.  The stroke-scaled table shrinks spaces by the stroke (B 0.64) while the letters
   shrink by the width factor (0.475 of the core): a-z space over ink width B 0.56, against E(M) 0.44 and Main B 0.29

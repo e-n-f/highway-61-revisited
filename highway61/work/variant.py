@@ -4,7 +4,8 @@
             (spacing.LC_TIGHT), solved so that the whole a-z is as wide as the FHWA 2000 font's
   matched   one lower-case width factor and one spacing factor per series, solved so that the a-z ink widths and
             the a-z advances add up, in cap heights, to the FHWA 2000 Series <S> font's (s and w left out of both
-            sums: FHWA draws them in other proportions); lcmatch.py solves them into matched.json
+            sums: FHWA draws them in other proportions); lcmatch.py solves them into matched.json.  E(M) too,
+            against Series E Modified 2000, widened with its strokes as drawn (lccondense.PROP)
   natural   the lower case narrowed like the capitals, by the capitals' 1961 width factor (lccondense.F), and its
             spaces with it: one spacing factor per series (on the stroke-scaled 1966 table, as LC_TIGHT) keeps the
             a-z's spaces in E(M)'s proportion to its ink widths; lcnatural.py solves them into natural.json"""

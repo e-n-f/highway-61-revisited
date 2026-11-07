@@ -24,7 +24,7 @@ like those from 2000.
 |---|---|
 | Highway 61 Revisited A, B, C, D, E, F | `otf/Highway61Revisited-{A,B,C,D,E,F}.otf` / `ttf/….ttf` |
 | Highway 61 Revisited E(M) | `otf/Highway61Revisited-EM.otf` / `ttf/Highway61Revisited-EM.ttf` |
-| Highway 61 Revisited Matched A–F | `otf/Highway61RevisitedMatched-{A,…,F}.otf` / `ttf/….ttf` |
+| Highway 61 Revisited Matched A–F, E(M) | `otf/Highway61RevisitedMatched-{A,…,F,EM}.otf` / `ttf/….ttf` |
 | Highway 61 Revisited Natural A–F | `otf/Highway61RevisitedNatural-{A,…,F}.otf` / `ttf/….ttf` |
 
 The Matched and Natural fonts are two other versions of the lower case's widths and spacing. Their capitals,
@@ -235,11 +235,16 @@ The main fonts set each series' lower-case width factor and spacing so that the 
 | D | 0.919 / 0.691 | 0.971 / 0.564 | 0.825 / 1.014 |
 | E | 1.000 / 0.473 | 0.995 / 0.482 | 1.000 / 1.097 |
 | F | 1.124 / 0.765 | 1.208 / 0.613 | 1.175 / 1.170 |
+| E(M) | 1 / 1 | 1.051 / 1.031 | — |
 
 (Spacing: the multiplier on the stroke-scaled 1966 table, as `LC_TIGHT`; 1 would be the table scaled by the stroke
 alone. In Main and Matched, Series A takes B's, with its width factor in proportion to the capitals'.)
 
-E(M) is the reference for both versions, so it has no other version. Its fonts are the main ones.
+E(M) is the reference for Natural, so it has no Natural version. Matched E(M) is matched to FHWA's Series E
+Modified 2000 in the same way, keeping E(M)'s strokes as drawn: its lower case is widened by direction alone
+(`lccondense.PROP`), not evened to a series weight, so at a factor of 1 it would be E(M) itself. The 1998–2000
+digital ModE lower case is 3.3% wider than the 1966 drawings; Matched E(M) takes that width. Its capitals are
+E(M)'s.
 
 ## Regenerating the fonts
 

@@ -2,9 +2,10 @@
 -> ../../specimen/specimen-lc-versions.png
 
 Main (lccondense.F_LC, spacing.LC_TIGHT: the a-z as wide as FHWA 2000's), Matched (one width factor and one spacing
-factor per series giving FHWA's ratios to Series E Modified, s and w left out; lcmatch.py), the FHWA 2000 font itself
-where there is one (B-F; fhwa2otf.py, skipped if its fonts are not there), and Natural (the capitals' width factor,
-the spacing table scaled by the stroke); see variant.py.  All at equal cap height.  Words are set with each font's
+factor per series making the a-z's ink widths and advances, s and w left out, add up to FHWA's; lcmatch.py), the FHWA
+2000 font itself where there is one (B-F, and Series E Modified beside E(M); fhwa2otf.py, skipped if its fonts are
+not there), and Natural (the capitals' width factor, spaces in E(M)'s proportion to the letters; none for E(M));
+see variant.py.  All at equal cap height.  Words are set with each font's
 advances; the FHWA subsets have no space, so they get the main font's space of the same series, in cap heights (as
 in fhwaspecimen.py)."""
 import os
@@ -19,9 +20,9 @@ def versions(S):
     ours = lambda v: os.path.join(DIST, 'otf', 'Highway61Revisited%s-%s.otf' % (v, S))
     sp = info(ours(''))[1]
     out = [('Main', ours(''), sp), ('Matched', ours('Matched'), info(ours('Matched'))[1])]
-    fh = os.path.join(FH, 'Series%s2000-Normal.otf' % S)
+    fh = os.path.join(FH, 'Series%s2000-Normal.otf' % ('ModE' if S == 'EM' else S))
     if os.path.exists(fh): out.append(('FHWA 2000', fh, sp))
-    out.append(('Natural', ours('Natural'), info(ours('Natural'))[1]))
+    if S != 'EM': out.append(('Natural', ours('Natural'), info(ours('Natural'))[1]))   # (E(M) has none)
     return out
 
 
@@ -32,7 +33,7 @@ def setline(d, x, y, fn, text, space):
 
 
 def main():
-    SER = ['A', 'B', 'C', 'D', 'E', 'F']; V = {S: versions(S) for S in SER}
+    SER = ['A', 'B', 'C', 'D', 'E', 'EM', 'F']; V = {S: versions(S) for S in SER}
     heights = {S: 90 + len(V[S]) * 2 * LINE + 40 for S in SER}
     im = Image.new('RGB', (3000, sum(heights.values()) + 20), 'white'); d = ImageDraw.Draw(im)
     lab = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 36)
@@ -40,7 +41,7 @@ def main():
     y0 = 0
     for S in SER:
         y = y0 + 60
-        d.text((20, y), 'Series ' + S, font=lab, fill=(80, 80, 80), anchor='ls')
+        d.text((20, y), 'Series ' + ('E(M)' if S == 'EM' else S), font=lab, fill=(80, 80, 80), anchor='ls')
         for j, (name, fn, sp) in enumerate(V[S]):
             yy = y + 30 + j * 2 * LINE
             d.text((20, yy + 70), name, font=small, fill=(150, 150, 150), anchor='ls')

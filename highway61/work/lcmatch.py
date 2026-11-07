@@ -1,5 +1,5 @@
 """The 'matched' version's lower-case width factor and spacing factor (variant.py):
-python3 lcmatch.py [series...]  -> matched.json            (B C D E F; Series A follows Series B's)
+python3 lcmatch.py [series...]  -> matched.json            (B C D E F EM; Series A follows Series B's)
 
 For each FHWA 2000 Series <S> font, two totals in cap heights: the sum of the a-z ink widths (bounding boxes) and
 the sum of the a-z advances.  The s and the w are left out of both sums: the FHWA narrow series draw them in other
@@ -27,16 +27,17 @@ def metrics(fn):
     return out
 
 
+FHWA = {'EM': 'ModE'}                     # E(M) is matched to Series E Modified 2000
 def fhwa_totals(S):
     """(sum of ink widths, sum of advances) of FHWA Series S 2000's measured letters, in cap heights"""
-    fn = os.path.join(W, '..', 'fhwa2000', 'Series%s2000-Normal.otf' % S)
+    fn = os.path.join(W, '..', 'fhwa2000', 'Series%s2000-Normal.otf' % FHWA.get(S, S))
     f = TTFont(fn); g = f.getGlyphSet(); p = BoundsPen(g); g['H'].draw(p); cap = p.bounds[3]; X = metrics(fn)
     return sum(X[c][0] for c in LC) / cap, sum(X[c][1] for c in LC) / cap
 
 
 def multipliers(S):
     """(ink-width multiplier, advance multiplier) of FHWA Series S 2000 over Series E Modified 2000"""
-    X, M = (metrics(os.path.join(W, '..', 'fhwa2000', 'Series%s2000-Normal.otf' % s)) for s in (S, 'ModE'))
+    X, M = (metrics(os.path.join(W, '..', 'fhwa2000', 'Series%s2000-Normal.otf' % s)) for s in (FHWA.get(S, S), 'ModE'))
     return (sum(X[c][0] for c in LC) / sum(M[c][0] for c in LC), sum(X[c][1] for c in LC) / sum(M[c][1] for c in LC))
 
 
@@ -60,7 +61,7 @@ def solve(S):
     mw, ma = multipliers(S); tw, ta = fhwa_totals(S)
     Tw = tw * 690; Ta = ta * 690                         # our cap height is 690
     print(S, 'FHWA totals (cap heights): ink width %.4f, advance %.4f' % (tw, ta), flush=True)
-    f0 = lccondense.F_LC[S]; f1 = f0 * 1.05; w0 = ink(S, f0); w1 = ink(S, f1)
+    f0 = lccondense.F_LC.get(S, 1.0); f1 = f0 * 1.05; w0 = ink(S, f0); w1 = ink(S, f1)
     for _ in range(3):
         f0, w0, f1 = f1, w1, f1 + (Tw - w1) * (f1 - f0) / (w1 - w0)
         w1 = ink(S, f1)
@@ -74,7 +75,7 @@ def solve(S):
     def total(k):
         sb, _ = spacing.solve(S, b._cur, base * k, geo=b._geo)
         return sum(round(sb[c][0] + b._box[c][1] - b._box[c][0] + sb[c][1]) for c in LC)
-    k0, k1 = spacing.LC_TIGHT[S], spacing.LC_TIGHT[S] * 0.8; t0, t1 = total(k0), total(k1)
+    k0 = spacing.LC_TIGHT.get(S, 1.0); k1 = k0 * 0.8; t0, t1 = total(k0), total(k1)
     for _ in range(5):
         if abs(t1 - Ta) < 1 or t1 == t0: break
         k0, t0, k1 = k1, t1, k1 + (Ta - t1) * (k1 - k0) / (t1 - t0)
