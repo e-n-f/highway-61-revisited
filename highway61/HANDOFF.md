@@ -632,6 +632,17 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### Series E B: smooth counter ends (2026-11-07)
+- User (verify-EM-caps): the E(M) B's counters met their flats in sharp corners; the 1961 drawing (page 180) shows
+  them running in smoothly, as the P's and R's do.  Only Series E (and so E(M)) had it: `dimE1.letter_B` ended
+  each counter with one arc, G (86.2) upper and H (107.8) lower, centred at mid-height, but the counters are only
+  145.6 and 188.6 tall, so the arcs were cut by the flats at about 30 degrees.  A-D and F use `_counter_end`.
+- Now each end is the side arc with corner arcs tangent to the flat and to it (as `_counter_end`); the table has no
+  corner radius, so `dimE1.BK` = (70, 85) units is fitted to the drawing with scanfit (upper half-height 72.8, lower
+  94.3: the ends come out nearly semicircular, as drawn).  Worst distance to the drawn lines at the counter ends
+  8.8 -> 3.3 (upper) / 2.6 (lower) units; all joins tangent (tancheck).  Only B in E, E(M) and their Matched fonts
+  changes.  VERSION 1.017.
+
 ### g: the bowl's lower right, and the tail's inside (2026-11-07)
 - User: the outside of the E(M) g's bowl at its lower right, where it meets the tail, is fuller in ours than in
   the 1966 drawing (the bowl is asymmetrical top to bottom and left to right).  Measured along rays from the bowl's
