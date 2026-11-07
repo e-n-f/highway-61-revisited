@@ -632,6 +632,19 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### g: the bowl's lower right, and the tail's inside (2026-11-07)
+- User: the outside of the E(M) g's bowl at its lower right, where it meets the tail, is fuller in ours than in
+  the 1966 drawing (the bowl is asymmetrical top to bottom and left to right).  Measured along rays from the bowl's
+  middle: ours 2-5 units inside the scan elsewhere (printing spread), but 12 units outside it at about -50 degrees,
+  just before the tail: the lower-right quarter (bottom point to BR2 4.94 at Byr2 1.69, inside the stem) was long
+  and flat.  (Against the FHWA ModE g, ours is far the closer to 1966: tail median 1.6 / p95 5.4 units against
+  5.4 / 12.4; FHWA's tail's inside is nearly straight and joins the stem lower.)
+- lcfitall's least squares left BR2, Byr2 and the tail's inner ellipse TI where they started (as the t's iyr), so
+  those six were fitted by Nelder-Mead on the same soft-l1 distance, from BR2 4.2, Byr2 2.2: BR2 4.534, Byr2 2.841,
+  TI centre (1.442, 0.662), 2.003 x 2.336 (was (1.556, 1.280), 2.019 x 2.947: rounder, as the user's construction
+  drawing suggested).  Fit p95 3.59 -> 3.00, max 14.0 -> 9.0, median 1.10 -> 1.02; the lower right now 0-3 units
+  inside the scan like the rest, the junction where the drawing has it.  VERSION 1.016.
+
 ### t: the 1966 tail, a straight edge to a sharp point (2026-11-07)
 - User (page 33 scan): the 1966 t's tail comes to a sharp point, its right edge a straight diagonal; ours had a
   curved right edge and a small flat top.  Ours was cut by a nearly level line (tth 4.9), the outer curve running
