@@ -632,6 +632,22 @@ ends keep their angles.
 - Both versions: no INVALID glyphs (strokecheck, `<S> matched|natural`); spacingcheck (`matched|natural`) has every
   table pair within a unit of the table as scaled.  `versionspecimen.py` -> `specimen/specimen-lc-versions.png`.
 
+### t: the 1966 tail, a straight edge to a sharp point (2026-11-07)
+- User (page 33 scan): the 1966 t's tail comes to a sharp point, its right edge a straight diagonal; ours had a
+  curved right edge and a small flat top.  Ours was cut by a nearly level line (tth 4.9), the outer curve running
+  round to it.  The 1966 cut is the right edge itself: on the scan about (3.69, 0.33) to (3.95, 2.03) squares, 81 deg.
+- Refit with that cut (lcfitall.py t): 80.6 deg; fit p95 5.46 -> 4.03, max 17.3 -> 9.8.  But one inner ellipse
+  turns upright before it meets the cut, which left a 13-unit flat at the tip, and holding its centre higher (to
+  make a point) wrecked the fit (p95 9.8).
+- `lcE.hook` with `iR`, `iyr` (t only): the counter is two quarter-ellipses sharing its bottom point, the stem side
+  as before (ia, ib, icy) and the tail side its own quarter rising to a right extreme (iR, iyr) beyond the cut and
+  above the tip; the steep cut crosses it rising, so the tail ends in a point.  The optimizer does not move iyr, and
+  an extreme just beyond the cut (iR 4.31, iyr 2.66: p95 3.89, max 6.3) left the condensed narrow series' cut short
+  of the curve (a ledge in B), so iR 5.0, iyr 3.8 are set by hand and the rest refitted: p95 3.98, max 10.7.
+- `lccondense.CUT_TURN` for the t (A, B 25 deg, for the old level cut) removed.  `CUT_BACK['t']['B']` 8 units: at
+  f 0.55 the remade cut still fell about 12 units right of the end of the counter's edge, leaving a short ledge
+  (Matched B at f 0.563 met it).  Every series' t now ends in a point.  VERSION 1.015 (E(M) changes too).
+
 ### Natural version dropped (2026-11-07)
 - User: not particularly useful or good-looking.  The Natural fonts, `lcnatural.py`, `natural.json` and the
   'natural' variant are removed; the entries below describe it as it was (its fonts are in git history).  Matched

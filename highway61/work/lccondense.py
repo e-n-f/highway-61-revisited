@@ -136,10 +136,13 @@ SQUARE=True
 PLAIN_R={'B':65.0}  # the direction-only zone at a cut's ends reaches a stroke, in B only this far (units): its
                     # whole stroke reached the a's arch, which came out 0.82 of the stroke.  (Capping it in C and D
                     # too thickened their a's bowl tops: the zone keeps those at their condensed_ae weight)
-CUT_BACK={'r':{'A':20.0,'B':20.0}}   # the r's arm cut this much further back (units, along the cut's normal): its
-                    # point had come out sharp in the narrowest series (user)
-CUT_TURN={'t':{'A':25.0,'B':25.0}}   # the t's tail cut turned clockwise by this much (degrees): its nearly
-                    # level cut left a flat shelf on the narrowest series' tails (user)
+CUT_BACK={'r':{'A':20.0,'B':20.0},'t':{'B':8.0}}   # the r's arm cut this much further back (units, along the cut's
+                    # normal): its point had come out sharp in the narrowest series (user).  The t's steep tail cut in
+                    # B: at f 0.55 the remade cut fell about 12 units right of where the counter's rising edge ends,
+                    # leaving a short ledge in place of the 1966 point (Matched B, f 0.563, met it already)
+CUT_TURN={}         # a letter's rightmost cut turned clockwise by this much (degrees), {letter: {series: deg}}.  (The
+                    # t's had 25 in A and B while its tail was cut nearly level, which left a flat shelf; its 1966
+                    # steep cut, which ends the tail in a point, needs none)
 F_HOOK={'A':9.9,'B':5.2,'C':4.2,'D':1.7}   # the f's hook thickened by this much more (units, lcE.FHOOK): the narrowest series' hooks came out
                     # light (A 0.6 of the stroke near its end, against E(M)'s 0.79); solved to E(M)'s proportion
                     # (E 0.79 and F 0.81 already)
