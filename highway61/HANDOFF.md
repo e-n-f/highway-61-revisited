@@ -253,6 +253,12 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   distance 1-10 units per glyph, p95 mostly 5-19 (mean 13.9).  Straight letters match closely; the 1983 drawings
   redraw some details (L's bar, J narrower, G and R bars, S, 6, 9), which is where the larger differences are.
   Choosing between offset-and-squeeze and offset-and-clip: squeeze fitted better (mean p95 12.8 against 15.2).
+- E(M) Q's tail (2026-11-08): the user asked for it to be shifted and angled as in the 1983 drawings.  The widened
+  Series E tail sat about 35 units right of the tracing's and leaned too little.  `build1961.EM_Q_TAIL` rebuilds the Q
+  for E(M) only with dimE3's tail dimensions refitted to `caps_EM.pkl` (8-inch inches, snapped to 1/32): L 3/16 ->
+  -7/32, O 1 5/8 -> 1 15/32, K 2 1/4 -> 2 1/16, P 3/8 -> 17/32; the width F (1 1/4) is kept.  The tail leans 33.0 deg
+  from the vertical instead of 28.7, starts further left inside the counter and ends 13 units lower.  Tail region
+  against the tracing: p95 30 -> 7 units, median 3.3 -> 2.3.  Series E's Q is unchanged.  VERSION 1.018.
 - Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
   (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the
   baseline, x-height, ascender and descenders stay on their lines.  No pre-digital Series E lower case exists to

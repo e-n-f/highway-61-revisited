@@ -33,7 +33,7 @@ SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 FAMILY = 'Highway 61 Revisited%s %s' % (variant.FAMILY[variant.NAME], 'E(M)' if S == 'EM' else S)
-VERSION = '1.017'          # bump for every release: Font Book compares it to decide whether a font is a new version
+VERSION = '1.018'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited%s-%s' % (variant.PS[variant.NAME], S)
 
 geoms = vgeom.series('E' if S == 'EM' else S)
@@ -73,7 +73,17 @@ class Shifted:
 import lcE
 A_E = 690 * (3 + 3 / 32) / 18                     # Series E stroke (table A, 3 3/32 in at 18 in)
 D_EM = (690 / 5 - A_E) / 2                       # offset that takes Series E strokes to one-fifth of the height
+# the E(M) Q's tail as the 1983 E(M) drawings place it (caps_EM.pkl): Series E's dimE3 tail dimensions L O K P (8-inch
+# table, inches) refitted, width F kept.  The tail sits further left and a little lower, and leans 33.0 degrees from
+# the vertical instead of 28.7 (tail region p95 against the tracing 30 -> 7 units)
+EM_Q_TAIL = {'L': '-7/32', 'O': '1 15/32', 'K': '2 1/16', 'P': '17/32'}
+def _em_Q():
+    import dimE3 as e3
+    old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})
+    try: return vgeom.fuse(e3.letter_Q()[0])
+    finally: e3.DIM.clear(); e3.DIM.update(old)
 if S == 'EM':
+    geoms['Q'] = _em_Q()
     k = 690 / (690 + 2 * D_EM)                   # squeeze back to baseline and cap line
     new = {}
     for c, g in geoms.items():
