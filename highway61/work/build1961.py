@@ -74,9 +74,9 @@ import lcE
 A_E = 690 * (3 + 3 / 32) / 18                     # Series E stroke (table A, 3 3/32 in at 18 in)
 D_EM = (690 / 5 - A_E) / 2                       # offset that takes Series E strokes to one-fifth of the height
 # the E(M) Q's tail as the 1983 E(M) drawings place it (caps_EM.pkl): Series E's dimE3 tail dimensions L O K P (8-inch
-# table, inches) refitted, width F kept.  The tail sits further left and a little lower, and leans 33.0 degrees from
-# the vertical instead of 28.7 (tail region p95 against the tracing 30 -> 7 units)
-EM_Q_TAIL = {'L': '-7/32', 'O': '1 15/32', 'K': '2 1/16', 'P': '17/32'}
+# table, inches) and width F refitted.  The tail sits further left and a little lower, is a little heavier, and leans
+# further from the vertical (tail region p95 against the tracing 30 -> 4 units)
+EM_Q_TAIL = {'L': '-9/32', 'O': '1 3/8', 'K': '2 1/32', 'P': '9/16', 'F': '1 13/32'}
 def _em_Q():
     import dimE3 as e3
     old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})

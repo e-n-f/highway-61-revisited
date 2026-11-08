@@ -120,8 +120,8 @@ Arcs therefore stay exact axis-aligned ellipses, and the outlines stay exact.
 **E(M) capitals.** The 1966 sheets ask for "Series E uppercase, but with the stroke width widened to approximately
 one-fifth of the letter height". The Series E constructions are offset outward by d = (690/5 − 118.59)/2 = 9.70.
 They are then squeezed back to the baseline and cap line by 690/(690 + 2d) (`build1961.py EM`). The Q's tail is the one exception to
-the rule: it is placed and angled as in the 1983 E(M) drawings, further left and leaning 33° rather than 28.7°
-(`build1961.EM_Q_TAIL`).
+the rule: it is placed, angled and weighted as in the 1983 E(M) drawings: further left, a little heavier, and
+leaning 32.6° rather than 28.7° (`build1961.EM_Q_TAIL`).
 
 **Series B, C, D, E and F lower case.** These come from the E(M) constructions by the rule the 1961 capitals follow
 (`work/lccondense.py`, `strokeop.condense2`). The width less the stroke scales by a width factor f. The stroke steps
