@@ -265,9 +265,17 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   before the offset and squeeze) united with a vertical bar centred on the S's box, `DOLLAR_BAR` = the
   capitals' full stroke wide and `DOLLAR_EXT` = 1/8 cap height (1 inch at 8 in) beyond the cap line and baseline, the ends as
   measured on the sign photo (0.10-0.15 of the height beyond).  The photo's bar is about half the S's stroke, but
-  the alphabet has no thin strokes (the user), so it is full weight; in Series A and B it leaves only narrow slivers
-  of the S's counters.  Glyph `dollar`,
-  U+0024, spaced with the S's final side bearings (no kerning).  `strokecheck.py` covers it.
+  the alphabet has no thin strokes (the user), so it is full weight.  Glyph `dollar`, U+0024, spaced with the S's
+  final side bearings (no kerning).  `strokecheck.py` covers it.
+  Full weight, the bar all but fills the round counters under the top arc and over the bottom arc in Series B and C
+  (the user: B and C collide, A does not).  `dollarroom.py` measures the clear space either side of the bar in those
+  counters (in strokes; the smaller of the two): A 0.37, B 0.09, C 0.28, D 0.40, E 0.68, F 0.84, and solves the
+  widening that gives B and C Series D's 0.40: `build1961.DOLLAR_F` B 1.281, C 1.093 (A would want 1.019; left as
+  drawn).  `build1961.widen` scales x by f and moves each edge back along its normal so every stroke is T again
+  (`strokeop.condense2`, no vertical change).  The bar is added after the widening (added before, it closes B's
+  upper counter for good), on a fine flattening whose edges `lcoutline.contours` puts back on the widened S's lines
+  and ellipses; specks of line it leaves where two nearly tangent ellipses meet are closed up at the S's own joint,
+  so the outline stays exact.
 - Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
   (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the
   baseline, x-height, ascender and descenders stay on their lines.  No pre-digital Series E lower case exists to
