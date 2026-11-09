@@ -1,8 +1,8 @@
-"""The dollar sign's width in the narrow series (dollar.WIDER).  The $ (dollar.py) is the lower-case s enlarged to
-the figures' height, with a full-stroke bar through its middle; the bar stands in the body's two counters.  For each
-series this measures the clear space either side of the bar in those counters (the widest horizontal run through the
-centre line inside each counter, less the bar, halved, in strokes; the smaller of the two), and where it is less than
-dollar.ROOM solves the widening of the body that gives ROOM.
+"""The dollar sign's widening (dollar.WIDER).  The $ (dollar.py) is the lower-case s, widened, centred on the
+capitals' height, with a full-stroke bar through its middle; the bar stands in the s's two counters.  For each series
+this measures the clear space either side of the bar in those counters (the widest horizontal run through the centre
+line inside each counter, less the bar, halved, in strokes; the smaller of the two) and solves the widening of the
+s's ink width that gives dollar.ROOM.
 python3 dollarroom.py [series ...]       (default all; copy the factors into dollar.WIDER)"""
 import sys, numpy as np
 from shapely.geometry import LineString
@@ -21,8 +21,9 @@ def clearance(P, T):
         out.append((best - T) / 2 / T)
     return min(out)
 if __name__ == '__main__':
+    out = {}
     for S in sys.argv[1:] or ['A', 'B', 'C', 'D', 'E', 'EM', 'F']:
-        W, T = dollar.width_stroke(S); room = lambda w: clearance(dollar.poly(dollar.body(S, W * w, T)), T)
-        c0 = room(1.0)
-        w = 1.0 if c0 >= dollar.ROOM else brentq(lambda w: room(w) - dollar.ROOM, 1.0, 2.0, xtol=1e-4)
-        print('%-2s clearance %.3f at the S\'s width; body width x %.3f' % (S, c0, w))
+        T = dollar.stroke(S); room = lambda w: clearance(dollar.poly(dollar.body(S, w, T)), T)
+        c0 = room(1.0); w = 1.0 if c0 >= dollar.ROOM else brentq(lambda w: room(w) - dollar.ROOM, 1.0, 2.0, xtol=1e-4)
+        out[S] = round(w, 3); print('%-2s clearance %.3f as drawn; ink width x %.3f' % (S, c0, w))
+    print('WIDER =', out)

@@ -266,19 +266,22 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   - First made from the capital S with a bar through it (half a stroke as on the sign, then a full stroke: the
     alphabet has no thin strokes, the user), B and C's S widened to clear the bar.  The user disliked it with the
     S's asymmetry and asked for a widened lower-case s instead.
-  - `dollar.py`: the series' own lower-case s (lccondense's, before its arcs are squared; E(M)'s as constructed) is
-    scaled to the capital S's ink width and to the figures' height with their 10.8 overshoots: the width less the
-    stroke and the height less the stroke scale (x 1.2-1.6, y 1.36-1.43, nearly uniform), then every edge moves along
-    its normal by -(V sqrt(fx^2 nx^2 + c^2 ny^2) - T)/2 (condense2's rule) so every stroke is the capitals' T (138 in
-    E(M)).  (Scaling E(M)'s s to every width instead thinned A and B's diagonal spine and tilted their terminal cuts.)
-    The bar is T wide and stands 1/8 cap height beyond the cap line and baseline.  The union is made on a fine
-    flattening and `lcoutline.contours` puts its edges back on the body's lines and ellipses; specks of line it
-    leaves where an arc meets an arc or the spine are closed up at the body's own joint, so the outline is exact.
-  - `dollarroom.py` measures the clear space either side of the bar in the two counters (strokes; the smaller): at
-    the S's width A 0.40, B 0.26, C 0.50, D 0.68, E 0.83, E(M) 0.64, F 0.91.  `dollar.ROOM` = 0.40 (A's, the
-    narrowest that does not collide); B's body is widened to it, `dollar.WIDER` B 1.142.
-  - In D and E the bar's edge crosses the body 1-4 units short of a joint; `strokecheck.py` allows short pieces that
-    end on the $'s bar edge.
+  - Then the series' own lower-case s scaled to the capital S's width and the figures' height (nearly uniformly,
+    about 1.4), strokes brought back to weight.  (Scaling E(M)'s s to every width instead thinned A and B's diagonal
+    spine and tilted their terminal cuts.)  The user then asked for it at the lower case's height, centred on the I.
+  - `dollar.py` (now): the series' own s (lccondense's, before its arcs are squared; E(M)'s as constructed), raised
+    by (690 - 517.5)/2 = 86.25 (an inch at 8 in) so it is centred on the capitals' height, widened by `dollar.WIDER`
+    (width less stroke scaled), then every edge moved along its normal by -(V sqrt(fx^2 nx^2 + ny^2) - T)/2
+    (condense2's rule) so every stroke is the capitals' T (in E(M) the s's 134.8 becomes 138).  The bar is T wide and
+    stands 86.25 beyond the s, so it runs exactly from the baseline to the cap line, as tall as the I.  The union is
+    made on a fine flattening and `lcoutline.contours` puts its edges back on the body's lines and ellipses; specks
+    of line it leaves where an arc meets an arc or the spine are closed up at the body's own joint (exact outline).
+  - `dollarroom.py` measures the clear space either side of the bar in the s's two counters (strokes; the smaller):
+    as drawn A 0.20, B 0.07, C 0.33, D 0.38, E 0.40, E(M) 0.25, F 0.44.  Each s is widened until it is
+    `dollar.ROOM` = 0.40: `WIDER` A 1.246, B 1.375, C 1.058, D 1.014, E 1.002, E(M) 1.113; F, with room, is left as
+    drawn (never narrowed).
+  - `strokecheck.py` allows short pieces that end on the $'s bar edge (the bar can cross the body just short of a
+    joint).
 - Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
   (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the
   baseline, x-height, ascender and descenders stay on their lines.  No pre-digital Series E lower case exists to
