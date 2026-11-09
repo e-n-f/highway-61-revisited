@@ -31,7 +31,7 @@ BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' el
 SB_SCALE = 0.766 if S == 'A' else 1.0
 SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
-NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG); NAME['$'] = 'dollar'
+NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
 LIKE = {'dollar': 'S'}                           # glyphs not in the base fonts: whose side bearings they start from
 FAMILY = 'Highway 61 Revisited%s %s' % (variant.FAMILY[variant.NAME], 'E(M)' if S == 'EM' else S)
 VERSION = '1.018'          # bump for every release: Font Book compares it to decide whether a font is a new version
@@ -83,57 +83,7 @@ def _em_Q():
     old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})
     try: return vgeom.fuse(e3.letter_Q()[0])
     finally: e3.DIM.clear(); e3.DIM.update(old)
-# the dollar sign (not in the base fonts; the FHWA 2000 fonts' has stubs above and below the S instead): the S with a
-# vertical bar through its middle, as on signs ("MINIMUM FINE $250"): the bar the capitals' full stroke wide (the alphabet has no thin strokes), standing
-# 1/8 cap height (1 inch at 8 inches) beyond the cap line and the baseline.  Spaced with the S's side bearings.
-# In Series B and C the bar all but fills the round counters under the S's top arc and over its bottom arc, so there
-# the $'s S is first widened by DOLLAR_F, its strokes kept at weight, until the clear space beside the bar in those
-# counters is as in Series D (0.40 of a stroke; dollarroom.py solves the factors).
-DOLLAR_BAR, DOLLAR_EXT = 1.0, 690 / 8
-DOLLAR_F = {'B': 1.281, 'C': 1.093}
-def _bar(g, w, yb, yt):
-    from shapely.geometry import box
-    x0, _, x1, _ = g.bounds; cx = (x0 + x1) / 2
-    return box(cx - w / 2, yb, cx + w / 2, yt)
-def widen(C, f, T):
-    """capital contours widened by f: x scaled by f, then every edge moved back along its normal so that each stroke
-    is T again (strokeop.condense2 with no vertical change)"""
-    return strokeop.condense2(C, f, (T - T * f) / 2, 0.0, 690.0, V=T, proportional=False)
-def _widened_dollar(g, T, f):
-    """the S g widened by f, then the bar added; exact: the union is made on a fine flattening and its edges put back
-    on the widened S's lines and ellipses (lcoutline)"""
-    import numpy as np
-    from shapely.geometry import Polygon
-    C = widen(strokeop.from_caps(g), f, T)
-    P = Polygon()
-    for r in strokeop.to_polygons(C, step=np.radians(0.25)): P = P.symmetric_difference(Polygon(r).buffer(0))
-    P = vgeom.fuse(P.union(_bar(P, DOLLAR_BAR * T, -DOLLAR_EXT, 690 + DOLLAR_EXT)))
-    prims = [np.array(sg[3], float) for c in C for sg in c if sg[0] == 'E']
-    joints = [sg[1] for c in C for sg in c]
-    out = []
-    for c in lcoutline.contours(P, prims):
-        # where two nearly tangent ellipses meet, the classifier can leave a speck of line between them: the two
-        # arcs meet again at the widened S's own joint
-        n = len(c); drop = set()
-        for i in range(n):
-            a, l, b = c[i - 1], c[i], c[(i + 1) % n]
-            if l[0] == 'L' and a[0] == 'E' and b[0] == 'E' and np.hypot(*(l[2] - l[1])) < 3:
-                q = min(joints, key=lambda p: np.hypot(*(p - l[1])))
-                if np.hypot(*(q - l[1])) < 3:
-                    c[i - 1] = strokeop._rebuild(a, a[1], q); c[(i + 1) % n] = strokeop._rebuild(b, q, b[2]); drop.add(i)
-        out.append([sg for i, sg in enumerate(c) if i not in drop])
-    return out
-def _dollar(g, T, d=0.0, k=1.0):
-    """the S g with the bar; for E(M), built on Series E's S so that after the offset d and the squeeze k the bar
-    comes out DOLLAR_BAR * T wide and DOLLAR_EXT beyond the lines"""
-    yt = (690 + DOLLAR_EXT - 345 * (1 - k)) / k - d; yb = (-DOLLAR_EXT - 345 * (1 - k)) / k + d
-    return vgeom.fuse(g.union(_bar(g, DOLLAR_BAR * T - 2 * d, yb, yt)))
-if S == 'EM':
-    geoms['Q'] = _em_Q()
-    geoms['$'] = _dollar(geoms['S'], 690 / 5, D_EM, 690 / (690 + 2 * D_EM))
-else:
-    import lccondense
-    geoms['$'] = _dollar(geoms['S'], lccondense.A[S])
+if S == 'EM': geoms['Q'] = _em_Q()
 if S == 'EM':
     k = 690 / (690 + 2 * D_EM)                   # squeeze back to baseline and cap line
     new = {}
@@ -149,7 +99,8 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
-    if S in DOLLAR_F: new['dollar'] = SegShifted(_widened_dollar(geoms['S'], lccondense.A[S], DOLLAR_F[S]), 'dollar')
+import dollar                                    # the dollar sign: the lower-case s enlarged, a bar through it (dollar.py)
+new['dollar'] = SegShifted(dollar.make(S), 'dollar')
 if S in 'ABCDEF':                                # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
     for c, C in lccondense.series(S).items():

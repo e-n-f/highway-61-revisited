@@ -104,7 +104,7 @@ The punctuation is derived from each font's own letters, so it follows the serie
 | exclamation point | the i turned upside down |
 | double quotes | two single quotes, half a stroke apart |
 | hyphen | the H's crossbar |
-| dollar sign | the S with a bar through its middle, the capitals' full stroke wide and 1/8 cap height beyond the cap line and baseline, as on signs; in Series B and C, where the bar would fill the S's round counters, the S is first widened (by 1.281 and 1.093, strokes kept at weight) to leave as much room beside the bar as in Series D (`work/dollarroom.py`); spaced with the S's side bearings |
+| dollar sign | the lower-case s (symmetric, as the capital S is not) enlarged to the figures' height and the capital S's width, every stroke brought back to the capitals' stroke, with a full-stroke bar through its middle standing 1/8 cap height beyond the cap line and baseline, as on signs (`work/dollar.py`); Series B's is 1.142 wider, to leave room beside the bar (`work/dollarroom.py`); spaced with the S's side bearings |
 
 ## Extrapolation to other widths and weights
 

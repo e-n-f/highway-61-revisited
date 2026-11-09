@@ -27,4 +27,7 @@ for n in names:
         P=Polygon(r)
         if not P.is_valid: bad.append(explain_validity(P))
     short=[(s[1].round(1),s[2].round(1)) for s in segs if np.hypot(*(s[2]-s[1]))<6]
+    if n=='dollar':         # the bar's edges can cross the body just short of one of its joints: those pieces are real
+        bar=[q for s in segs if s[0]=='L' and abs(s[2][0]-s[1][0])<1e-6 and abs(s[2][1]-s[1][1])>50 for q in (s[1],s[2])]
+        short=[(a,b) for a,b in short if not any(np.hypot(*(p.round(1)-a))<0.2 or np.hypot(*(p.round(1)-b))<0.2 for p in bar)]
     if bad or short: print(n,'INVALID '+'; '.join(bad) if bad else '', 'short:',short[:4])

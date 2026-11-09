@@ -261,22 +261,24 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   the counter and ends 18 units lower.  Tail region against the tracing: p95 30 -> 4 units, median 3.3 -> 1.2 (with
   F kept, the best was p95 7).  Series E's Q is unchanged.  VERSION 1.018.
 - Dollar sign (2026-11-09): the base fonts have none (the FHWA 2000 fonts do: an S with short stubs above and below
-  rather than a bar through it, which the maker of the sign below evidently did not use); the user asked for an S
-  with a stem through it, after a "MINIMUM FINE $250" sign.  Both line specimens show it.  `build1961._dollar`: the series' S (for E(M), Series E's S
-  before the offset and squeeze) united with a vertical bar centred on the S's box, `DOLLAR_BAR` = the
-  capitals' full stroke wide and `DOLLAR_EXT` = 1/8 cap height (1 inch at 8 in) beyond the cap line and baseline, the ends as
-  measured on the sign photo (0.10-0.15 of the height beyond).  The photo's bar is about half the S's stroke, but
-  the alphabet has no thin strokes (the user), so it is full weight.  Glyph `dollar`, U+0024, spaced with the S's
-  final side bearings (no kerning).  `strokecheck.py` covers it.
-  Full weight, the bar all but fills the round counters under the top arc and over the bottom arc in Series B and C
-  (the user: B and C collide, A does not).  `dollarroom.py` measures the clear space either side of the bar in those
-  counters (in strokes; the smaller of the two): A 0.37, B 0.09, C 0.28, D 0.40, E 0.68, F 0.84, and solves the
-  widening that gives B and C Series D's 0.40: `build1961.DOLLAR_F` B 1.281, C 1.093 (A would want 1.019; left as
-  drawn).  `build1961.widen` scales x by f and moves each edge back along its normal so every stroke is T again
-  (`strokeop.condense2`, no vertical change).  The bar is added after the widening (added before, it closes B's
-  upper counter for good), on a fine flattening whose edges `lcoutline.contours` puts back on the widened S's lines
-  and ellipses; specks of line it leaves where two nearly tangent ellipses meet are closed up at the S's own joint,
-  so the outline stays exact.
+  rather than a bar through it, which the maker of a "MINIMUM FINE $250" sign evidently did not use: its $ has a bar
+  through it).  Glyph `dollar`, U+0024, spaced with the S's final side bearings (no kerning); in both line specimens.
+  - First made from the capital S with a bar through it (half a stroke as on the sign, then a full stroke: the
+    alphabet has no thin strokes, the user), B and C's S widened to clear the bar.  The user disliked it with the
+    S's asymmetry and asked for a widened lower-case s instead.
+  - `dollar.py`: the series' own lower-case s (lccondense's, before its arcs are squared; E(M)'s as constructed) is
+    scaled to the capital S's ink width and to the figures' height with their 10.8 overshoots: the width less the
+    stroke and the height less the stroke scale (x 1.2-1.6, y 1.36-1.43, nearly uniform), then every edge moves along
+    its normal by -(V sqrt(fx^2 nx^2 + c^2 ny^2) - T)/2 (condense2's rule) so every stroke is the capitals' T (138 in
+    E(M)).  (Scaling E(M)'s s to every width instead thinned A and B's diagonal spine and tilted their terminal cuts.)
+    The bar is T wide and stands 1/8 cap height beyond the cap line and baseline.  The union is made on a fine
+    flattening and `lcoutline.contours` puts its edges back on the body's lines and ellipses; specks of line it
+    leaves where an arc meets an arc or the spine are closed up at the body's own joint, so the outline is exact.
+  - `dollarroom.py` measures the clear space either side of the bar in the two counters (strokes; the smaller): at
+    the S's width A 0.40, B 0.26, C 0.50, D 0.68, E 0.83, E(M) 0.64, F 0.91.  `dollar.ROOM` = 0.40 (A's, the
+    narrowest that does not collide); B's body is widened to it, `dollar.WIDER` B 1.142.
+  - In D and E the bar's edge crosses the body 1-4 units short of a joint; `strokecheck.py` allows short pieces that
+    end on the $'s bar edge.
 - Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
   (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the
   baseline, x-height, ascender and descenders stay on their lines.  No pre-digital Series E lower case exists to
