@@ -31,13 +31,14 @@ BASE = TTFont(os.path.join(OUT, 'Highway1966-EM-Constructed.ttf' if S == 'EM' el
 SB_SCALE = 0.766 if S == 'A' else 1.0
 SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
-NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
+NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG); NAME['$'] = 'dollar'
+LIKE = {'dollar': 'S'}                           # glyphs not in the base fonts: whose side bearings they start from
 FAMILY = 'Highway 61 Revisited%s %s' % (variant.FAMILY[variant.NAME], 'E(M)' if S == 'EM' else S)
 VERSION = '1.018'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited%s-%s' % (variant.PS[variant.NAME], S)
 
 geoms = vgeom.series('E' if S == 'EM' else S)
-order = BASE.getGlyphOrder()
+order = BASE.getGlyphOrder() + ['dollar']
 gs = BASE.getGlyphSet()
 hmtx = BASE['hmtx']
 
@@ -47,8 +48,8 @@ class SegShifted:
     def __init__(s, contours, name):
         import numpy as np
         P = np.vstack(strokeop.to_polygons(contours)); x0, x1 = P[:, 0].min(), P[:, 0].max()
-        bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
+        b = LIKE.get(name, name); bp = BoundsPen(gs); gs[b].draw(bp)
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[b][0] - bp.bounds[2]) * SB_SCALE
         s.c, s.dx = contours, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -60,8 +61,8 @@ class Shifted:
     def __init__(s, geom, name, prims=None):
         s.prims = prims
         x0, y0, x1, y1 = geom.bounds
-        bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
+        b = LIKE.get(name, name); bp = BoundsPen(gs); gs[b].draw(bp)
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[b][0] - bp.bounds[2]) * SB_SCALE
         s.geom, s.dx = geom, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -82,8 +83,24 @@ def _em_Q():
     old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})
     try: return vgeom.fuse(e3.letter_Q()[0])
     finally: e3.DIM.clear(); e3.DIM.update(old)
+# the dollar sign (in neither the base fonts nor the FHWA 2000 fonts): the S with a vertical bar through its middle, as
+# on signs ("MINIMUM FINE $250"): the bar half the capitals' stroke wide, standing 1/8 cap height (1 inch at 8 inches)
+# beyond the cap line and the baseline.  Spaced as the S.
+DOLLAR_BAR, DOLLAR_EXT = 0.5, 690 / 8
+def _dollar(g, T, d=0.0, k=1.0):
+    """the S g with the bar; for E(M), built on Series E's S so that after the offset d and the squeeze k the bar
+    comes out T/2 wide and DOLLAR_EXT beyond the lines"""
+    from shapely.geometry import box
+    x0, _, x1, _ = g.bounds; cx = (x0 + x1) / 2; w = DOLLAR_BAR * T - 2 * d
+    yt = (690 + DOLLAR_EXT - 345 * (1 - k)) / k - d; yb = (-DOLLAR_EXT - 345 * (1 - k)) / k + d
+    return vgeom.fuse(g.union(box(cx - w / 2, yb, cx + w / 2, yt)))
 if S == 'EM':
     geoms['Q'] = _em_Q()
+    geoms['$'] = _dollar(geoms['S'], 690 / 5, D_EM, 690 / (690 + 2 * D_EM))
+else:
+    import lccondense
+    geoms['$'] = _dollar(geoms['S'], lccondense.A[S])
+if S == 'EM':
     k = 690 / (690 + 2 * D_EM)                   # squeeze back to baseline and cap line
     new = {}
     for c, g in geoms.items():
@@ -163,6 +180,7 @@ _sb, KERN = spacing.solve(S, _cur, geo=_geo)
 for ch, (l, r) in _sb.items():
     n = _gn(ch); x0, x1 = _box[ch]
     new[n].dx += l - x0; width[n] = int(round(l + (x1 - x0) + r))
+new['dollar'].dx = new['S'].dx; width['dollar'] = width['S']   # the S's side bearings (its ink is as wide)
 FEA = spacing.fea(KERN, _gn)
 src = lambda n: new[n] if n in new else gs[n]
 
@@ -186,7 +204,7 @@ if variant.NAME == 'matched':
 
 def setup(fb, outlines_kind):
     fb.setupGlyphOrder(order)
-    fb.setupCharacterMap({**BASE.getBestCmap(), ord('/'): 'slash'})
+    fb.setupCharacterMap({**BASE.getBestCmap(), ord('/'): 'slash', ord('$'): 'dollar'})
     if outlines_kind == 'cff':
         cs = {}
         for n in order:

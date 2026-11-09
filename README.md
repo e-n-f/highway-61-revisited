@@ -29,7 +29,7 @@ A Matched version of the lower case's widths and spacing can also be built; its 
 present. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
-quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
+quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - / $` and the space.
 
 Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 units), x-height 517.5, ascender 690,
 descenders about −200 to −260.
@@ -104,6 +104,7 @@ The punctuation is derived from each font's own letters, so it follows the serie
 | exclamation point | the i turned upside down |
 | double quotes | two single quotes, half a stroke apart |
 | hyphen | the H's crossbar |
+| dollar sign | the S with a bar through its middle, half the capitals' stroke wide and 1/8 cap height beyond the cap line and baseline, as on signs; spaced as the S |
 
 ## Extrapolation to other widths and weights
 
