@@ -99,7 +99,7 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
-import dollar                                    # the dollar sign: the lower-case s enlarged, a bar through it (dollar.py)
+import dollar                                    # the dollar sign: the lower-case s, stubs above and below (dollar.py)
 new['dollar'] = SegShifted(dollar.make(S), 'dollar')
 if S in 'ABCDEF':                                # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
