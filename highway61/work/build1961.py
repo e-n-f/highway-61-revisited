@@ -85,15 +85,49 @@ def _em_Q():
     finally: e3.DIM.clear(); e3.DIM.update(old)
 # the dollar sign (in neither the base fonts nor the FHWA 2000 fonts): the S with a vertical bar through its middle, as
 # on signs ("MINIMUM FINE $250"): the bar the capitals' full stroke wide (the alphabet has no thin strokes), standing
-# 1/8 cap height (1 inch at 8 inches) beyond the cap line and the baseline.  Spaced as the S.
+# 1/8 cap height (1 inch at 8 inches) beyond the cap line and the baseline.  Spaced with the S's side bearings.
+# In Series B and C the bar all but fills the round counters under the S's top arc and over its bottom arc, so there
+# the $'s S is first widened by DOLLAR_F, its strokes kept at weight, until the clear space beside the bar in those
+# counters is as in Series D (0.40 of a stroke; dollarroom.py solves the factors).
 DOLLAR_BAR, DOLLAR_EXT = 1.0, 690 / 8
+DOLLAR_F = {'B': 1.281, 'C': 1.093}
+def _bar(g, w, yb, yt):
+    from shapely.geometry import box
+    x0, _, x1, _ = g.bounds; cx = (x0 + x1) / 2
+    return box(cx - w / 2, yb, cx + w / 2, yt)
+def widen(C, f, T):
+    """capital contours widened by f: x scaled by f, then every edge moved back along its normal so that each stroke
+    is T again (strokeop.condense2 with no vertical change)"""
+    return strokeop.condense2(C, f, (T - T * f) / 2, 0.0, 690.0, V=T, proportional=False)
+def _widened_dollar(g, T, f):
+    """the S g widened by f, then the bar added; exact: the union is made on a fine flattening and its edges put back
+    on the widened S's lines and ellipses (lcoutline)"""
+    import numpy as np
+    from shapely.geometry import Polygon
+    C = widen(strokeop.from_caps(g), f, T)
+    P = Polygon()
+    for r in strokeop.to_polygons(C, step=np.radians(0.25)): P = P.symmetric_difference(Polygon(r).buffer(0))
+    P = vgeom.fuse(P.union(_bar(P, DOLLAR_BAR * T, -DOLLAR_EXT, 690 + DOLLAR_EXT)))
+    prims = [np.array(sg[3], float) for c in C for sg in c if sg[0] == 'E']
+    joints = [sg[1] for c in C for sg in c]
+    out = []
+    for c in lcoutline.contours(P, prims):
+        # where two nearly tangent ellipses meet, the classifier can leave a speck of line between them: the two
+        # arcs meet again at the widened S's own joint
+        n = len(c); drop = set()
+        for i in range(n):
+            a, l, b = c[i - 1], c[i], c[(i + 1) % n]
+            if l[0] == 'L' and a[0] == 'E' and b[0] == 'E' and np.hypot(*(l[2] - l[1])) < 3:
+                q = min(joints, key=lambda p: np.hypot(*(p - l[1])))
+                if np.hypot(*(q - l[1])) < 3:
+                    c[i - 1] = strokeop._rebuild(a, a[1], q); c[(i + 1) % n] = strokeop._rebuild(b, q, b[2]); drop.add(i)
+        out.append([sg for i, sg in enumerate(c) if i not in drop])
+    return out
 def _dollar(g, T, d=0.0, k=1.0):
     """the S g with the bar; for E(M), built on Series E's S so that after the offset d and the squeeze k the bar
     comes out DOLLAR_BAR * T wide and DOLLAR_EXT beyond the lines"""
-    from shapely.geometry import box
-    x0, _, x1, _ = g.bounds; cx = (x0 + x1) / 2; w = DOLLAR_BAR * T - 2 * d
     yt = (690 + DOLLAR_EXT - 345 * (1 - k)) / k - d; yb = (-DOLLAR_EXT - 345 * (1 - k)) / k + d
-    return vgeom.fuse(g.union(box(cx - w / 2, yb, cx + w / 2, yt)))
+    return vgeom.fuse(g.union(_bar(g, DOLLAR_BAR * T - 2 * d, yb, yt)))
 if S == 'EM':
     geoms['Q'] = _em_Q()
     geoms['$'] = _dollar(geoms['S'], 690 / 5, D_EM, 690 / (690 + 2 * D_EM))
@@ -115,6 +149,7 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
+    if S in DOLLAR_F: new['dollar'] = SegShifted(_widened_dollar(geoms['S'], lccondense.A[S], DOLLAR_F[S]), 'dollar')
 if S in 'ABCDEF':                                # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
     for c, C in lccondense.series(S).items():
@@ -180,7 +215,9 @@ _sb, KERN = spacing.solve(S, _cur, geo=_geo)
 for ch, (l, r) in _sb.items():
     n = _gn(ch); x0, x1 = _box[ch]
     new[n].dx += l - x0; width[n] = int(round(l + (x1 - x0) + r))
-new['dollar'].dx = new['S'].dx; width['dollar'] = width['S']   # the S's side bearings (its ink is as wide)
+def _ink(n): bp = BoundsPen(None); new[n].draw(bp); return bp.bounds[0], bp.bounds[2]
+_s0, _s1 = _ink('S'); _d0, _d1 = _ink('dollar')                 # the $ takes the S's side bearings
+new['dollar'].dx += _s0 - _d0; width['dollar'] = int(round(width['S'] - (_s1 - _s0) + (_d1 - _d0)))
 FEA = spacing.fea(KERN, _gn)
 src = lambda n: new[n] if n in new else gs[n]
 
