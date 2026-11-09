@@ -260,8 +260,9 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   1 13/32 (13 units heavier).  The tail leans 32.6 deg from the vertical instead of 28.7, starts further left inside
   the counter and ends 18 units lower.  Tail region against the tracing: p95 30 -> 4 units, median 3.3 -> 1.2 (with
   F kept, the best was p95 7).  Series E's Q is unchanged.  VERSION 1.018.
-- Dollar sign (2026-11-09): neither the base fonts nor the FHWA 2000 fonts have one; the user asked for an S with a
-  stem through it, after a "MINIMUM FINE $250" sign.  `build1961._dollar`: the series' S (for E(M), Series E's S
+- Dollar sign (2026-11-09): the base fonts have none (the FHWA 2000 fonts do: an S with short stubs above and below
+  rather than a bar through it, which the maker of the sign below evidently did not use); the user asked for an S
+  with a stem through it, after a "MINIMUM FINE $250" sign.  Both line specimens show it.  `build1961._dollar`: the series' S (for E(M), Series E's S
   before the offset and squeeze) united with a vertical bar centred on the S's box, `DOLLAR_BAR` = the
   capitals' full stroke wide and `DOLLAR_EXT` = 1/8 cap height (1 inch at 8 in) beyond the cap line and baseline, the ends as
   measured on the sign photo (0.10-0.15 of the height beyond).  The photo's bar is about half the S's stroke, but

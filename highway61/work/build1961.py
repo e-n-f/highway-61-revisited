@@ -83,8 +83,8 @@ def _em_Q():
     old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})
     try: return vgeom.fuse(e3.letter_Q()[0])
     finally: e3.DIM.clear(); e3.DIM.update(old)
-# the dollar sign (in neither the base fonts nor the FHWA 2000 fonts): the S with a vertical bar through its middle, as
-# on signs ("MINIMUM FINE $250"): the bar the capitals' full stroke wide (the alphabet has no thin strokes), standing
+# the dollar sign (not in the base fonts; the FHWA 2000 fonts' has stubs above and below the S instead): the S with a
+# vertical bar through its middle, as on signs ("MINIMUM FINE $250"): the bar the capitals' full stroke wide (the alphabet has no thin strokes), standing
 # 1/8 cap height (1 inch at 8 inches) beyond the cap line and the baseline.  Spaced with the S's side bearings.
 # In Series B and C the bar all but fills the round counters under the S's top arc and over its bottom arc, so there
 # the $'s S is first widened by DOLLAR_F, its strokes kept at weight, until the clear space beside the bar in those
