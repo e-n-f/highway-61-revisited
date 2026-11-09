@@ -262,9 +262,11 @@ then a piecewise-linear vertical map restores the metrics (arcs stay exact axis-
   F kept, the best was p95 7).  Series E's Q is unchanged.  VERSION 1.018.
 - Dollar sign (2026-11-09): neither the base fonts nor the FHWA 2000 fonts have one; the user asked for an S with a
   stem through it, after a "MINIMUM FINE $250" sign.  `build1961._dollar`: the series' S (for E(M), Series E's S
-  before the offset and squeeze) united with a vertical bar centred on the S's box, `DOLLAR_BAR` = 0.5 of the
-  capitals' stroke wide and `DOLLAR_EXT` = 1/8 cap height (1 inch at 8 in) beyond the cap line and baseline, as
-  measured on the sign photo (bar about half the S's stroke, ends 0.10-0.15 of the height beyond).  Glyph `dollar`,
+  before the offset and squeeze) united with a vertical bar centred on the S's box, `DOLLAR_BAR` = the
+  capitals' full stroke wide and `DOLLAR_EXT` = 1/8 cap height (1 inch at 8 in) beyond the cap line and baseline, the ends as
+  measured on the sign photo (0.10-0.15 of the height beyond).  The photo's bar is about half the S's stroke, but
+  the alphabet has no thin strokes (the user), so it is full weight; in Series A and B it leaves only narrow slivers
+  of the S's counters.  Glyph `dollar`,
   U+0024, spaced with the S's final side bearings (no kerning).  `strokecheck.py` covers it.
 - Series E lower case (`build1961.py E`): the opposite change, offset by -9.70, then a vertical map in three bands
   (below the baseline shifted down by d, baseline to x-height stretched by X/(X-2d), above shifted up by d) so the

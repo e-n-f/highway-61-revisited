@@ -84,12 +84,12 @@ def _em_Q():
     try: return vgeom.fuse(e3.letter_Q()[0])
     finally: e3.DIM.clear(); e3.DIM.update(old)
 # the dollar sign (in neither the base fonts nor the FHWA 2000 fonts): the S with a vertical bar through its middle, as
-# on signs ("MINIMUM FINE $250"): the bar half the capitals' stroke wide, standing 1/8 cap height (1 inch at 8 inches)
-# beyond the cap line and the baseline.  Spaced as the S.
-DOLLAR_BAR, DOLLAR_EXT = 0.5, 690 / 8
+# on signs ("MINIMUM FINE $250"): the bar the capitals' full stroke wide (the alphabet has no thin strokes), standing
+# 1/8 cap height (1 inch at 8 inches) beyond the cap line and the baseline.  Spaced as the S.
+DOLLAR_BAR, DOLLAR_EXT = 1.0, 690 / 8
 def _dollar(g, T, d=0.0, k=1.0):
     """the S g with the bar; for E(M), built on Series E's S so that after the offset d and the squeeze k the bar
-    comes out T/2 wide and DOLLAR_EXT beyond the lines"""
+    comes out DOLLAR_BAR * T wide and DOLLAR_EXT beyond the lines"""
     from shapely.geometry import box
     x0, _, x1, _ = g.bounds; cx = (x0 + x1) / 2; w = DOLLAR_BAR * T - 2 * d
     yt = (690 + DOLLAR_EXT - 345 * (1 - k)) / k - d; yb = (-DOLLAR_EXT - 345 * (1 - k)) / k + d

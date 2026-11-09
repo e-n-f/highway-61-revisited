@@ -104,7 +104,7 @@ The punctuation is derived from each font's own letters, so it follows the serie
 | exclamation point | the i turned upside down |
 | double quotes | two single quotes, half a stroke apart |
 | hyphen | the H's crossbar |
-| dollar sign | the S with a bar through its middle, half the capitals' stroke wide and 1/8 cap height beyond the cap line and baseline, as on signs; spaced as the S |
+| dollar sign | the S with a bar through its middle, the capitals' full stroke wide and 1/8 cap height beyond the cap line and baseline, as on signs; spaced as the S |
 
 ## Extrapolation to other widths and weights
 
