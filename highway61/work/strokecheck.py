@@ -8,7 +8,7 @@ from shapely.geometry import Polygon
 from shapely.validation import explain_validity
 S=sys.argv[1]; V={'':'','matched':'Matched'}[sys.argv[2] if len(sys.argv)>2 else '']
 F=TTFont(f'../../otf/Highway61Revisited{V}-{S}.otf'); gs=F.getGlyphSet()
-names=[c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']+['zero','one','two','three','four','five','six','seven','eight','nine']+list('abcdefghijklmnopqrstuvwxyz')
+names=[c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']+['zero','one','two','three','four','five','six','seven','eight','nine']+list('abcdefghijklmnopqrstuvwxyz')+['dollar']
 for n in names:
     rp=RecordingPen(); gs[n].draw(rp); rings=[]; cur=[]; segs=[]
     for op,a in rp.value:

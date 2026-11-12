@@ -32,12 +32,13 @@ SB_SCALE = 0.766 if S == 'A' else 1.0
 SPACE_SCALE = 0.814 if S == 'A' else 1.0
 FIG = dict(zip('0123456789', ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']))
 NAME = {c: c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}; NAME.update(FIG)
+LIKE = {'dollar': 'S'}                           # glyphs not in the base fonts: whose side bearings they start from
 FAMILY = 'Highway 61 Revisited%s %s' % (variant.FAMILY[variant.NAME], 'E(M)' if S == 'EM' else S)
-VERSION = '1.017'          # bump for every release: Font Book compares it to decide whether a font is a new version
+VERSION = '1.018'          # bump for every release: Font Book compares it to decide whether a font is a new version
 PS = 'Highway61Revisited%s-%s' % (variant.PS[variant.NAME], S)
 
 geoms = vgeom.series('E' if S == 'EM' else S)
-order = BASE.getGlyphOrder()
+order = BASE.getGlyphOrder() + ['dollar']
 gs = BASE.getGlyphSet()
 hmtx = BASE['hmtx']
 
@@ -47,8 +48,8 @@ class SegShifted:
     def __init__(s, contours, name):
         import numpy as np
         P = np.vstack(strokeop.to_polygons(contours)); x0, x1 = P[:, 0].min(), P[:, 0].max()
-        bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
+        b = LIKE.get(name, name); bp = BoundsPen(gs); gs[b].draw(bp)
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[b][0] - bp.bounds[2]) * SB_SCALE
         s.c, s.dx = contours, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -60,8 +61,8 @@ class Shifted:
     def __init__(s, geom, name, prims=None):
         s.prims = prims
         x0, y0, x1, y1 = geom.bounds
-        bp = BoundsPen(gs); gs[name].draw(bp)
-        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[name][0] - bp.bounds[2]) * SB_SCALE
+        b = LIKE.get(name, name); bp = BoundsPen(gs); gs[b].draw(bp)
+        lsb = bp.bounds[0] * SB_SCALE; rsb = (hmtx[b][0] - bp.bounds[2]) * SB_SCALE
         s.geom, s.dx = geom, lsb - x0
         s.width = int(round(lsb + (x1 - x0) + rsb))
 
@@ -73,6 +74,16 @@ class Shifted:
 import lcE
 A_E = 690 * (3 + 3 / 32) / 18                     # Series E stroke (table A, 3 3/32 in at 18 in)
 D_EM = (690 / 5 - A_E) / 2                       # offset that takes Series E strokes to one-fifth of the height
+# the E(M) Q's tail as the 1983 E(M) drawings place it (caps_EM.pkl): Series E's dimE3 tail dimensions L O K P (8-inch
+# table, inches) and width F refitted.  The tail sits further left and a little lower, is a little heavier, and leans
+# further from the vertical (tail region p95 against the tracing 30 -> 4 units)
+EM_Q_TAIL = {'L': '-9/32', 'O': '1 3/8', 'K': '2 1/32', 'P': '9/16', 'F': '1 13/32'}
+def _em_Q():
+    import dimE3 as e3
+    old = dict(e3.DIM); e3.DIM.update({k: e3.inch(v) * 690 / 8 for k, v in EM_Q_TAIL.items()})
+    try: return vgeom.fuse(e3.letter_Q()[0])
+    finally: e3.DIM.clear(); e3.DIM.update(old)
+if S == 'EM': geoms['Q'] = _em_Q()
 if S == 'EM':
     k = 690 / (690 + 2 * D_EM)                   # squeeze back to baseline and cap line
     new = {}
@@ -88,6 +99,8 @@ if S == 'EM':
     new.update({c: Shifted(g, c, prims) for c, (g, prims) in lcE.series().items()})
 else:
     new = {NAME[c]: Shifted(g, NAME[c]) for c, g in geoms.items()}
+import dollar                                    # the dollar sign: the lower-case s, stubs above and below (dollar.py)
+new['dollar'] = SegShifted(dollar.make(S), 'dollar')
 if S in 'ABCDEF':                                # condensed / expanded lower case (lccondense), E narrowed to its stroke
     import lccondense
     for c, C in lccondense.series(S).items():
@@ -153,6 +166,9 @@ _sb, KERN = spacing.solve(S, _cur, geo=_geo)
 for ch, (l, r) in _sb.items():
     n = _gn(ch); x0, x1 = _box[ch]
     new[n].dx += l - x0; width[n] = int(round(l + (x1 - x0) + r))
+def _ink(n): bp = BoundsPen(None); new[n].draw(bp); return bp.bounds[0], bp.bounds[2]
+_s0, _s1 = _ink('S'); _d0, _d1 = _ink('dollar')                 # the $ takes the S's side bearings
+new['dollar'].dx += _s0 - _d0; width['dollar'] = int(round(width['S'] - (_s1 - _s0) + (_d1 - _d0)))
 FEA = spacing.fea(KERN, _gn)
 src = lambda n: new[n] if n in new else gs[n]
 
@@ -176,7 +192,7 @@ if variant.NAME == 'matched':
 
 def setup(fb, outlines_kind):
     fb.setupGlyphOrder(order)
-    fb.setupCharacterMap({**BASE.getBestCmap(), ord('/'): 'slash'})
+    fb.setupCharacterMap({**BASE.getBestCmap(), ord('/'): 'slash', ord('$'): 'dollar'})
     if outlines_kind == 'cff':
         cs = {}
         for n in order:

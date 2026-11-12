@@ -29,7 +29,7 @@ A Matched version of the lower case's widths and spacing can also be built; its 
 present. See [The Matched version of the lower case](#the-matched-version-of-the-lower-case).
 
 The `.otf` files are the exact versions: cubic Béziers with fractional coordinates. The `.ttf` files are
-quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - /` and the space.
+quadratic with integer coordinates. Each font has A–Z, a–z, 0–9, `. , ! ' " ‘ ’ “ ” - / $` and the space.
 
 Font units: 1000 per em. Cap height 690 (an 8-inch letter, so 1 inch = 86.25 units), x-height 517.5, ascender 690,
 descenders about −200 to −260.
@@ -104,6 +104,7 @@ The punctuation is derived from each font's own letters, so it follows the serie
 | exclamation point | the i turned upside down |
 | double quotes | two single quotes, half a stroke apart |
 | hyphen | the H's crossbar |
+| dollar sign | the lower-case s (symmetric, as the capital S is not), as it is, raised to be centred on the I, with a stub of its stroke above and below running to the cap line and the baseline and none through the middle, so its counters stay open, as in FHWA's (`work/dollar.py`); spaced with the S's side bearings |
 
 ## Extrapolation to other widths and weights
 
@@ -119,7 +120,9 @@ Arcs therefore stay exact axis-aligned ellipses, and the outlines stay exact.
 
 **E(M) capitals.** The 1966 sheets ask for "Series E uppercase, but with the stroke width widened to approximately
 one-fifth of the letter height". The Series E constructions are offset outward by d = (690/5 − 118.59)/2 = 9.70.
-They are then squeezed back to the baseline and cap line by 690/(690 + 2d) (`build1961.py EM`).
+They are then squeezed back to the baseline and cap line by 690/(690 + 2d) (`build1961.py EM`). The Q's tail is the one exception to
+the rule: it is placed, angled and weighted as in the 1983 E(M) drawings: further left, a little heavier, and
+leaning 32.6° rather than 28.7° (`build1961.EM_Q_TAIL`).
 
 **Series B, C, D, E and F lower case.** These come from the E(M) constructions by the rule the 1961 capitals follow
 (`work/lccondense.py`, `strokeop.condense2`). The width less the stroke scales by a width factor f. The stroke steps
